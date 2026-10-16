@@ -5,15 +5,22 @@ import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
 import { useRegister } from './auth.api';
 import { PageTitle } from '@/components/layout/PageTitle';
+import { useOnboardingStore } from '@/features/onboarding/onboarding.store';
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const register = useRegister();
+  const startOnboarding = useOnboardingStore((s) => s.start);
   const [form, setForm] = useState({ name: '', email: '', password: '' });
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    register.mutate(form, { onSuccess: () => navigate('/', { replace: true }) });
+    register.mutate(form, {
+      onSuccess: () => {
+        navigate('/', { replace: true });
+        startOnboarding(); // the "set up your profile" wizard, only after creating an account
+      },
+    });
   };
 
   return (

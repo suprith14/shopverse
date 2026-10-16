@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { refreshSession } from '@/lib/api-client';
 import { Header } from './Header';
 import { SlowServerBanner } from './SlowServerBanner';
+import { OnboardingDialog } from '@/features/onboarding/OnboardingDialog';
 
 export function RootLayout() {
   // On first load, try to restore the session from the refresh cookie.
@@ -27,6 +28,8 @@ export function RootLayout() {
       {/* Toasts appear bottom-centre: easy to reach with a thumb on phones and they don't cover the
           header's cart icon. richColors = green for success, red for errors (plus an icon, never colour alone). */}
       <Toaster position="bottom-center" richColors closeButton duration={4000} />
+      {/* The "set up your profile" wizard after sign-up (renders nothing until opened) */}
+      <OnboardingDialog />
     </div>
   );
 }

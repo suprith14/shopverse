@@ -103,6 +103,24 @@ Files: [`frontend/src/features/account/`](../../frontend/src/features/account)
 | `OrderDetailPage.tsx` (orders) | Shows the order's delivery address (the snapshot) |
 | `Header.tsx` | Profile photo + name link to `/account` |
 
+## Onboarding wizard (after sign-up)
+
+Files: [`frontend/src/features/onboarding/`](../../frontend/src/features/onboarding). No backend changes: it reuses the profile APIs.
+
+Right after creating an account, a popup walks through **4 steps**, with a "Step N of 4" bar:
+1. **Photo**: upload (same signed Cloudinary flow) → Next, or Skip
+2. **Mobile number**: saved on Next (the backend cleans and validates it, and its errors show inline), or Skip
+3. **Date of birth**: saved on Next (age 13+ checked by the backend), or Skip
+4. **Delivery address (info)**: explains that an address is needed for checkout. **Add address now** (→ My account) or **Done**
+
+**Why this design:**
+- **Small skippable steps** instead of one long form, so sign-up never feels like a gate.
+- **Each step saves on Next**, so closing half-way keeps what was entered.
+- **Shown once, only after sign-up** (`onboarding.store.ts`, opened by `RegisterPage`), never on login. Everything stays editable in My account.
+- **Native `<dialog>` + `showModal()`**: focus stays inside, **Esc** closes it (counts as "skip the rest"), it's announced as a dialog
+  (`aria-labelledby`), and there's a backdrop. No modal library needed.
+- It closes automatically if the user logs out or switches account.
+
 ## Admin
 
 The order page has a **"Ship to"** box printed from `order.shippingAddress`, with a clickable phone number. Old and demo orders show "No address".
