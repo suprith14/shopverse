@@ -1,6 +1,6 @@
 # Feature 16: User Profile & Address Book
 
-**Status:** 🚧 In progress. Database (step 1) and profile API (step 2) are done. Photo upload, the "My account"
+**Status:** 🚧 In progress. Database, profile API and photo upload (steps 1–3) are done. The "My account"
 page, the checkout address step and the admin view come next.
 
 Customers can save a phone number, date of birth, profile photo and up to 10 delivery addresses (one default).
@@ -53,6 +53,34 @@ country are rejected with field messages. Email/role in the body are ignored. Th
 Switching the default works. Another customer gets 404 on edit, default and delete. Deleting the default promotes the other one.
 The 11th address is refused. Deleting the user cascades its addresses.
 
+## Profile photo (Cloudinary)
+
+Files: [`backend/src/lib/cloudinary.ts`](../../backend/src/lib/cloudinary.ts) and the avatar functions in `profile.service.ts`.
+Config: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (optional: without them the
+avatar endpoints answer `503`).
+
+| Endpoint | What it does |
+|---|---|
+| `POST /api/profile/avatar/signature` | Returns `{ uploadUrl, fields }`: a **signed** permission to upload one image |
+| `PUT /api/profile/avatar` | `{ url }`: saves the uploaded image's URL after checking it |
+| `DELETE /api/profile/avatar` | Clears the URL and deletes the file from Cloudinary |
+
+**Flow:** browser → our API (signature) → browser uploads **directly to Cloudinary** → browser sends the URL → API saves it.
+Our server never handles the file.
+
+**Why these choices:**
+- **Cloudinary instead of Postgres, Render's disk or S3:** images bloat databases, Render's free disk is wiped on every deploy,
+  and S3 needs a card plus your own resizing and CDN. Cloudinary's free tier includes storage, a CDN and resizing.
+- **No SDK:** signing is SHA-1 over the sorted parameters + API secret (Node `crypto`), and deleting is one HTTP call. About 20 lines instead of a dependency.
+- **Signed parameters are the security:** the fixed `public_id` (`shopverse/avatars/<userId>`, `overwrite`, so a new photo replaces the old
+  one), the `transformation` (`c_fill,g_face,w_400,h_400,q_auto`: a 400×400 face-centred crop *before* storing) and `allowed_formats`
+  (jpg/png/webp, no SVG). Changing any of them after signing makes Cloudinary reject the upload.
+- **The saved URL must be this user's avatar path in our Cloudinary account**, so nobody can point their photo at an outside image (tracking pixels).
+- **Removing deletes the file** (privacy). The CDN can serve the old copy for a few seconds until its cache clears (`invalidate: true`).
+
+**Tested:** a 900×1200 / 218 KB photo was stored as **400×400 / 37 KB**. Tampering with the signed size → *Invalid Signature*. An outside URL →
+*"That is not your uploaded profile photo"*. After remove → the file returns 404 once the CDN cache clears (~20 s).
+
 ## Concepts to be able to explain
 
 1. Why a `defaultAddressId` on `User` instead of an `isDefault` flag on each address?
@@ -61,3 +89,5 @@ The 11th address is refused. Deleting the user cascades its addresses.
 4. Why store phones in E.164 and birthdays as `DATE`?
 5. Why shouldn't profile photos be stored in the database?
 6. What is baselining a migration, and when do you need it?
+7. How does a signed direct upload work, and what stops a user uploading a 4000×4000 image or an SVG?
+8. Why can a deleted image still load for a few seconds?

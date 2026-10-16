@@ -1,6 +1,7 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
 import { badRequest, notFound } from '../../lib/http-error.js';
+import { deleteImage, imageUrlPrefix, signImageUpload } from '../../lib/cloudinary.js';
 import { MAX_ADDRESSES, type CreateAddressInput, type UpdateAddressInput, type UpdateProfileInput } from './profile.schema.js';
 
 // Everything here works on "my" profile: the user id always comes from the access token,
@@ -46,6 +47,43 @@ export async function updateProfile(userId: string, input: UpdateProfileInput) {
       dateOfBirth: input.dateOfBirth === undefined ? undefined : input.dateOfBirth && new Date(`${input.dateOfBirth}T00:00:00Z`),
     },
   });
+  return getProfile(userId);
+}
+
+// ------------------------------------------------------------------ Profile photo
+
+// Each user has exactly one image id, so a new upload replaces the old file (no leftovers).
+const avatarPublicId = (userId: string) => `shopverse/avatars/${userId}`;
+
+// Step 1 of an upload: the browser asks for permission and gets signed upload fields.
+export function getAvatarUploadSignature(userId: string) {
+  return signImageUpload({
+    publicId: avatarPublicId(userId),
+    // 400x400 square, cropped around the face, stored as a small image
+    transformation: 'c_fill,g_face,w_400,h_400,q_auto',
+    allowedFormats: 'jpg,jpeg,png,webp', // no SVG (can contain scripts) or other files
+  });
+}
+
+// Step 2: after uploading to Cloudinary, the browser sends back the image URL.
+// We only accept a URL pointing at THIS user's avatar in OUR Cloudinary account, so nobody
+// can set their photo to some other site's image (e.g. a tracking pixel).
+export async function saveAvatar(userId: string, url: string) {
+  const prefix = imageUrlPrefix();
+  const path = url.startsWith(prefix) ? url.slice(prefix.length).replace(/^v\d+\//, '') : null; // drop the version part
+  const expected = avatarPublicId(userId);
+  if (!path || !(path === expected || path.startsWith(`${expected}.`))) {
+    throw badRequest('That is not your uploaded profile photo');
+  }
+  await prisma.user.update({ where: { id: userId }, data: { avatarUrl: url } });
+  return getProfile(userId);
+}
+
+export async function removeAvatar(userId: string) {
+  await prisma.user.update({ where: { id: userId }, data: { avatarUrl: null } });
+  // Delete the file too (privacy: a removed photo shouldn't stay online). If Cloudinary is
+  // briefly unavailable the profile is still updated; the file is replaced on the next upload anyway.
+  await deleteImage(avatarPublicId(userId)).catch((err) => console.error('[avatar] delete failed', err));
   return getProfile(userId);
 }
 

@@ -68,6 +68,8 @@ export const updateAddressSchema = addressFields
 
 export const addressIdParams = z.object({ id: z.string().min(1) });
 
+export const saveAvatarSchema = z.object({ url: z.url().max(500) });
+
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type CreateAddressInput = z.infer<typeof createAddressSchema>;
 export type UpdateAddressInput = z.infer<typeof updateAddressSchema>;

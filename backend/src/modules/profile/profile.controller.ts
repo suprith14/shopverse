@@ -12,6 +12,18 @@ export async function updateProfile(_req: Request, res: Response) {
   res.json({ profile: await service.updateProfile(userId(res), res.locals.body) });
 }
 
+export function getAvatarUploadSignature(_req: Request, res: Response) {
+  res.json(service.getAvatarUploadSignature(userId(res)));
+}
+
+export async function saveAvatar(_req: Request, res: Response) {
+  res.json({ profile: await service.saveAvatar(userId(res), res.locals.body.url) });
+}
+
+export async function removeAvatar(_req: Request, res: Response) {
+  res.json({ profile: await service.removeAvatar(userId(res)) });
+}
+
 export async function addAddress(_req: Request, res: Response) {
   res.status(201).json({ profile: await service.addAddress(userId(res), res.locals.body) });
 }

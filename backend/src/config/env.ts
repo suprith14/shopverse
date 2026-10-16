@@ -19,6 +19,10 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().default('ShopVerse <onboarding@resend.dev>'),
   // Outside production, EVERY email goes to this address instead of the real recipient.
   EMAIL_DEV_REDIRECT_TO: z.email().optional(),
+  // Profile photo uploads (Cloudinary). Optional: without them, photo upload is switched off.
+  CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
+  CLOUDINARY_API_KEY: z.string().min(1).optional(),
+  CLOUDINARY_API_SECRET: z.string().min(1).optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
