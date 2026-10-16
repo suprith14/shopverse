@@ -1,0 +1,26 @@
+import type { Request, Response } from 'express';
+import * as service from './analytics.service.js';
+
+export async function summary(_req: Request, res: Response) {
+  res.json(await service.getSummary(res.locals.query.days));
+}
+
+export async function sales(_req: Request, res: Response) {
+  res.json({ days: res.locals.query.days, series: await service.getSalesOverTime(res.locals.query.days) });
+}
+
+export async function topProducts(_req: Request, res: Response) {
+  res.json({ items: await service.getTopProducts(res.locals.query.days, res.locals.query.limit) });
+}
+
+export async function salesByCategory(_req: Request, res: Response) {
+  res.json({ items: await service.getSalesByCategory(res.locals.query.days) });
+}
+
+export async function ordersByStatus(_req: Request, res: Response) {
+  res.json({ items: await service.getOrdersByStatus() });
+}
+
+export async function lowStock(_req: Request, res: Response) {
+  res.json(await service.getLowStock());
+}

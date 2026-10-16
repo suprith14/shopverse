@@ -13,7 +13,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2 | Cart, wishlist, coupons | ✅ Done |
 | 3 | Checkout, Stripe payments + webhooks, inventory reservation, orders, order emails | ✅ Done |
 | 4 | Reviews & ratings, advanced search (full-text + facets) | ✅ Done |
-| 5 | Admin panel: product management, order management, analytics dashboard | ⬜ Planned |
+| 5 | Admin panel: product management, order management, analytics dashboard | 🚧 In progress |
 | 6 | AI: product recommendations + AI shopping assistant | ⬜ Planned |
 | 7 | Tests, deployment, README screenshots, polish | ⬜ Planned |
 
@@ -34,8 +34,8 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 10 | Order emails | ✅ | - | [10-order-emails](./features/10-order-emails.md) | Transactional email (Resend), side effects after commit |
 | 11 | Reviews & ratings | ✅ | ✅ | [11-reviews](./features/11-reviews.md) | Verified-buyer check, denormalized rating stats |
 | 12 | Advanced search | ✅ | ✅ | [12-search](./features/12-search.md) | PostgreSQL full-text search, ranking, facet counts, debouncing |
-| 13 | Admin: product & order management | ⬜ | ⬜ | - | Role-based access, CRUD, order status transitions |
-| 14 | Admin analytics dashboard | ⬜ | ⬜ | - | SQL aggregations, time series, charts |
+| 13 | Admin: product & order management | ✅ | ⬜ | [13-admin-api](./features/13-admin-api.md) | Role-based access, CRUD, order status transitions |
+| 14 | Admin analytics dashboard | ✅ | ⬜ | [13-admin-api](./features/13-admin-api.md) | SQL aggregations, time series, charts |
 | 15 | AI recommendations | ⬜ | ⬜ | - | Co-purchase + similarity, LLM re-ranking |
 | 16 | AI shopping assistant | ⬜ | ⬜ | - | LLM tool use (searches the real catalog), streaming responses |
 
@@ -54,3 +54,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 3, step 5: order confirmation emails via Resend (sent after the PAID transaction commits, once per order, dev redirect to the developer's inbox, console fallback without an API key). Phase 3 complete. |
 | 2026-10-16 | Phase 4, step 1: reviews and ratings (verified buyers only, one review per user per product, edit/delete, stored average recalculated in the same transaction under a row lock, star breakdown, reviews section with star picker on the product page). |
 | 2026-10-16 | Phase 4, step 2: PostgreSQL full-text search (generated tsvector column + GIN index migration, prefix matching, relevance ranking, all-words then any-word fallback), facet counts for categories, brands and ratings, search-as-you-type suggestions with debouncing and keyboard navigation. /api/catalog/brands replaced by facets. Phase 4 complete. |
+| 2026-10-16 | Phase 5, step 1: admin API in one folder (backend/src/modules/admin), role check once on /api/admin. Products (create, edit, hide, variants, stock adjustments by delta), orders (search, PAID→SHIPPED→DELIVERED, Stripe refund with optional restock), analytics (summary with period comparison, daily sales, top products, sales by category, orders by status, low stock). |

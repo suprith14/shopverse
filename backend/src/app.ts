@@ -11,6 +11,7 @@ import { wishlistRouter } from './modules/wishlist/wishlist.routes.js';
 import { couponsRouter } from './modules/coupons/coupons.routes.js';
 import { ordersRouter } from './modules/orders/orders.routes.js';
 import { reviewsRouter } from './modules/reviews/reviews.routes.js';
+import { adminRouter } from './modules/admin/admin.routes.js';
 import { handleStripeWebhook } from './modules/webhooks/stripe-webhook.js';
 
 // Builds the Express app. Kept separate from server.ts so tests can import the app
@@ -37,6 +38,7 @@ export function createApp() {
   app.use('/api/coupons', couponsRouter);
   app.use('/api/orders', ordersRouter);
   app.use('/api/reviews', reviewsRouter);
+  app.use('/api/admin', adminRouter); // everything admin-only, see modules/admin/
 
   app.use(notFoundHandler);
   app.use(errorHandler);
