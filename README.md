@@ -1,0 +1,72 @@
+# ShopVerse
+
+A full-stack e-commerce platform built as a portfolio project. It covers the problems real
+online stores solve: secure authentication, product variants, payments, preventing
+overselling, webhooks, analytics and AI-powered shopping.
+
+**Stores:** Sneakers · Electronics · Books · Home Decor
+
+## Tech stack
+
+| | |
+|---|---|
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
+| **Backend** | Node.js, Express 5, TypeScript, Prisma ORM, PostgreSQL, Zod, JWT |
+| **Integrations (planned)** | Stripe (payments), Resend (email), Claude API (AI assistant) |
+
+## Features
+
+See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-feature docs.
+
+- ✅ Authentication: JWT + rotating refresh tokens in httpOnly cookies, roles
+- ✅ Catalog: category tabs, filters, sorting, pagination, product variants
+- ✅ Cart, wishlist, coupons
+- ⬜ Stripe checkout + webhooks
+- ⬜ Inventory reservation (no overselling under concurrency)
+- ⬜ Order history + confirmation emails
+- ⬜ Reviews & ratings
+- ⬜ Full-text search
+- ⬜ Admin panel + analytics dashboard
+- ⬜ AI recommendations + AI shopping assistant
+
+## Project structure
+
+```
+shopverse/
+├── backend/    # REST API (independent project)
+├── frontend/   # React storefront (independent project)
+└── docs/       # architecture, feature tracker, per-feature explanations
+```
+
+Read **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** to understand how everything fits together.
+
+## Running locally
+
+**Requirements:** Node.js 20+ and a PostgreSQL database (local, or a free one from
+[Neon](https://neon.tech)).
+
+### 1. Backend
+
+```bash
+cd backend
+npm install
+cp .env.example .env        # then set DATABASE_URL and JWT_ACCESS_SECRET
+npm run db:migrate          # create tables
+npm run db:seed             # demo products + users
+npm run dev                 # http://localhost:4000
+```
+
+### 2. Frontend (in a second terminal)
+
+```bash
+cd frontend
+npm install
+npm run dev                 # http://localhost:5173
+```
+
+### Demo accounts
+
+| Role | Email | Password |
+|---|---|---|
+| Customer | demo@shopverse.dev | Demo@12345 |
+| Admin | admin@shopverse.dev | Admin@12345 |

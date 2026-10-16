@@ -1,0 +1,49 @@
+# Feature Implementation Tracker
+
+Status legend: ✅ Done · 🚧 In progress · ⬜ Planned
+
+Each feature has a doc in [`docs/features/`](./features) explaining what it does on the
+**backend** and on the **frontend**, and which real-world concepts it demonstrates.
+
+## Phase overview
+
+| Phase | Theme | Status |
+|---|---|---|
+| 1 | Foundation, authentication, product catalog | ✅ Done |
+| 2 | Cart, wishlist, coupons | ✅ Done |
+| 3 | Checkout, Stripe payments + webhooks, inventory reservation, orders, order emails | ⬜ Planned |
+| 4 | Reviews & ratings, advanced search (full-text + facets) | ⬜ Planned |
+| 5 | Admin panel: product management, order management, analytics dashboard | ⬜ Planned |
+| 6 | AI: product recommendations + AI shopping assistant | ⬜ Planned |
+| 7 | Tests, deployment, README screenshots, polish | ⬜ Planned |
+
+## Features
+
+| # | Feature | Backend | Frontend | Doc | Key concepts |
+|---|---|---|---|---|---|
+| 0 | Project foundation | ✅ | ✅ | [Architecture](./ARCHITECTURE.md) | Layered architecture, env validation, central error handling |
+| 1 | Authentication | ✅ | ✅ | [01-authentication](./features/01-authentication.md) | JWT access tokens, refresh token rotation, httpOnly cookies, bcrypt, RBAC |
+| 2 | Product catalog & category tabs | ✅ | ✅ | [02-catalog](./features/02-catalog.md) | Product variants, filtering, sorting, pagination, URL state, caching |
+| 3 | Cart | ✅ | ✅ | [03-cart](./features/03-cart.md) | Server-side cart, optimistic updates, stock validation |
+| 4 | Wishlist | ✅ | ✅ | [04-wishlist](./features/04-wishlist.md) | Toggle pattern, unique constraints |
+| 5 | Coupons | ✅ | ✅ | [05-coupons](./features/05-coupons.md) | Discount rules (%, fixed, min order, expiry, usage limits) |
+| 6 | Checkout + Stripe payments | ⬜ | ⬜ | - | Stripe Checkout Sessions, never trusting client prices |
+| 7 | Stripe webhooks | ⬜ | ⬜ | - | Signature verification, idempotency, event-driven state |
+| 8 | Inventory concurrency | ⬜ | ⬜ | - | Stock reservations, atomic conditional updates, expiry job |
+| 9 | Orders & order history | ⬜ | ⬜ | - | Order lifecycle (state machine), price snapshots |
+| 10 | Order emails | ⬜ | ⬜ | - | Transactional email (Resend), side effects after commit |
+| 11 | Reviews & ratings | ⬜ | ⬜ | - | Verified-buyer check, denormalized rating stats |
+| 12 | Advanced search | ⬜ | ⬜ | - | PostgreSQL full-text search, ranking, facet counts, debouncing |
+| 13 | Admin: product & order management | ⬜ | ⬜ | - | Role-based access, CRUD, order status transitions |
+| 14 | Admin analytics dashboard | ⬜ | ⬜ | - | SQL aggregations, time series, charts |
+| 15 | AI recommendations | ⬜ | ⬜ | - | Co-purchase + similarity, LLM re-ranking |
+| 16 | AI shopping assistant | ⬜ | ⬜ | - | LLM tool use (searches the real catalog), streaming responses |
+
+## Change log
+
+| Date | Change |
+|---|---|
+| 2026-10-15 | Phase 1: project setup, full database schema, auth (register/login/refresh/logout/me), catalog API + UI with category tabs, filters, sorting, pagination, product page with variants, seed data (24 products, 4 categories). |
+| 2026-10-16 | Phase 2: cart (server-side cart API with stock checks and a quantity limit, cart page with optimistic updates, Add to cart button, header cart badge). |
+| 2026-10-16 | Phase 2: wishlist (idempotent save/unsave API, heart button on product cards and product page, wishlist page, header link). Shared product card shape moved to catalog.service.ts. |
+| 2026-10-16 | Phase 2: coupons (server-side coupon preview with expiry, usage-limit and minimum-order rules, coupon box and discount lines in the cart, FLASH50 demo coupon). Phase 2 complete. |
