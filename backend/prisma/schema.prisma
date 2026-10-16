@@ -220,6 +220,10 @@ model Order {
   // Invoice: numbered only once paid, from InvoiceCounter (sequential, no gaps). Shown as INV-2026-00042.
   invoiceNumber   Int?      @unique
   invoiceIssuedAt DateTime?
+  // Secret, random, used ONLY in the invoice's "verify" QR code / link. Not the invoice number
+  // (guessable) and not the order id (used elsewhere). The public verify page it opens shows
+  // no personal data: number, date, total, paid/refunded.
+  invoiceToken    String?   @unique
   // Card details copied from Stripe when the payment is confirmed, so invoices don't call Stripe.
   // Only the brand and last 4 digits: the full card number never reaches us (Stripe keeps it).
   cardBrand       String? // "visa", "mastercard"...

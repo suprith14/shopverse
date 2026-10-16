@@ -59,6 +59,34 @@ harmless for webhooks because Stripe retries.
 - **Admin** (`OrderDetailPage.tsx` → Payment box): card, invoice number and the same two actions. `admin/src/lib/download.ts`
   goes through `baseQueryWithReauth`, so token refresh works for downloads too.
 
+## QR code: verify + view links
+
+Each invoice PDF has a **QR code** that opens a **public verification page**, plus both links written out as text:
+- `/verify/<invoiceToken>`: "Genuine ShopVerse invoice", with number, issue date, total and paid/refunded status
+- `/orders/<id>`: the full order (login required)
+
+**Why a separate `invoiceToken`** (migration `add_invoice_token`): the invoice number is guessable (try 41, 43…), and the order
+id is used in other places (order URLs, logs). The token is `crypto.randomBytes(24)` as hex (48 characters, ~190 bits), used for
+nothing else, and replaceable without touching the order. Existing invoices were back-filled in the migration with
+`replace(gen_random_uuid()::text, '-', '') || left(…, 16)` (same 48-hex format, one per row, unique index created after the fill).
+
+**Public endpoint** `GET /api/invoices/verify/:token` ([`modules/invoices/invoices.routes.ts`](../../backend/src/modules/invoices/invoices.routes.ts)):
+- no login (the person checking may be an accountant, an employer or a tax officer)
+- returns **only** number, issue date, total, currency and `PAID`/`REFUNDED`: no name, email, address or items
+- token format-checked (`^[a-f0-9]{48}$`); unknown → 404 *"No ShopVerse invoice matches this code"*
+- `Cache-Control: no-store`, because a refund changes the answer
+- no rate limiting needed: a 190-bit token can't be guessed or enumerated (unlike a login form)
+
+**In the PDF:** a 96 pt QR (error correction level **M**, so it still scans if the printout is slightly smudged), with the full
+domain printed next to it so people can see where it leads before trusting it (QR phishing, "quishing"), and both links as text
+for screen readers and single-device readers.
+
+**Store page** `/verify/:token` (public, lazy-loaded): a skeleton while checking, then ✅ genuine/paid, ↺ genuine/refunded, or ⚠ not found
+("the document may have been altered").
+
+**Tested:** 388 invoices back-filled with 388 distinct 48-character tokens. Verify works without login. A wrong token → 404, malformed → 400.
+The response contains no personal data. The PDF was checked visually. Locally the QR encodes `localhost` (scan it on the live site).
+
 ## Concepts to be able to explain
 
 1. Why can't invoice numbers just be order ids, `MAX()+1` or a sequence?
@@ -67,3 +95,6 @@ harmless for webhooks because Stripe retries.
 4. Why fetch card details from Stripe once instead of on each download? What do we never store?
 5. Why does the browser download use `fetch` + a temporary object URL instead of a normal link?
 6. Why `Cache-Control: private, no-store` on invoices?
+7. Why does the QR code use a random token instead of the invoice number or order id?
+8. What may a public verification page show, and what must it never show?
+9. What is "quishing", and what in our PDF helps people avoid it?

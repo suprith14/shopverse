@@ -1,4 +1,7 @@
+import { randomBytes } from 'node:crypto';
 import PDFDocument from 'pdfkit';
+import QRCode from 'qrcode';
+import { env } from '../../config/env.js';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
 import { stripe } from '../../lib/stripe.js';
@@ -12,6 +15,10 @@ export function formatInvoiceNumber(n: number | null, issuedAt: Date | null) {
   if (n === null) return null;
   return `INV-${(issuedAt ?? new Date()).getUTCFullYear()}-${String(n).padStart(5, '0')}`;
 }
+
+// The secret behind an invoice's verify link: 24 random bytes = 48 hex characters (~190 bits),
+// impossible to guess or enumerate (unlike invoice numbers).
+export const newInvoiceToken = () => randomBytes(24).toString('hex');
 
 // Takes the next invoice number. MUST run inside the transaction that marks the order paid:
 // the UPDATE locks the counter row (simultaneous payments wait their turn: no duplicates) and a
@@ -65,8 +72,16 @@ export async function loadInvoiceOrder(where: Prisma.OrderWhereInput) {
   return order;
 }
 
+// The public page a verification QR code / link opens (store frontend: /verify/:token).
+export const verifyUrl = (token: string) => `${env.CLIENT_URL}/verify/${token}`;
+
 // Draws the invoice and returns it as a PDF file in memory (also used as an email attachment).
-export function renderInvoicePdf(order: InvoiceOrder): Promise<Buffer> {
+export async function renderInvoicePdf(order: InvoiceOrder): Promise<Buffer> {
+  // Error correction "M" (~15%): still scans if the printout is slightly smudged or folded.
+  const qr = order.invoiceToken
+    ? await QRCode.toBuffer(verifyUrl(order.invoiceToken), { errorCorrectionLevel: 'M', margin: 1, width: 300 })
+    : null;
+
   const doc = new PDFDocument({ size: 'A4', margin: 50, info: { Title: `Invoice ${formatInvoiceNumber(order.invoiceNumber, order.invoiceIssuedAt)}` } });
   const chunks: Buffer[] = [];
   doc.on('data', (c: Buffer) => chunks.push(c));
@@ -133,6 +148,21 @@ export function renderInvoicePdf(order: InvoiceOrder): Promise<Buffer> {
     : 'Card (via Stripe)';
   doc.fillColor('#0f172a').fontSize(10).text(method, left, y + 14);
   if (order.stripePaymentIntentId) doc.fillColor(grey).fontSize(8).text(`Reference: ${order.stripePaymentIntentId}`);
+
+  // Verify + view links: a QR code AND the same links as text (a picture alone helps nobody
+  // using a screen reader, or reading the PDF on the only device they have).
+  // The domain is printed in full so people can see where the QR leads before trusting it.
+  if (qr && order.invoiceToken) {
+    const boxTop = Math.max(doc.y + 24, 600);
+    doc.image(qr, left, boxTop, { width: 96 });
+    doc.fillColor('#0f172a').font('Helvetica-Bold').fontSize(10).text('Scan to verify this invoice', left + 112, boxTop + 4);
+    doc.font('Helvetica').fontSize(8).fillColor(grey)
+      .text('Confirms it was issued by ShopVerse. Shows only the invoice number, date, total and status.', left + 112, doc.y + 2, { width: 380 })
+      .fillColor('#4f46e5').text(verifyUrl(order.invoiceToken), { width: 380, link: verifyUrl(order.invoiceToken) })
+      .moveDown(0.6)
+      .fillColor(grey).text('View your order (login required):', { width: 380 })
+      .fillColor('#4f46e5').text(`${env.CLIENT_URL}/orders/${order.id}`, { width: 380, link: `${env.CLIENT_URL}/orders/${order.id}` });
+  }
 
   // Refunded orders keep their invoice (the number is never reused), clearly marked.
   if (order.status === 'REFUNDED') {

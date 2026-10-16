@@ -118,7 +118,8 @@ async function main() {
       FROM "Order"
       WHERE status IN ('PAID', 'SHIPPED', 'DELIVERED', 'REFUNDED') AND "invoiceNumber" IS NULL
     )
-    UPDATE "Order" o SET "invoiceNumber" = numbered.n, "invoiceIssuedAt" = numbered."createdAt"
+    UPDATE "Order" o SET "invoiceNumber" = numbered.n, "invoiceIssuedAt" = numbered."createdAt",
+      "invoiceToken" = replace(gen_random_uuid()::text, '-', '') || left(replace(gen_random_uuid()::text, '-', ''), 16)
     FROM numbered WHERE o.id = numbered.id`;
   await prisma.$executeRaw`
     UPDATE "InvoiceCounter" SET value = (SELECT COALESCE(MAX("invoiceNumber"), 0) FROM "Order") WHERE id = 'invoice'`;

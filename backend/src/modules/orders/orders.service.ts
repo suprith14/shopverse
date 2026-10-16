@@ -7,7 +7,7 @@ import { calculateDiscount, findCoupon } from '../coupons/coupons.service.js';
 import { createCheckoutSession, getCheckoutUrl } from '../payments/payments.service.js';
 import { storeOrigin } from '../../lib/store-origin.js';
 import { sendOrderConfirmationEmail } from './order-emails.js';
-import { formatInvoiceNumber, loadInvoiceOrder, renderInvoicePdf, saveCardDetails, takeNextInvoiceNumber } from './invoice.js';
+import { formatInvoiceNumber, loadInvoiceOrder, newInvoiceToken, renderInvoicePdf, saveCardDetails, takeNextInvoiceNumber } from './invoice.js';
 import type { CreateOrderInput } from './orders.schema.js';
 
 // How long stock is held for an unpaid order. The Stripe payment page closes after 30
@@ -233,7 +233,10 @@ export async function markOrderPaid(orderId: string, paymentIntentId: string) {
 
       // Invoice number, in the SAME transaction: an order is paid if and only if it has one.
       const invoiceNumber = await takeNextInvoiceNumber(tx);
-      await tx.order.update({ where: { id: orderId }, data: { invoiceNumber, invoiceIssuedAt: new Date() } });
+      await tx.order.update({
+        where: { id: orderId },
+        data: { invoiceNumber, invoiceIssuedAt: new Date(), invoiceToken: newInvoiceToken() },
+      });
 
       // Empty the cart, but only of what was bought (the customer may have added more since).
       const order = await tx.order.findUniqueOrThrow({ where: { id: orderId }, include: { items: true } });
