@@ -97,12 +97,20 @@ model Product {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  // Full-text search: the product's words reduced to their roots, weighted
+  // (name = A, brand = B, description = C). PostgreSQL computes it automatically from those
+  // columns (a GENERATED column, see migration add_product_search). Never written by the app.
+  // The @default below is the generation expression exactly as PostgreSQL stores it. Prisma
+  // can't create generated columns, but declaring it stops Prisma from trying to "remove" it.
+  searchVector Unsupported("tsvector")? @default(dbgenerated("((setweight(to_tsvector('english'::regconfig, COALESCE(name, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(brand, ''::text)), 'B'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE(description, ''::text)), 'C'::\"char\"))"))
+
   variants     ProductVariant[]
   reviews      Review[]
   wishlistedBy WishlistItem[]
 
   @@index([categoryId])
   @@index([basePrice])
+  @@index([searchVector], type: Gin) // makes "which products contain these words?" fast
 }
 
 // A purchasable version of a product: "Size 9 / Black", "256GB", "Hardcover".

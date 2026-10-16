@@ -82,6 +82,27 @@ export interface Cart {
   hasIssues: boolean;
 }
 
+export type ProductSort = 'relevance' | 'newest' | 'price_asc' | 'price_desc' | 'rating';
+
+// Counts shown next to each filter option, e.g. "Nike (3)".
+export interface ProductFacets {
+  categories: { slug: string; name: string; count: number }[];
+  brands: { value: string; count: number }[];
+  ratings: { min: number; count: number }[];
+}
+
+export interface ProductList extends Paginated<ProductSummary> {
+  sort: ProductSort; // the sort actually used ('relevance' by default when searching)
+  matchMode: 'all' | 'any' | null; // 'any' = no product had every word, showing partial matches
+  facets: ProductFacets;
+}
+
+export interface SearchSuggestions {
+  products: { id: string; name: string; slug: string; brand: string | null; basePrice: number; image: string | null }[];
+  brands: string[];
+  categories: { name: string; slug: string }[];
+}
+
 export interface Review {
   id: string;
   productId: string;

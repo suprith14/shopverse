@@ -25,7 +25,7 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Inventory reservation (no overselling under concurrency)
 - ✅ Order history + confirmation emails
 - ✅ Reviews & ratings (verified buyers only)
-- ⬜ Full-text search
+- ✅ Full-text search with relevance ranking, facet counts and suggestions
 - ⬜ Admin panel + analytics dashboard
 - ⬜ AI recommendations + AI shopping assistant
 

@@ -1,21 +1,14 @@
-import { useState, type FormEvent } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router';
-import { Heart, LogOut, Package, Search, ShoppingBag, ShoppingCart, User as UserIcon } from 'lucide-react';
+import { Link, NavLink } from 'react-router';
+import { Heart, LogOut, Package, ShoppingBag, ShoppingCart, User as UserIcon } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/auth.store';
 import { useLogout } from '@/features/auth/auth.api';
 import { useCart } from '@/features/cart/cart.api';
+import { SearchBox } from '@/features/catalog/components/SearchBox';
 
 export function Header() {
-  const navigate = useNavigate();
   const { user, status } = useAuthStore();
   const logout = useLogout();
   const { data: cart } = useCart();
-  const [query, setQuery] = useState('');
-
-  const onSearch = (e: FormEvent) => {
-    e.preventDefault();
-    navigate(query.trim() ? `/shop?q=${encodeURIComponent(query.trim())}` : '/shop');
-  };
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-medium ${isActive ? 'text-brand-600' : 'text-slate-600 hover:text-slate-900'}`;
@@ -31,12 +24,7 @@ export function Header() {
           <NavLink to="/shop" className={navClass}>Shop</NavLink>
         </nav>
 
-        <form onSubmit={onSearch} className="relative ml-auto hidden max-w-sm flex-1 sm:block">
-          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search products..."
-            aria-label="Search products"
-            className="w-full rounded-full border border-slate-300 bg-slate-50 py-2 pl-9 pr-4 text-sm outline-none focus:border-brand-500 focus:bg-white" />
-        </form>
+        <SearchBox />
 
         <div className="ml-auto flex items-center gap-3 sm:ml-0">
           {status === 'authenticated' && user ? (

@@ -12,7 +12,7 @@ Files: [`backend/src/modules/catalog/`](../../backend/src/modules/catalog)
 | Endpoint | What it does |
 |---|---|
 | `GET /api/catalog/categories` | All categories with a count of active products |
-| `GET /api/catalog/brands?category=books` | Distinct brands (for the filter dropdown) |
+| `GET /api/catalog/suggest?q=run` | Search-as-you-type suggestions (see [12-search](./12-search.md)). The old `/brands` endpoint was replaced by brand facets |
 | `GET /api/catalog/products` | Filtered, sorted, paginated product list |
 | `GET /api/catalog/products/:slug` | One product with category and all variants |
 
@@ -21,14 +21,14 @@ Files: [`backend/src/modules/catalog/`](../../backend/src/modules/catalog)
 | Param | Example | Meaning |
 |---|---|---|
 | `category` | `sneakers` | Category slug |
-| `q` | `running` | Case-insensitive search in name, brand, description |
+| `q` | `running shoes` | Full-text search, see [12-search](./12-search.md) |
 | `brand` | `Nike` | Exact brand |
 | `minPrice` / `maxPrice` | `5000` | In **cents** |
 | `minRating` | `4` | Average rating ≥ value |
-| `sort` | `price_asc` | `newest` · `price_asc` · `price_desc` · `rating` |
+| `sort` | `price_asc` | `relevance` (default when searching) · `newest` (default otherwise) · `price_asc` · `price_desc` · `rating` |
 | `page` / `limit` | `2` / `12` | Pagination (limit capped at 48) |
 
-Response: `{ items, page, limit, total, totalPages }`.
+Response: `{ items, page, limit, total, totalPages, sort, matchMode, facets }`.
 
 **How the query is built** (`catalog.service.ts`): each filter adds a condition to a Prisma
 `where` object only if it was sent. The count query and the page query run in one

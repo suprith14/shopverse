@@ -1,6 +1,6 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
-import type { Category, Paginated, ProductDetail, ProductSummary } from '@/types/api';
+import type { Category, ProductDetail, ProductList, ProductSort, SearchSuggestions } from '@/types/api';
 
 export interface ProductFilters {
   category?: string;
@@ -9,7 +9,7 @@ export interface ProductFilters {
   minPrice?: number; // cents
   maxPrice?: number; // cents
   minRating?: number;
-  sort?: 'newest' | 'price_asc' | 'price_desc' | 'rating';
+  sort?: ProductSort; // undefined = let the backend choose (best match when searching, newest otherwise)
   page?: number;
 }
 
@@ -24,19 +24,27 @@ export function useCategories() {
   });
 }
 
-export function useBrands(category?: string) {
-  return useQuery({
-    queryKey: ['brands', category ?? 'all'],
-    queryFn: async () => (await api.get<{ brands: string[] }>('/catalog/brands', { params: { category } })).data.brands,
-  });
-}
-
+// Products + facet counts for the sidebar and tabs, all in one response.
 export function useProducts(filters: ProductFilters) {
   return useQuery({
     queryKey: ['products', filters],
-    queryFn: async () => (await api.get<Paginated<ProductSummary>>('/catalog/products', { params: filters })).data,
+    queryFn: async () => (await api.get<ProductList>('/catalog/products', { params: filters })).data,
     // Keep showing the previous page while the next one loads (no flicker when paginating).
     placeholderData: keepPreviousData,
+  });
+}
+
+// Search-as-you-type. Called with an already-debounced query (see SearchBox).
+export function useSuggestions(q: string) {
+  const trimmed = q.trim();
+  return useQuery({
+    queryKey: ['suggest', trimmed],
+    queryFn: async ({ signal }) =>
+      // `signal` cancels the request if the user keeps typing and this result is no longer needed.
+      (await api.get<SearchSuggestions>('/catalog/suggest', { params: { q: trimmed }, signal })).data,
+    enabled: trimmed.length >= 2,
+    staleTime: 60 * 1000,
+    placeholderData: keepPreviousData, // keep old suggestions visible instead of flashing empty
   });
 }
 

@@ -20,7 +20,8 @@ function useFiltersFromUrl() {
     minPrice: num(params.get('minPrice')),
     maxPrice: num(params.get('maxPrice')),
     minRating: num(params.get('minRating')),
-    sort: (params.get('sort') as ProductFilters['sort']) ?? 'newest',
+    // No sort in the URL = let the backend choose (best match when searching, newest otherwise).
+    sort: (params.get('sort') as ProductFilters['sort']) ?? undefined,
     page: num(params.get('page')) ?? 1,
   };
 
@@ -33,7 +34,15 @@ function useFiltersFromUrl() {
     setParams(search);
   };
 
-  return { filters, update, reset: () => setParams(filters.category ? { category: filters.category } : {}) };
+  // "Clear all filters" keeps the search text and category tab, and clears everything else.
+  const reset = () => {
+    const keep = new URLSearchParams();
+    if (filters.q) keep.set('q', filters.q);
+    if (filters.category) keep.set('category', filters.category);
+    setParams(keep);
+  };
+
+  return { filters, update, reset };
 }
 
 export function CatalogPage() {
@@ -48,19 +57,27 @@ export function CatalogPage() {
       </div>
 
       {/* Changing tab clears brand (brands differ per category) */}
-      <CategoryTabs active={filters.category} onChange={(category) => update({ category, brand: undefined })} />
+      <CategoryTabs active={filters.category} facets={data?.facets}
+        onChange={(category) => update({ category, brand: undefined })} />
 
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-        <FilterSidebar filters={filters} onChange={update} onReset={reset} />
+        <FilterSidebar filters={filters} facets={data?.facets} onChange={update} onReset={reset} />
 
         <div className="space-y-6">
-          <div className="flex justify-end">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* No product had every word: we're showing products that match some of them. */}
+            {data?.matchMode === 'any' ? (
+              <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                No exact matches for "{filters.q}". Showing products that match some of your words.
+              </p>
+            ) : <span />}
             <select
-              value={filters.sort}
+              value={filters.sort ?? data?.sort ?? 'newest'}
               onChange={(e) => update({ sort: e.target.value as ProductFilters['sort'] })}
               className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
               aria-label="Sort products"
             >
+              {filters.q && <option value="relevance">Best match</option>}
               <option value="newest">Newest</option>
               <option value="price_asc">Price: low to high</option>
               <option value="price_desc">Price: high to low</option>

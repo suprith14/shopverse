@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { useBrands, type ProductFilters } from '../catalog.api';
+import type { ProductFacets } from '@/types/api';
+import type { ProductFilters } from '../catalog.api';
 
 interface Props {
   filters: ProductFilters;
+  facets?: ProductFacets;
   onChange: (patch: Partial<ProductFilters>) => void;
   onReset: () => void;
 }
@@ -11,9 +14,9 @@ interface Props {
 const toCents = (dollars: string) => (dollars === '' ? undefined : Math.round(Number(dollars) * 100));
 const toDollars = (cents?: number) => (cents === undefined ? '' : String(cents / 100));
 
-export function FilterSidebar({ filters, onChange, onReset }: Props) {
-  const { data: brands = [] } = useBrands(filters.category);
-
+// The counts come from the backend's facets. Each facet ignores its own filter, so after
+// picking a brand the other brands still show their counts and can be picked instead.
+export function FilterSidebar({ filters, facets, onChange, onReset }: Props) {
   // Price inputs are local state, applied on "Apply" so we don't fire a request per keystroke.
   const [min, setMin] = useState(toDollars(filters.minPrice));
   const [max, setMax] = useState(toDollars(filters.maxPrice));
@@ -22,18 +25,21 @@ export function FilterSidebar({ filters, onChange, onReset }: Props) {
     setMax(toDollars(filters.maxPrice));
   }, [filters.minPrice, filters.maxPrice]);
 
+  // Hide brands with 0 results, but always keep the selected one visible so it can be unselected.
+  const brands = (facets?.brands ?? []).filter((b) => b.count > 0 || b.value === filters.brand);
+
   return (
     <aside className="space-y-6 rounded-xl border border-slate-200 bg-white p-5">
       <section>
         <h3 className="mb-2 text-sm font-semibold">Brand</h3>
-        <select
-          value={filters.brand ?? ''}
-          onChange={(e) => onChange({ brand: e.target.value || undefined })}
-          className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
-        >
-          <option value="">All brands</option>
-          {brands.map((b) => <option key={b} value={b}>{b}</option>)}
-        </select>
+        <div className="max-h-56 space-y-1.5 overflow-y-auto text-sm">
+          <Option checked={!filters.brand} onSelect={() => onChange({ brand: undefined })} label="All brands" name="brand" />
+          {brands.map((b) => (
+            <Option key={b.value} name="brand" checked={filters.brand === b.value} count={b.count} label={b.value}
+              onSelect={() => onChange({ brand: b.value })} />
+          ))}
+          {facets && brands.length === 0 && <p className="text-slate-400">No brands match</p>}
+        </div>
       </section>
 
       <section>
@@ -54,22 +60,29 @@ export function FilterSidebar({ filters, onChange, onReset }: Props) {
       <section>
         <h3 className="mb-2 text-sm font-semibold">Rating</h3>
         <div className="space-y-1.5 text-sm">
-          {[4, 3, 2].map((r) => (
-            <label key={r} className="flex cursor-pointer items-center gap-2">
-              <input type="radio" name="rating" checked={filters.minRating === r}
-                onChange={() => onChange({ minRating: r })} />
-              {r}+ stars
-            </label>
+          {(facets?.ratings ?? [4, 3, 2].map((min) => ({ min, count: undefined }))).map((r) => (
+            <Option key={r.min} name="rating" checked={filters.minRating === r.min} count={r.count}
+              disabled={r.count === 0 && filters.minRating !== r.min}
+              onSelect={() => onChange({ minRating: r.min })}
+              label={<span className="flex items-center gap-1">{r.min}<Star className="size-3.5 fill-amber-400 text-amber-400" /> & up</span>} />
           ))}
-          <label className="flex cursor-pointer items-center gap-2">
-            <input type="radio" name="rating" checked={filters.minRating === undefined}
-              onChange={() => onChange({ minRating: undefined })} />
-            Any rating
-          </label>
+          <Option name="rating" checked={filters.minRating === undefined} onSelect={() => onChange({ minRating: undefined })} label="Any rating" />
         </div>
       </section>
 
       <Button variant="ghost" className="w-full" onClick={onReset}>Clear all filters</Button>
     </aside>
+  );
+}
+
+function Option({ name, label, count, checked, disabled, onSelect }: {
+  name: string; label: ReactNode; count?: number; checked: boolean; disabled?: boolean; onSelect: () => void;
+}) {
+  return (
+    <label className={`flex items-center gap-2 ${disabled ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'}`}>
+      <input type="radio" name={name} checked={checked} disabled={disabled} onChange={onSelect} />
+      <span className="flex-1">{label}</span>
+      {count !== undefined && <span className="text-xs text-slate-400">{count}</span>}
+    </label>
   );
 }
