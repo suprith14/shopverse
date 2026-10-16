@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { env, isProd } from '../config/env.js';
+import { env } from '../config/env.js';
 
 // One place that sends every email in the app. Features call sendEmail() and don't care
 // which provider is behind it, so switching from Resend to SendGrid/SES touches only this file.
@@ -16,9 +16,10 @@ export interface EmailMessage {
 export async function sendEmail(message: EmailMessage) {
   let { to, subject } = message;
 
-  // Development safety net: never email real people from a laptop. Everything goes to the
-  // developer's own inbox, and the subject shows who it was meant for.
-  if (!isProd && env.EMAIL_DEV_REDIRECT_TO) {
+  // Safety net: when EMAIL_DEV_REDIRECT_TO is set, every email goes to that inbox instead, and
+  // the subject shows who it was meant for. Used on the laptop AND on the live demo (a free
+  // Resend account can only send to its owner). A real store would simply not set it.
+  if (env.EMAIL_DEV_REDIRECT_TO) {
     subject = `[DEV, to: ${to}] ${subject}`;
     to = env.EMAIL_DEV_REDIRECT_TO;
   }

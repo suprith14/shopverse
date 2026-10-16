@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { ErrorState, Spinner } from '@/components/ui/States';
 import { getErrorMessage, toCents } from '@/lib/format';
+import { STORE_URL } from '@/lib/config';
 import { ProductForm } from './ProductForm';
 import { VariantsManager } from './VariantsManager';
 import { useCreateProductMutation, useGetProductQuery, useUpdateProductMutation } from './productsApi';
@@ -28,7 +29,7 @@ export function ProductEditPage() {
           </p>
         </div>
         {product.isActive && (
-          <a href={`http://localhost:5173/products/${product.slug}`} target="_blank" rel="noreferrer">
+          <a href={`${STORE_URL}/products/${product.slug}`} target="_blank" rel="noreferrer">
             <Button variant="secondary"><ExternalLink className="size-4" /> View in store</Button>
           </a>
         )}

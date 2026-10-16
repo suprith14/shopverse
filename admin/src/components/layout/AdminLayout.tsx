@@ -2,6 +2,7 @@ import { NavLink, Outlet } from 'react-router';
 import { ExternalLink, LayoutDashboard, LogOut, Package, ShieldCheck, ShoppingBag } from 'lucide-react';
 import { useAppSelector } from '@/app/hooks';
 import { useLogoutMutation } from '@/features/auth/authApi';
+import { STORE_URL } from '@/lib/config';
 
 const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
@@ -30,7 +31,7 @@ export function AdminLayout() {
             </NavLink>
           ))}
         </nav>
-        <a href="http://localhost:5173" target="_blank" rel="noreferrer"
+        <a href={STORE_URL} target="_blank" rel="noreferrer"
           className="mx-3 mb-4 flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-800/60 hover:text-white">
           <ExternalLink className="size-4" /> View store
         </a>

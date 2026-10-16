@@ -8,7 +8,7 @@ ShopVerse is two independent projects that talk over a REST API:
 │  Vite · React Query ·   │  Authorization: Bearer │  Zod · Prisma · JWT     │      │  (Prisma ORM)│
 │  Zustand · Tailwind     │  + refresh cookie      │                         │      └──────────────┘
 └─────────────────────────┘                        └─────────────────────────┘
-                                                    later: Stripe, Resend, Claude API
+                                                    Stripe, Resend
 ```
 
 They are deployed separately (e.g. frontend on Vercel, backend on Render/Railway) and

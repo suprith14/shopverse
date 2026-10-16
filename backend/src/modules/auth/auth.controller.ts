@@ -10,8 +10,11 @@ const REFRESH_COOKIE = 'refreshToken';
 const cookieOptions: CookieOptions = {
   httpOnly: true, // not readable from JavaScript
   secure: isProd, // HTTPS only in production
-  // Frontend and API on different domains in production need 'none' (+ secure) for the cookie to be sent.
-  sameSite: isProd ? 'none' : 'lax',
+  // 'lax': the browser only sends the cookie to requests from our own site. That works because
+  // the frontends never call the API on another domain: in development Vite forwards /api, and in
+  // production Vercel does (a "rewrite"), so the browser always sees one site. It also blocks most
+  // CSRF tricks, where another website makes your browser send requests with your cookie.
+  sameSite: 'lax',
   path: '/api/auth', // only sent to auth endpoints, not with every request
   maxAge: REFRESH_TOKEN_TTL_MS,
 };

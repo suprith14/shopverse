@@ -6,14 +6,15 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
     "db:seed-orders": "tsx prisma/seed-orders.ts",
     "db:reset": "prisma migrate reset",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "db:deploy": "prisma migrate deploy"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -46,5 +47,8 @@
     "esbuild@0.28.2": true,
     "prisma@6.19.3": true,
     "@prisma/engines@6.19.3": true
+  },
+  "engines": {
+    "node": "24.x"
   }
 }

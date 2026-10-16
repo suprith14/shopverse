@@ -2,7 +2,7 @@
 
 A full-stack e-commerce platform built as a portfolio project. It covers the problems real
 online stores solve: secure authentication, product variants, payments, preventing
-overselling, webhooks, analytics and AI-powered shopping.
+overselling, webhooks, full-text search, and an admin panel with analytics.
 
 **Stores:** Sneakers · Electronics · Books · Home Decor
 
@@ -13,7 +13,7 @@ overselling, webhooks, analytics and AI-powered shopping.
 | **Frontend** (store) | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
 | **Admin** (separate app) | React 19, TypeScript, Vite, Tailwind CSS, React Router, Redux Toolkit + RTK Query, ESLint |
 | **Backend** | Node.js, Express 5, TypeScript, Prisma ORM, PostgreSQL, Zod, JWT |
-| **Integrations** | Stripe (payments), Resend (email), Claude API (AI assistant, planned) |
+| **Integrations** | Stripe (payments), Resend (email) |
 
 ## Features
 
@@ -28,7 +28,6 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Reviews & ratings (verified buyers only)
 - ✅ Full-text search with relevance ranking, facet counts and suggestions
 - ✅ Admin panel (separate app): products, orders, analytics dashboard
-- ⬜ AI recommendations + AI shopping assistant
 
 ## Project structure
 
@@ -40,7 +39,8 @@ shopverse/
 └── docs/       # architecture, feature tracker, per-feature explanations
 ```
 
-Read **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** to understand how everything fits together.
+Read **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** to understand how everything fits together, and
+**[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for how it runs online.
 
 ## Running locally
 
