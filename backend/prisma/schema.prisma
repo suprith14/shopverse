@@ -46,11 +46,45 @@ model User {
   role         Role     @default(CUSTOMER)
   createdAt    DateTime @default(now())
 
+  // Profile details (all optional)
+  phone       String? // international format, e.g. "+919876543210"
+  dateOfBirth DateTime? @db.Date // a DATE, not a timestamp: birthdays have no time zone
+  avatarUrl   String? // the image itself lives on Cloudinary; only its URL is stored here
+
+  // ONE slot for the default address, so "two default addresses" is impossible by design.
+  // Deleting that address clears the slot (SetNull). The backend checks the address belongs to this user.
+  defaultAddressId String?   @unique
+  defaultAddress   Address?  @relation("DefaultAddress", fields: [defaultAddressId], references: [id], onDelete: SetNull)
+  addresses        Address[] @relation("UserAddresses")
+
   refreshTokens RefreshToken[]
   cartItems     CartItem[]
   wishlist      WishlistItem[]
   orders        Order[]
   reviews       Review[]
+}
+
+// A delivery address in a customer's address book (a user can have several).
+// Orders don't point here: checkout COPIES the address into Order.shippingAddress (a snapshot),
+// so editing or deleting an address later never changes where a past order was shipped.
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation("UserAddresses", fields: [userId], references: [id], onDelete: Cascade)
+  defaultFor User?    @relation("DefaultAddress")
+  label      String? // optional nickname: "Home", "Office"
+  fullName   String // who receives the parcel (may differ from the account name)
+  phone      String // the delivery partner calls this number
+  line1      String
+  line2      String?
+  city       String
+  state      String
+  postalCode String
+  country    String // ISO code, e.g. "IN", "US"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // We store only a hash of each refresh token. If the DB leaks, the tokens can't be used.
