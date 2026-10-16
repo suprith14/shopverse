@@ -15,6 +15,54 @@ export interface AuthResponse {
   accessToken: string;
 }
 
+export interface Paginated<T> {
+  items: T[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface AdminVariant {
+  id: string;
+  sku: string;
+  name: string;
+  options: Record<string, string>;
+  price: number; // cents
+  stock: number;
+}
+
+export interface AdminProduct {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  brand: string | null;
+  categoryId: string;
+  category: Category;
+  basePrice: number; // cheapest variant, cents
+  images: string[];
+  attributes: Record<string, unknown>;
+  ratingAvg: number;
+  ratingCount: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  variants: AdminVariant[];
+}
+
+// The list adds two computed fields.
+export interface AdminProductListItem extends AdminProduct {
+  totalStock: number;
+  lowStock: boolean;
+}
+
 // Error body the backend sends: { error: { message, details? } }
 export interface ApiErrorBody {
   error: { message: string; details?: { field: string; message: string }[] };

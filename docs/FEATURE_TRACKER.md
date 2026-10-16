@@ -34,7 +34,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 10 | Order emails | ✅ | - | [10-order-emails](./features/10-order-emails.md) | Transactional email (Resend), side effects after commit |
 | 11 | Reviews & ratings | ✅ | ✅ | [11-reviews](./features/11-reviews.md) | Verified-buyer check, denormalized rating stats |
 | 12 | Advanced search | ✅ | ✅ | [12-search](./features/12-search.md) | PostgreSQL full-text search, ranking, facet counts, debouncing |
-| 13 | Admin: product & order management | ✅ | ⬜ | [13-admin-api](./features/13-admin-api.md) | Role-based access, CRUD, order status transitions |
+| 13 | Admin: product & order management | ✅ | 🚧 | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | Role-based access, CRUD, order status transitions |
 | 14 | Admin analytics dashboard | ✅ | ⬜ | [13-admin-api](./features/13-admin-api.md) | SQL aggregations, time series, charts |
 | 15 | AI recommendations | ⬜ | ⬜ | - | Co-purchase + similarity, LLM re-ranking |
 | 16 | AI shopping assistant | ⬜ | ⬜ | - | LLM tool use (searches the real catalog), streaming responses |
@@ -56,3 +56,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 4, step 2: PostgreSQL full-text search (generated tsvector column + GIN index migration, prefix matching, relevance ranking, all-words then any-word fallback), facet counts for categories, brands and ratings, search-as-you-type suggestions with debouncing and keyboard navigation. /api/catalog/brands replaced by facets. Phase 4 complete. |
 | 2026-10-16 | Phase 5, step 1: admin API in one folder (backend/src/modules/admin), role check once on /api/admin. Products (create, edit, hide, variants, stock adjustments by delta), orders (search, PAID→SHIPPED→DELIVERED, Stripe refund with optional restock), analytics (summary with period comparison, daily sales, top products, sales by category, orders by status, low stock). |
 | 2026-10-16 | Phase 5, step 2: new admin/ app (Vite + React + TypeScript, Redux Toolkit + RTK Query, React Router, Tailwind, ESLint) on port 5174. Admin-only login, session restore and single-flight token refresh in the RTK Query base query, sidebar layout, placeholder pages. |
+| 2026-10-16 | Phase 5, step 3: admin product management. List (debounced search incl. SKU, category/status/low-stock filters in the URL, pagination), create with variants, edit details, hide/show, variant rename/reprice, stock add/remove by delta, add/delete variants. RTK Query cache tags keep lists and dashboard in sync. |
