@@ -82,6 +82,32 @@ export interface Cart {
   hasIssues: boolean;
 }
 
+export type OrderStatus = 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
+
+export interface OrderItem {
+  id: string;
+  variantId: string;
+  productName: string; // snapshot at the time of the order
+  variantName: string;
+  unitPrice: number; // snapshot at the time of the order
+  quantity: number;
+  lineTotal: number;
+  productSlug: string;
+  image: string | null;
+}
+
+export interface Order {
+  id: string;
+  status: OrderStatus;
+  subtotal: number;
+  discount: number;
+  total: number;
+  couponCode: string | null;
+  paymentDeadline: string | null; // only while PENDING
+  createdAt: string;
+  items: OrderItem[];
+}
+
 export interface CouponPreview {
   code: string;
   description: string; // "10% off", "$20.00 off"

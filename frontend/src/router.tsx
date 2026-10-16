@@ -8,6 +8,8 @@ import { ProductDetailPage } from '@/features/catalog/ProductDetailPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { CartPage } from '@/features/cart/CartPage';
 import { WishlistPage } from '@/features/wishlist/WishlistPage';
+import { OrdersPage } from '@/features/orders/OrdersPage';
+import { OrderDetailPage } from '@/features/orders/OrderDetailPage';
 
 // All routes in one place. Protected pages get wrapped in <RequireAuth> as they are added.
 export const router = createBrowserRouter([
@@ -19,6 +21,8 @@ export const router = createBrowserRouter([
       { path: '/products/:slug', element: <ProductDetailPage /> },
       { path: '/cart', element: <RequireAuth><CartPage /></RequireAuth> },
       { path: '/wishlist', element: <RequireAuth><WishlistPage /></RequireAuth> },
+      { path: '/orders', element: <RequireAuth><OrdersPage /></RequireAuth> },
+      { path: '/orders/:id', element: <RequireAuth><OrderDetailPage /></RequireAuth> },
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
       { path: '*', element: <NotFound /> },

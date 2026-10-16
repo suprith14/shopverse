@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { AlertTriangle, Minus, Plus, Trash2 } from 'lucide-react';
+import { AlertTriangle, Lock, Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
 import { formatPrice } from '@/lib/format';
@@ -8,6 +8,7 @@ import { useCart, useClearCart, useRemoveCartItem, useUpdateCartItem } from './c
 import { CouponBox } from '@/features/coupons/CouponBox';
 import { useCouponPreview } from '@/features/coupons/coupons.api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
+import { usePlaceOrder } from '@/features/orders/orders.api';
 
 // Same limit as the backend. The backend still enforces it; this only disables the + button.
 const MAX_QUANTITY_PER_ITEM = 10;
@@ -20,6 +21,7 @@ export function CartPage() {
   // Only count the discount if the preview is for the code currently applied and is valid.
   const coupon = !couponPreview.isError && couponPreview.data?.code === couponCode ? couponPreview.data : undefined;
   const discount = coupon?.discount ?? 0;
+  const placeOrder = usePlaceOrder();
 
   if (isLoading) return <Spinner />;
   if (isError || !cart) return <ErrorState error={error} />;
@@ -72,8 +74,13 @@ export function CartPage() {
               <AlertTriangle className="size-4 shrink-0" /> Some items are unavailable. Fix them before checking out.
             </p>
           )}
-          {/* Checkout is implemented in Phase 3 */}
-          <Button className="w-full py-3" disabled title="Coming in Phase 3">Checkout (coming soon)</Button>
+          {placeOrder.isError && <ErrorState error={placeOrder.error} />}
+          {/* Only a coupon the backend accepted is sent. The backend checks it again anyway. */}
+          <Button className="w-full py-3" loading={placeOrder.isPending} disabled={cart.hasIssues || cart.subtotal === 0}
+            onClick={() => placeOrder.mutate({ couponCode: coupon?.code })}>
+            <Lock className="size-4" /> Checkout · {formatPrice(cart.subtotal - discount)}
+          </Button>
+          <p className="text-center text-xs text-slate-500">You'll pay securely on Stripe. Test card: 4242 4242 4242 4242</p>
           <Link to="/shop" className="block text-center text-sm text-brand-600 hover:underline">Continue shopping</Link>
         </aside>
       </div>

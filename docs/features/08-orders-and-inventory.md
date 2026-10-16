@@ -1,6 +1,6 @@
 # Features 8 & 9: Orders and Inventory Reservation
 
-**Status:** 🚧 Backend done (Phase 3, step 1). Payment (Stripe) and the frontend pages come next.
+**Status:** ✅ Done (Phase 3, steps 1 and 4)
 
 Placing an order turns the cart into a `PENDING` order, freezes its prices, holds the stock
 for 32 minutes and uses up the coupon. If the order isn't paid in time, a background job
@@ -75,3 +75,29 @@ expired. It skips a tick if the previous run is still going.
 3. Why copy product names and prices into `OrderItem` instead of linking to the product?
 4. Why isn't the cart emptied when the order is placed?
 5. Why does stock need to be *held* during payment, and what happens if the customer never pays?
+
+## Frontend side
+
+Files: [`frontend/src/features/orders/`](../../frontend/src/features/orders)
+
+| File | What it does |
+|---|---|
+| `orders.api.ts` | `useOrders`, `useOrder`, `usePlaceOrder`, `usePayOrder`, `useCancelOrder` |
+| `OrdersPage.tsx` | `/orders` ("My orders"): every order with thumbnails, date, total and status |
+| `OrderDetailPage.tsx` | `/orders/:id`: status banner, items (from the snapshot), totals |
+| `OrderStatusBadge.tsx` | Coloured label for each status |
+| `CartPage.tsx` (cart) | **Checkout** button: places the order and redirects to Stripe |
+| `Header.tsx` | 📦 link to "My orders" |
+
+**The order page's banner follows the backend status, never the URL:**
+
+| Situation | Banner |
+|---|---|
+| Back from Stripe (`?payment=success`) but still `PENDING` | "Confirming your payment…", **refetching every 2 s** until the webhook flips it |
+| `PAID` | "Payment received". The cart and order queries are refreshed and the coupon code is forgotten |
+| `PENDING` (or `?payment=cancelled`) | "Awaiting payment, reserved until HH:MM" with **Pay now** / **Cancel order** |
+| `CANCELLED` | Order cancelled, items released |
+| `REFUNDED` | Payment arrived too late and was refunded |
+
+**Polling:** React Query's `refetchInterval` returns `2000` only while the order is `PENDING` and
+the customer has just come back from Stripe, and `false` otherwise, so polling stops by itself.

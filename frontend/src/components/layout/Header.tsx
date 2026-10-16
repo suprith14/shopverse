@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router';
-import { Heart, LogOut, Search, ShoppingBag, ShoppingCart, User as UserIcon } from 'lucide-react';
+import { Heart, LogOut, Package, Search, ShoppingBag, ShoppingCart, User as UserIcon } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/auth.store';
 import { useLogout } from '@/features/auth/auth.api';
 import { useCart } from '@/features/cart/cart.api';
@@ -41,6 +41,9 @@ export function Header() {
         <div className="ml-auto flex items-center gap-3 sm:ml-0">
           {status === 'authenticated' && user ? (
             <>
+              <Link to="/orders" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="My orders" title="My orders">
+                <Package className="size-5" />
+              </Link>
               <Link to="/wishlist" className="rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="Wishlist" title="Wishlist">
                 <Heart className="size-5" />
               </Link>

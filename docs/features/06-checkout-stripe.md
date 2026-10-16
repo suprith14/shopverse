@@ -1,6 +1,6 @@
 # Feature 6: Checkout with Stripe
 
-**Status:** 🚧 Backend done (Phase 3, step 2). The webhook (step 3) and the frontend (step 4) come next.
+**Status:** ✅ Done (Phase 3, steps 2 to 4). The cart's **Checkout** button calls `POST /api/orders` and redirects to `checkoutUrl`.
 
 "Place order" creates the order (stock held, see [08-orders-and-inventory](./08-orders-and-inventory.md))
 and opens a **Stripe Checkout** page where the customer pays. Stripe hosts the page, so card

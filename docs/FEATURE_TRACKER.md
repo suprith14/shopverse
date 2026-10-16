@@ -27,10 +27,10 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 3 | Cart | ✅ | ✅ | [03-cart](./features/03-cart.md) | Server-side cart, optimistic updates, stock validation |
 | 4 | Wishlist | ✅ | ✅ | [04-wishlist](./features/04-wishlist.md) | Toggle pattern, unique constraints |
 | 5 | Coupons | ✅ | ✅ | [05-coupons](./features/05-coupons.md) | Discount rules (%, fixed, min order, expiry, usage limits) |
-| 6 | Checkout + Stripe payments | ✅ | ⬜ | [06-checkout-stripe](./features/06-checkout-stripe.md) | Stripe Checkout Sessions, never trusting client prices |
+| 6 | Checkout + Stripe payments | ✅ | ✅ | [06-checkout-stripe](./features/06-checkout-stripe.md) | Stripe Checkout Sessions, never trusting client prices |
 | 7 | Stripe webhooks | ✅ | - | [07-stripe-webhooks](./features/07-stripe-webhooks.md) | Signature verification, idempotency, event-driven state |
-| 8 | Inventory concurrency | ✅ | ⬜ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Stock reservations, atomic conditional updates, expiry job |
-| 9 | Orders & order history | ✅ | ⬜ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Order lifecycle (state machine), price snapshots |
+| 8 | Inventory concurrency | ✅ | ✅ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Stock reservations, atomic conditional updates, expiry job |
+| 9 | Orders & order history | ✅ | ✅ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Order lifecycle (state machine), price snapshots |
 | 10 | Order emails | ⬜ | ⬜ | - | Transactional email (Resend), side effects after commit |
 | 11 | Reviews & ratings | ⬜ | ⬜ | - | Verified-buyer check, denormalized rating stats |
 | 12 | Advanced search | ⬜ | ⬜ | - | PostgreSQL full-text search, ranking, facet counts, debouncing |
@@ -50,3 +50,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 3, step 1: orders API (place, list, view, cancel), atomic stock reservation (no overselling), price snapshots, coupon redemption, expiry job that cancels unpaid orders after 30 min. |
 | 2026-10-16 | Phase 3, step 2: Stripe Checkout. Placing an order opens a Stripe payment page (prices from the order snapshot, one-time coupon for the discount, idempotency keys, 30-min page expiry with 32-min stock hold), "pay now" endpoint, order released if Stripe fails. |
 | 2026-10-16 | Phase 3, step 3: Stripe webhook (signature check on the raw body, idempotent by event id and by conditional updates). Orders become PAID (reservations consumed, bought items removed from cart), expired sessions release stock, late payments for cancelled orders are refunded automatically. |
+| 2026-10-16 | Phase 3, step 4: frontend for checkout and orders. Checkout button in the cart, My orders page, order page with status banner (polls until the webhook confirms payment, Pay now / Cancel for unpaid orders), header link. |

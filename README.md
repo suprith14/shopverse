@@ -21,9 +21,9 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Authentication: JWT + rotating refresh tokens in httpOnly cookies, roles
 - ✅ Catalog: category tabs, filters, sorting, pagination, product variants
 - ✅ Cart, wishlist, coupons
-- 🚧 Stripe checkout + webhooks (backend ✅)
+- ✅ Stripe checkout + webhooks
 - ✅ Inventory reservation (no overselling under concurrency)
-- ⬜ Order history + confirmation emails
+- 🚧 Order history ✅ + confirmation emails
 - ⬜ Reviews & ratings
 - ⬜ Full-text search
 - ⬜ Admin panel + analytics dashboard
