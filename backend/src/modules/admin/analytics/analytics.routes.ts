@@ -12,5 +12,6 @@ adminAnalyticsRouter.get('/summary', validate(periodQuery, 'query'), controller.
 adminAnalyticsRouter.get('/sales', validate(periodQuery, 'query'), controller.sales);
 adminAnalyticsRouter.get('/top-products', validate(topProductsQuery, 'query'), controller.topProducts);
 adminAnalyticsRouter.get('/sales-by-category', validate(periodQuery, 'query'), controller.salesByCategory);
+adminAnalyticsRouter.get('/customers', validate(periodQuery, 'query'), controller.customers);
 adminAnalyticsRouter.get('/orders-by-status', controller.ordersByStatus);
 adminAnalyticsRouter.get('/low-stock', controller.lowStock);

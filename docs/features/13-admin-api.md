@@ -65,10 +65,20 @@ All take `days` = 7, 30 or 90 (default 30). Only `PAID`, `SHIPPED` and `DELIVERE
 | `GET /sales` | One row **per day** (`date`, `revenue`, `orders`). `generate_series` + `LEFT JOIN` so days with no sales are 0, not missing |
 | `GET /top-products` | Best sellers by revenue from the `OrderItem` price snapshot (before order-level discounts) |
 | `GET /sales-by-category` | Revenue per category. Every category is listed, even at $0 (filters in the `JOIN`, not `WHERE`) |
+| `GET /customers` | Total customers, new sign-ups (with % vs previous period), **active now** (15 min), **active today** (24 h), **signed in** (valid session). Admins not counted |
 | `GET /orders-by-status` | Count per status, e.g. "2 PAID" = 2 orders waiting to ship |
 | `GET /low-stock` | Variants with stock ≤ 5 on visible products |
 
 Each widget has its own endpoint, so they load in parallel and a slow one doesn't block the others.
+
+**How "active" is tracked** (migration `add_user_activity`, [`lib/activity.ts`](../../backend/src/lib/activity.ts)):
+`User.lastSeenAt` is updated by every logged-in request (`requireAuth`), login and session refresh, but
+**at most once per user every 5 minutes** (an in-memory throttle), and fire-and-forget, so requests never wait for it.
+Indexes on `lastSeenAt` and `createdAt` keep the counts fast.
+- **Why Postgres and not Redis:** throttled, it's ~1 write per active user per 5 minutes, which is negligible at this scale.
+  At tens of thousands of active users, "last seen" would move to Redis (in-memory, keys that expire on their own).
+- **Precision:** "active" is accurate to about 5 minutes. Guests aren't counted, since that would need tracking cookies.
+- "Signed in" comes from the existing `RefreshToken` table (unexpired, not revoked), so no new data was needed for it.
 Days are UTC days.
 
 ## Tested

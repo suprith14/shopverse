@@ -102,6 +102,7 @@ One period filter (**last 7 / 30 / 90 days**, kept in the URL as `?days=`) above
 | Revenue, orders, average order value, customers who bought | **Stat tiles** with `+12% vs previous 30 days` | A headline number is best shown as a number, not a one-bar chart |
 | Revenue / orders per day | **Line chart** with a Revenue/Orders switch, hover crosshair + tooltip, "View as table" | Change over time. Dollars and counts have different scales, so a switch is used instead of a misleading two-axis chart |
 | Best sellers, revenue by category | **Horizontal bars**, one colour, value labels | "Which is biggest?" Horizontal keeps names readable. One colour, because the bars don't need different identities |
+| **Customers** row: total, new (vs previous period), active now, active today (+ signed in) | Stat tiles. This query **polls every minute** (`pollingInterval`), because "active now" changes without any admin action | Headline numbers. RTK Query pauses polling when the dashboard isn't open |
 | Orders needing attention | Counts linking to the filtered orders page | A to-do list, not a chart |
 | Low stock | List with ⚠ icon + "3 left" / "Out of stock" | Action items, linked to the product page |
 

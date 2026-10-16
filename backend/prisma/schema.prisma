@@ -51,6 +51,11 @@ model User {
   dateOfBirth DateTime? @db.Date // a DATE, not a timestamp: birthdays have no time zone
   avatarUrl   String? // the image itself lives on Cloudinary; only its URL is stored here
 
+  // Last time this user made a logged-in request. Written at most once every 5 minutes per
+  // user (see lib/activity.ts), so it costs ~1 write per active user per 5 minutes.
+  // Powers "active now / active today" on the admin dashboard.
+  lastSeenAt DateTime?
+
   // ONE slot for the default address, so "two default addresses" is impossible by design.
   // Deleting that address clears the slot (SetNull). The backend checks the address belongs to this user.
   defaultAddressId String?   @unique
@@ -62,6 +67,9 @@ model User {
   wishlist      WishlistItem[]
   orders        Order[]
   reviews       Review[]
+
+  @@index([lastSeenAt]) // "who was active in the last 15 minutes?" without reading every user
+  @@index([createdAt]) // "who signed up this month?"
 }
 
 // A delivery address in a customer's address book (a user can have several).

@@ -58,6 +58,9 @@ async function main() {
           email: `customer${i}@${DEMO_DOMAIN}`,
           passwordHash,
           createdAt: new Date(now - between(0, DAYS + 30) * DAY_MS), // sign-ups spread over time
+          // Last visits spread over the past two weeks (a few will fall in "active today").
+          // Never "active now": that number should only ever show real people.
+          lastSeenAt: new Date(now - between(60, 14 * 24 * 60) * 60 * 1000),
         },
       }),
     );

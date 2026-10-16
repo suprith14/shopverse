@@ -108,6 +108,31 @@ export async function getSalesByCategory(days: number) {
 }
 
 // How many orders are in each state right now: "3 waiting to ship" is an admin's to-do list.
+// Customer numbers for the dashboard (admins are not counted).
+//   total        every customer account
+//   new          sign-ups in the last N days, vs the N days before
+//   activeNow    made a logged-in request in the last 15 minutes  (User.lastSeenAt)
+//   activeToday  ... in the last 24 hours
+//   signedIn     have a valid login session right now (unexpired, not logged out)
+// "Active" is precise to ~5 minutes, because lastSeenAt is written at most every 5 minutes.
+export async function getCustomerStats(days: number) {
+  const now = Date.now();
+  const start = new Date(now - days * DAY_MS);
+  const previousStart = new Date(now - 2 * days * DAY_MS);
+  const customer = { role: 'CUSTOMER' as const };
+
+  const [total, newCurrent, newPrevious, activeNow, activeToday, signedIn] = await prisma.$transaction([
+    prisma.user.count({ where: customer }),
+    prisma.user.count({ where: { ...customer, createdAt: { gte: start } } }),
+    prisma.user.count({ where: { ...customer, createdAt: { gte: previousStart, lt: start } } }),
+    prisma.user.count({ where: { ...customer, lastSeenAt: { gte: new Date(now - 15 * 60 * 1000) } } }),
+    prisma.user.count({ where: { ...customer, lastSeenAt: { gte: new Date(now - DAY_MS) } } }),
+    prisma.user.count({ where: { ...customer, refreshTokens: { some: { revokedAt: null, expiresAt: { gt: new Date(now) } } } } }),
+  ]);
+
+  return { days, total, newCustomers: newCurrent, newChange: change(newCurrent, newPrevious), activeNow, activeToday, signedIn };
+}
+
 export async function getOrdersByStatus() {
   const rows = await prisma.order.groupBy({ by: ['status'], _count: { _all: true }, orderBy: { status: 'asc' } });
   return rows.map((r) => ({ status: r.status, count: r._count._all }));

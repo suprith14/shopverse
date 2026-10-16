@@ -24,3 +24,7 @@ export async function ordersByStatus(_req: Request, res: Response) {
 export async function lowStock(_req: Request, res: Response) {
   res.json(await service.getLowStock());
 }
+
+export async function customers(_req: Request, res: Response) {
+  res.json(await service.getCustomerStats(res.locals.query.days));
+}

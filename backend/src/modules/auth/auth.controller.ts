@@ -4,6 +4,7 @@ import { unauthorized } from '../../lib/http-error.js';
 import type { AuthUser } from '../../middleware/auth.js';
 import { REFRESH_TOKEN_TTL_MS } from './auth.tokens.js';
 import * as authService from './auth.service.js';
+import { recordActivity } from '../../lib/activity.js';
 
 const REFRESH_COOKIE = 'refreshToken';
 
@@ -29,6 +30,7 @@ export async function register(_req: Request, res: Response) {
 
 export async function login(_req: Request, res: Response) {
   const { refreshToken, ...result } = await authService.login(res.locals.body);
+  recordActivity(result.user.id);
   res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
 }
 
@@ -38,6 +40,8 @@ export async function refresh(req: Request, res: Response) {
 
   try {
     const { refreshToken, ...result } = await authService.refresh(token);
+    // Opening the site refreshes the session: that counts as being active.
+    recordActivity(result.user.id);
     res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
   } catch (err) {
     res.clearCookie(REFRESH_COOKIE, { ...cookieOptions, maxAge: undefined });

@@ -19,6 +19,16 @@ export interface Summary {
   change: { revenue: number | null; orders: number | null; averageOrderValue: number | null; customers: number | null };
 }
 
+export interface CustomerStats {
+  days: number;
+  total: number;
+  newCustomers: number; // sign-ups in the period
+  newChange: number | null; // % vs previous period
+  activeNow: number; // last 15 minutes
+  activeToday: number; // last 24 hours
+  signedIn: number; // valid login session right now
+}
+
 export interface SalesPoint { date: string; revenue: number; orders: number }
 export interface TopProduct { productId: string; name: string; slug: string; revenue: number; units: number }
 export interface CategorySales { category: string; revenue: number; units: number }
@@ -48,6 +58,11 @@ export const analyticsApi = api.injectEndpoints({
       transformResponse: (res: { items: CategorySales[] }) => res.items,
       providesTags: ['Analytics'],
     }),
+    getCustomerStats: build.query<CustomerStats, PeriodDays>({
+      query: (days) => ({ url: '/admin/analytics/customers', params: { days } }),
+      providesTags: ['Analytics'],
+      // "Active now" changes by itself as people come and go, so the dashboard polls it (pollingInterval).
+    }),
     getOrdersByStatus: build.query<{ status: OrderStatus; count: number }[], void>({
       query: () => '/admin/analytics/orders-by-status',
       transformResponse: (res: { items: { status: OrderStatus; count: number }[] }) => res.items,
@@ -66,5 +81,6 @@ export const {
   useGetTopProductsQuery,
   useGetSalesByCategoryQuery,
   useGetOrdersByStatusQuery,
+  useGetCustomerStatsQuery,
   useGetLowStockQuery,
 } = analyticsApi;

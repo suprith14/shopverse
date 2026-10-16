@@ -4,6 +4,7 @@ import { AlertTriangle, ChevronRight } from 'lucide-react';
 import { ErrorState, Spinner } from '@/components/ui/States';
 import { formatPrice, getErrorMessage } from '@/lib/format';
 import {
+  useGetCustomerStatsQuery,
   useGetLowStockQuery,
   useGetOrdersByStatusQuery,
   useGetSalesByCategoryQuery,
@@ -31,8 +32,12 @@ export function DashboardPage() {
   const byCategory = useGetSalesByCategoryQuery(days);
   const byStatus = useGetOrdersByStatusQuery();
   const lowStock = useGetLowStockQuery();
+  // Polled every minute: "active now" changes as customers come and go, even if nothing else happens.
+  // (RTK Query pauses polling automatically when the dashboard is closed.)
+  const customers = useGetCustomerStatsQuery(days, { pollingInterval: 60_000 });
 
   const s = summary.data;
+  const c = customers.data;
   const statusCount = (status: string) => byStatus.data?.find((r) => r.status === status)?.count ?? 0;
 
   return (
@@ -61,8 +66,18 @@ export function DashboardPage() {
       </div>
       <p className="-mt-2 text-xs text-slate-500">
         Paid, shipped and delivered orders only (refunds and cancellations excluded). Days are UTC.
-        {s && ` ${s.current.newCustomers} new sign-ups in this period.`}
       </p>
+
+      {/* Customers: sign-ups and activity */}
+      <h2 className="pt-2 text-sm font-semibold uppercase tracking-wide text-slate-500">Customers</h2>
+      {customers.error && <ErrorState message={getErrorMessage(customers.error)} />}
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <StatTile label="Total customers" value={c ? c.total.toLocaleString() : ''} hint="All customer accounts" loading={!c} />
+        <StatTile label="New customers" value={c ? c.newCustomers.toLocaleString() : ''} change={c?.newChange} days={days} loading={!c} />
+        <StatTile label="Active now" value={c ? c.activeNow.toLocaleString() : ''} hint="Used the store in the last 15 min" loading={!c} />
+        <StatTile label="Active today" value={c ? c.activeToday.toLocaleString() : ''}
+          hint={c ? `Last 24 h · ${c.signedIn.toLocaleString()} signed in` : ''} loading={!c} />
+      </div>
 
       {sales.data ? <SalesChart data={sales.data} /> : <Card><Spinner /></Card>}
 
