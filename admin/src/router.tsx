@@ -6,6 +6,8 @@ import { LoginPage } from '@/features/auth/LoginPage';
 import { RequireAdmin } from '@/features/auth/RequireAdmin';
 import { ProductsPage } from '@/features/products/ProductsPage';
 import { ProductCreatePage, ProductEditPage } from '@/features/products/ProductEditPage';
+import { OrdersPage } from '@/features/orders/OrdersPage';
+import { OrderDetailPage } from '@/features/orders/OrderDetailPage';
 
 // Every page except /login is inside RequireAdmin + the admin layout.
 export const router = createBrowserRouter([
@@ -17,7 +19,8 @@ export const router = createBrowserRouter([
       { path: '/products', element: <ProductsPage /> },
       { path: '/products/new', element: <ProductCreatePage /> },
       { path: '/products/:id', element: <ProductEditPage /> },
-      { path: '/orders', element: <ComingSoon title="Orders" step="step 4" /> },
+      { path: '/orders', element: <OrdersPage /> },
+      { path: '/orders/:id', element: <OrderDetailPage /> },
       { path: '*', element: <NotFound /> },
     ],
   },

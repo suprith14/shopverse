@@ -1,6 +1,6 @@
 # Admin App (`admin/`)
 
-**Status:** 🚧 In progress (Phase 5). Login and product management are done; orders and the dashboard come next.
+**Status:** 🚧 In progress (Phase 5). Login, products and orders are done; the dashboard comes next.
 
 A **separate React app** for staff, at `http://localhost:5174`, talking to the same backend as the
 store. All admin API calls go to `/api/admin/*` (see [13-admin-api](./13-admin-api.md)).
@@ -38,7 +38,9 @@ admin/src/
 │   └── hooks.ts        typed useAppSelector / useAppDispatch
 ├── features/
 │   ├── auth/           authSlice (state + reducers), authApi (login/logout/restore), LoginPage, RequireAdmin
-│   └── products/       productsApi, ProductsPage (list), ProductEditPage (+ create), ProductForm, VariantsManager
+│   ├── products/       productsApi, ProductsPage (list), ProductEditPage (+ create), ProductForm, VariantsManager
+│   ├── orders/         ordersApi, OrdersPage (list), OrderDetailPage, OrderStatusBadge, orderStatus
+│   └── analytics/      analyticsApi (status counts now, dashboard data in step 5)
 ├── components/         layout (sidebar layout, 404) + ui (Button, Input, loading/error/empty states)
 ├── lib/                format (money, dates, order numbers, RTK errors), useDebounce
 ├── router.tsx          routes; everything except /login is wrapped in <RequireAdmin>
@@ -77,6 +79,18 @@ an admin", and that session is ended immediately. Session restore runs once on l
   - add a variant
 - Prices are typed in dollars and sent in cents.
 
+## Orders (`/orders`, `/orders/:id`)
+
+- **List:** status tabs with live counts (`Paid · to ship` first: that's the work queue), search by order number
+  (`#RHXB9NEJ`), customer name or email (debounced), filters in the URL, pages of 20.
+- **Order page:**
+  - progress tracker **Paid → Shipped → Delivered**
+  - **only the next allowed action** is shown: *Mark as shipped* on a paid order, *Mark as delivered* on a shipped one
+  - **Refund** opens a confirmation panel with the amount and a *put items back in stock* option (only for returned, unused items)
+  - items show the SKU and the **snapshot** name and price
+  - the payment intent links to the Stripe dashboard
+- Status changes and refunds invalidate the `Order` and `Analytics` tags (and `Product` for restocks), so lists, tab counts and stock refresh by themselves.
+
 ## Concepts to be able to explain
 
 1. What's a Redux slice, an action and a reducer? What does Immer let you write?
@@ -84,3 +98,4 @@ an admin", and that session is ended immediately. Session restore runs once on l
 3. Why does the reauth base query share one refresh promise?
 4. Why is `RequireAdmin` not real security, and what is?
 5. Why are filters kept in the URL instead of component state?
+6. Why does the order page show only the next allowed action, when the backend checks it anyway?

@@ -63,6 +63,41 @@ export interface AdminProductListItem extends AdminProduct {
   lowStock: boolean;
 }
 
+export type OrderStatus = 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
+
+interface OrderBase {
+  id: string;
+  userId: string;
+  status: OrderStatus;
+  subtotal: number;
+  discount: number;
+  total: number;
+  stripeSessionId: string | null;
+  stripePaymentIntentId: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AdminOrderListItem extends OrderBase {
+  user: { name: string; email: string };
+  _count: { items: number };
+}
+
+export interface AdminOrderDetail extends OrderBase {
+  user: { id: string; name: string; email: string };
+  coupon: { code: string } | null;
+  items: {
+    id: string;
+    variantId: string;
+    productName: string; // snapshot
+    variantName: string;
+    unitPrice: number; // snapshot, cents
+    quantity: number;
+    variant: { sku: string; product: { id: string; slug: string; images: string[] } };
+  }[];
+  reservations: { status: 'ACTIVE' | 'CONSUMED' | 'RELEASED'; expiresAt: string }[];
+}
+
 // Error body the backend sends: { error: { message, details? } }
 export interface ApiErrorBody {
   error: { message: string; details?: { field: string; message: string }[] };
