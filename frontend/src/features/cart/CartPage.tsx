@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
 import { formatPrice } from '@/lib/format';
 import type { CartItem } from '@/types/api';
-import { useCart, useClearCart, useRemoveCartItem, useUpdateCartItem } from './cart.api';
+import { useAddToCart, useCart, useClearCart, useRemoveCartItem, useUpdateCartItem } from './cart.api';
+import { notify } from '@/lib/notify';
 import { CouponBox } from '@/features/coupons/CouponBox';
 import { useCouponPreview } from '@/features/coupons/coupons.api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
@@ -100,6 +101,7 @@ export function CartPage() {
 function CartRow({ item }: { item: CartItem }) {
   const update = useUpdateCartItem();
   const remove = useRemoveCartItem();
+  const addBack = useAddToCart(); // for "Undo" after removing
   const maxAllowed = Math.min(item.stock, MAX_QUANTITY_PER_ITEM);
   const setQuantity = (quantity: number) => update.mutate({ variantId: item.variantId, quantity });
 
@@ -137,7 +139,18 @@ function CartRow({ item }: { item: CartItem }) {
               <Plus className="size-4" />
             </button>
           </div>
-          <button onClick={() => remove.mutate({ variantId: item.variantId })}
+          <button onClick={() =>
+              remove.mutate(
+                { variantId: item.variantId },
+                {
+                  // "Undo" instead of an "Are you sure?" dialog: no interruption, and a mistake is one click to fix.
+                  onSuccess: () => notify.success(`Removed ${item.productName}`, {
+                    label: 'Undo',
+                    onClick: () => addBack.mutate({ variantId: item.variantId, quantity: item.quantity }, { onError: notify.error }),
+                  }),
+                  onError: notify.error,
+                },
+              )}
             className="flex items-center gap-1 text-sm text-slate-500 hover:text-red-600">
             <Trash2 className="size-4" /> Remove
           </button>

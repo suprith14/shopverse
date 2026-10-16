@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
 import type { Review } from '@/types/api';
 import { useDeleteReview, useSaveReview } from './reviews.api';
+import { notify } from '@/lib/notify';
 
 const labels = ['', 'Terrible', 'Poor', 'Okay', 'Good', 'Excellent'];
 
@@ -19,7 +20,7 @@ export function ReviewForm({ productId, existing, onDone }: { productId: string;
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    save.mutate({ rating, title, body }, { onSuccess: onDone });
+    save.mutate({ rating, title, body }, { onSuccess: () => { onDone(); notify.success(existing ? 'Review updated' : 'Thanks! Your review is posted'); } });
   };
 
   const shown = hover || rating;
@@ -62,7 +63,7 @@ export function ReviewForm({ productId, existing, onDone }: { productId: string;
         <Button type="button" variant="ghost" onClick={onDone}>Cancel</Button>
         {existing && (
           <Button type="button" variant="ghost" className="ml-auto text-red-600 hover:bg-red-50" loading={remove.isPending}
-            onClick={() => { if (confirm('Delete your review?')) remove.mutate(undefined, { onSuccess: onDone }); }}>
+            onClick={() => { if (confirm('Delete your review?')) remove.mutate(undefined, { onSuccess: () => { onDone(); notify.success('Review deleted'); } }); }}>
             Delete review
           </Button>
         )}

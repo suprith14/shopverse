@@ -7,6 +7,7 @@ import type { Address, Profile } from '@/types/api';
 import { AddressForm } from './AddressForm';
 import { AddressLines } from './AddressCard';
 import { PageTitle } from '@/components/layout/PageTitle';
+import { notify } from '@/lib/notify';
 import {
   useAddAddress,
   useDeleteAddress,
@@ -64,7 +65,7 @@ function PhotoSection({ profile }: { profile: Profile }) {
     setLocalError(null);
     if (!PHOTO_TYPES.includes(file.type)) return setLocalError('Please choose a JPG, PNG or WebP image.');
     if (file.size > MAX_PHOTO_MB * 1024 * 1024) return setLocalError(`Please choose an image under ${MAX_PHOTO_MB} MB.`);
-    upload.mutate(file);
+    upload.mutate(file, { onSuccess: () => notify.success('Profile photo updated') });
   };
 
   return (
@@ -86,7 +87,7 @@ function PhotoSection({ profile }: { profile: Profile }) {
               {profile.avatarUrl ? 'Change photo' : 'Upload photo'}
             </Button>
             {profile.avatarUrl && (
-              <Button variant="ghost" loading={remove.isPending} onClick={() => remove.mutate(undefined)}>Remove</Button>
+              <Button variant="ghost" loading={remove.isPending} onClick={() => remove.mutate(undefined, { onSuccess: () => notify.success('Profile photo removed') })}>Remove</Button>
             )}
           </div>
           <p className="text-xs text-slate-500">JPG, PNG or WebP, up to {MAX_PHOTO_MB} MB. It's cropped to a square around your face.</p>
@@ -107,14 +108,16 @@ function DetailsSection({ profile }: { profile: Profile }) {
   const submit = (e: FormEvent) => {
     e.preventDefault();
     // Empty fields are sent as null = "remove it".
-    update.mutate({ name: form.name, phone: form.phone.trim() || null, dateOfBirth: form.dateOfBirth || null });
+    update.mutate(
+      { name: form.name, phone: form.phone.trim() || null, dateOfBirth: form.dateOfBirth || null },
+      { onSuccess: () => notify.success('Details saved') },
+    );
   };
 
   return (
     <Section title="Your details" icon={UserIcon}>
       <form onSubmit={submit} className="space-y-3">
         {update.isError && <ErrorState error={update.error} />}
-        {update.isSuccess && <p className="rounded-lg bg-green-50 p-2 text-sm text-green-800">Saved.</p>}
         <div className="grid gap-3 sm:grid-cols-2">
           <Input label="Name" name="name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} autoComplete="name" />
           {/* Email is shown but not editable: changing the login email needs re-verification. */}
@@ -150,7 +153,7 @@ function AddressBook({ profile }: { profile: Profile }) {
           <div className="rounded-lg border border-slate-200 p-4">
             <AddressForm defaultName={profile.name} defaultPhone={profile.phone} submitLabel="Save address"
               saving={add.isPending} error={add.error}
-              onSubmit={(input) => add.mutate(input, { onSuccess: () => setAdding(false) })}
+              onSubmit={(input) => add.mutate(input, { onSuccess: () => { setAdding(false); notify.success('Address saved'); } })}
               onCancel={() => setAdding(false)} />
           </div>
         ) : (
@@ -173,7 +176,7 @@ function AddressRow({ address }: { address: Address }) {
     return (
       <li className="rounded-lg border border-slate-200 p-4">
         <AddressForm address={address} submitLabel="Save changes" saving={update.isPending} error={update.error}
-          onSubmit={(input) => update.mutate({ id: address.id, ...input }, { onSuccess: () => setEditing(false) })}
+          onSubmit={(input) => update.mutate({ id: address.id, ...input }, { onSuccess: () => { setEditing(false); notify.success('Address updated'); } })}
           onCancel={() => setEditing(false)} />
       </li>
     );
@@ -195,7 +198,7 @@ function AddressRow({ address }: { address: Address }) {
         )}
         <Button variant="ghost" className="px-2 py-1 text-xs" onClick={() => setEditing(true)}>Edit</Button>
         <Button variant="ghost" className="px-2 py-1 text-xs text-red-600 hover:bg-red-50" loading={remove.isPending}
-          onClick={() => { if (confirm('Delete this address? Past orders keep their own copy.')) remove.mutate(address.id); }}>
+          onClick={() => { if (confirm('Delete this address? Past orders keep their own copy.')) remove.mutate(address.id, { onSuccess: () => notify.success('Address deleted') }); }}>
           <Trash2 className="size-3.5" /> Delete
         </Button>
       </div>

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, ScrollRestoration } from 'react-router';
+import { Toaster } from 'sonner';
 import { refreshSession } from '@/lib/api-client';
 import { Header } from './Header';
 import { SlowServerBanner } from './SlowServerBanner';
@@ -23,6 +24,9 @@ export function RootLayout() {
       </footer>
       {/* New page -> start at the top. Back button -> return to where you were. */}
       <ScrollRestoration />
+      {/* Toasts appear bottom-centre: easy to reach with a thumb on phones and they don't cover the
+          header's cart icon. richColors = green for success, red for errors (plus an icon, never colour alone). */}
+      <Toaster position="bottom-center" richColors closeButton duration={4000} />
     </div>
   );
 }

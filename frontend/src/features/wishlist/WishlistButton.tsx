@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router';
 import { Heart } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/auth.store';
 import { useToggleWishlist, useWishlistIds } from './wishlist.api';
+import { notify } from '@/lib/notify';
 
 // The heart button. Used on product cards and on the product page.
 export function WishlistButton({ productId, className = '' }: { productId: string; className?: string }) {
@@ -25,7 +26,17 @@ export function WishlistButton({ productId, className = '' }: { productId: strin
       navigate('/login', { state: { from: location.pathname + location.search } });
       return;
     }
-    toggle.mutate({ productId, save: !saved });
+    const save = !saved;
+    toggle.mutate(
+      { productId, save },
+      {
+        onSuccess: () =>
+          save
+            ? notify.success('Saved to your wishlist', { label: 'View', onClick: () => navigate('/wishlist') })
+            : notify.success('Removed from your wishlist'),
+        onError: notify.error,
+      },
+    );
   };
 
   return (

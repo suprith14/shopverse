@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
-import { Check, ShoppingCart } from 'lucide-react';
+import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ErrorState, Spinner } from '@/components/ui/States';
 import { StarRating } from '@/components/ui/StarRating';
@@ -11,6 +11,7 @@ import { useAddToCart } from '@/features/cart/cart.api';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
 import { ProductReviews } from '@/features/reviews/ProductReviews';
 import { useProduct } from './catalog.api';
+import { notify } from '@/lib/notify';
 import { PageTitle } from '@/components/layout/PageTitle';
 
 export function ProductDetailPage() {
@@ -89,7 +90,8 @@ function ProductView({ product }: { product: ProductDetail }) {
             )}
           </div>
 
-          <AddToCart variant={variant} />
+          {/* key: picking another size resets the quantity to 1 */}
+          <AddToCart key={variant?.id} variant={variant} productName={product.name} />
 
           <Attributes attributes={product.attributes} />
         </div>
@@ -100,11 +102,16 @@ function ProductView({ product }: { product: ProductDetail }) {
   );
 }
 
-function AddToCart({ variant }: { variant?: ProductVariant }) {
+// Same cap as the backend (cart.schema.ts). The backend still enforces it and the stock.
+const MAX_PER_ITEM = 10;
+
+function AddToCart({ variant, productName }: { variant?: ProductVariant; productName: string }) {
   const status = useAuthStore((s) => s.status);
   const navigate = useNavigate();
   const location = useLocation();
   const addToCart = useAddToCart();
+  const [quantity, setQuantity] = useState(1);
+  const max = Math.max(1, Math.min(variant?.stock ?? 1, MAX_PER_ITEM));
 
   const onClick = () => {
     // Guests are sent to login, then brought back to this product.
@@ -112,21 +119,38 @@ function AddToCart({ variant }: { variant?: ProductVariant }) {
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
-    if (variant) addToCart.mutate({ variantId: variant.id, quantity: 1 });
+    if (!variant) return;
+    addToCart.mutate(
+      { variantId: variant.id, quantity },
+      {
+        onSuccess: () => notify.success(`Added ${quantity} × ${productName} (${variant.name})`, { label: 'View cart', onClick: () => navigate('/cart') }),
+        onError: notify.error, // e.g. "Only 2 left in stock"
+      },
+    );
   };
+
+  const soldOut = !variant || variant.stock === 0;
 
   return (
     <div className="space-y-2">
-      <Button className="w-full py-3" onClick={onClick} loading={addToCart.isPending} disabled={!variant || variant.stock === 0}>
-        <ShoppingCart className="size-4" /> {variant?.stock === 0 ? 'Out of stock' : 'Add to cart'}
-      </Button>
-      {addToCart.isSuccess && (
-        <p className="flex items-center gap-1.5 text-sm text-green-700">
-          <Check className="size-4" /> Added to cart. <Link to="/cart" className="font-medium underline">View cart</Link>
-        </p>
-      )}
-      {/* Shows the backend's message, e.g. "Only 2 left in stock" */}
-      {addToCart.isError && <ErrorState error={addToCart.error} />}
+      <div className="flex gap-3">
+        {/* Quantity stepper: buttons instead of a number box, which are easier to tap on phones
+            and can't produce "0", "-3" or "1.5". Limited by stock and the per-item cap. */}
+        <div className="flex items-center rounded-lg border border-slate-300 bg-white" role="group" aria-label="Quantity">
+          <button onClick={() => setQuantity((q) => Math.max(1, q - 1))} disabled={soldOut || quantity <= 1}
+            className="p-3 hover:bg-slate-50 disabled:opacity-30" aria-label="Decrease quantity">
+            <Minus className="size-4" />
+          </button>
+          <span className="w-8 text-center text-sm font-medium tabular-nums" aria-live="polite">{quantity}</span>
+          <button onClick={() => setQuantity((q) => Math.min(max, q + 1))} disabled={soldOut || quantity >= max}
+            className="p-3 hover:bg-slate-50 disabled:opacity-30" aria-label="Increase quantity">
+            <Plus className="size-4" />
+          </button>
+        </div>
+        <Button className="flex-1 py-3" onClick={onClick} loading={addToCart.isPending} disabled={soldOut}>
+          <ShoppingCart className="size-4" /> {soldOut ? 'Out of stock' : 'Add to cart'}
+        </Button>
+      </div>
     </div>
   );
 }
