@@ -3,6 +3,7 @@ import { ArrowRight, BookOpen, Footprints, Lamp, Smartphone, type LucideIcon } f
 import { ErrorState, Spinner } from '@/components/ui/States';
 import { useCategories, useProducts } from './catalog.api';
 import { ProductCard } from './components/ProductCard';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 const categoryIcons: Record<string, LucideIcon> = {
   sneakers: Footprints,
@@ -17,13 +18,14 @@ export function HomePage() {
 
   return (
     <div className="space-y-14">
+      <PageTitle />
       <section className="rounded-3xl bg-gradient-to-br from-slate-900 via-brand-700 to-brand-500 px-8 py-16 text-white md:px-14">
         <p className="text-sm font-medium uppercase tracking-widest text-brand-100">New season</p>
         <h1 className="mt-3 max-w-xl text-4xl font-bold leading-tight md:text-5xl">
           Everything you love, in one place.
         </h1>
         <p className="mt-4 max-w-lg text-brand-100">
-          Sneakers, gadgets, books and home decor, all with fast checkout and AI-powered recommendations.
+          Sneakers, gadgets, books and home decor. Smart search, verified reviews and secure checkout.
         </p>
         <Link to="/shop" className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-slate-900 hover:bg-brand-50">
           Start shopping <ArrowRight className="size-4" />

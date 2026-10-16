@@ -10,6 +10,7 @@ import type { Order } from '@/types/api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
 import { useCancelOrder, useOrder, usePayOrder } from './orders.api';
 import { OrderStatusBadge } from './OrderStatusBadge';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 // Stripe sends the customer here after paying (?payment=success) or after pressing back
 // (?payment=cancelled). The URL alone proves nothing: the page shows whatever the
@@ -37,6 +38,7 @@ export function OrderDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <PageTitle title={`Order #${order.id.slice(-8).toUpperCase()}`} />
       <nav className="text-sm text-slate-500">
         <Link to="/orders" className="hover:underline">My orders</Link> / #{order.id.slice(-8).toUpperCase()}
       </nav>

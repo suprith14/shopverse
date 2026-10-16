@@ -1,6 +1,7 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 import type { AuthResponse } from '@/types/api';
 import { useAuthStore } from '@/features/auth/auth.store';
+import { track } from './network-status';
 
 // A single axios instance used by every feature's *.api.ts file.
 export const api = axios.create({
@@ -8,10 +9,13 @@ export const api = axios.create({
   withCredentials: true, // send the httpOnly refresh-token cookie
 });
 
-// 1) Attach the access token to every request.
+type TrackedConfig = AxiosRequestConfig & { _retried?: boolean; _done?: () => void };
+
+// 1) Attach the access token to every request, and start the "is the server slow?" timer.
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  (config as TrackedConfig)._done = track();
   return config;
 });
 
@@ -21,6 +25,7 @@ api.interceptors.request.use((config) => {
 let refreshPromise: Promise<string | null> | null = null;
 
 export function refreshSession(): Promise<string | null> {
+  const done = track(); // this is the very first request on page load: often the one waking the server
   refreshPromise ??= axios
     .post<AuthResponse>(`${api.defaults.baseURL}/auth/refresh`, null, { withCredentials: true })
     .then(({ data }) => {
@@ -34,13 +39,17 @@ export function refreshSession(): Promise<string | null> {
     .finally(() => {
       refreshPromise = null;
     });
-  return refreshPromise;
+  return refreshPromise.finally(done);
 }
 
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    (response.config as TrackedConfig)._done?.();
+    return response;
+  },
   async (error) => {
-    const original = error.config as AxiosRequestConfig & { _retried?: boolean };
+    const original = error.config as TrackedConfig;
+    original?._done?.();
     const isAuthCall = original?.url?.startsWith('/auth/');
 
     if (error.response?.status === 401 && !original._retried && !isAuthCall) {

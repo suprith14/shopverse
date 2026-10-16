@@ -11,6 +11,7 @@ import { WishlistPage } from '@/features/wishlist/WishlistPage';
 import { OrdersPage } from '@/features/orders/OrdersPage';
 import { OrderDetailPage } from '@/features/orders/OrderDetailPage';
 import { AccountPage } from '@/features/account/AccountPage';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 // All routes in one place. Protected pages get wrapped in <RequireAuth> as they are added.
 export const router = createBrowserRouter([
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
 function NotFound() {
   return (
     <div className="py-24 text-center">
+      <PageTitle title="Page not found" />
       <h1 className="text-4xl font-bold">404</h1>
       <p className="mt-2 text-slate-500">This page doesn't exist.</p>
       <Link to="/" className="mt-6 inline-block text-brand-600 hover:underline">Go home</Link>

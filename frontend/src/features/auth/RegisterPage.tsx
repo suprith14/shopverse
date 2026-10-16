@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
 import { useRegister } from './auth.api';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ export function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-sm py-12">
+      <PageTitle title="Create account" />
       <h1 className="text-2xl font-bold">Create your account</h1>
       <p className="mt-1 text-sm text-slate-500">Save your cart, wishlist and orders.</p>
 

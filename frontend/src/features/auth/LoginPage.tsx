@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
 import { useLogin } from './auth.api';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto max-w-sm py-12">
+      <PageTitle title="Log in" />
       <h1 className="text-2xl font-bold">Welcome back</h1>
       <p className="mt-1 text-sm text-slate-500">Log in to your ShopVerse account.</p>
 

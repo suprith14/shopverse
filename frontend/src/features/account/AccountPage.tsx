@@ -6,6 +6,7 @@ import { ErrorState, Spinner } from '@/components/ui/States';
 import type { Address, Profile } from '@/types/api';
 import { AddressForm } from './AddressForm';
 import { AddressLines } from './AddressCard';
+import { PageTitle } from '@/components/layout/PageTitle';
 import {
   useAddAddress,
   useDeleteAddress,
@@ -24,6 +25,7 @@ export function AccountPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <PageTitle title="My account" />
       <h1 className="text-2xl font-bold">My account</h1>
       <PhotoSection profile={profile} />
       {/* key: re-create the form with fresh values after a save */}

@@ -11,6 +11,7 @@ import { useAddToCart } from '@/features/cart/cart.api';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
 import { ProductReviews } from '@/features/reviews/ProductReviews';
 import { useProduct } from './catalog.api';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 export function ProductDetailPage() {
   const { slug = '' } = useParams();
@@ -32,6 +33,7 @@ function ProductView({ product }: { product: ProductDetail }) {
 
   return (
     <div className="space-y-4">
+      <PageTitle title={product.name} />
       <nav className="text-sm text-slate-500">
         <Link to="/shop" className="hover:underline">Shop</Link> /{' '}
         <Link to={`/shop?category=${product.category.slug}`} className="hover:underline">{product.category.name}</Link> /{' '}

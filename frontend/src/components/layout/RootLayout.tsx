@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
-import { Outlet } from 'react-router';
+import { Outlet, ScrollRestoration } from 'react-router';
 import { refreshSession } from '@/lib/api-client';
 import { Header } from './Header';
+import { SlowServerBanner } from './SlowServerBanner';
 
 export function RootLayout() {
   // On first load, try to restore the session from the refresh cookie.
@@ -12,6 +13,7 @@ export function RootLayout() {
 
   return (
     <div className="flex min-h-screen flex-col">
+      <SlowServerBanner />
       <Header />
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8">
         <Outlet />
@@ -19,6 +21,8 @@ export function RootLayout() {
       <footer className="border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-500">
         ShopVerse, a portfolio project. Payments run in Stripe test mode.
       </footer>
+      {/* New page -> start at the top. Back button -> return to where you were. */}
+      <ScrollRestoration />
     </div>
   );
 }

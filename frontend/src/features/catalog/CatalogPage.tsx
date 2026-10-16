@@ -5,6 +5,7 @@ import { CategoryTabs } from './components/CategoryTabs';
 import { FilterSidebar } from './components/FilterSidebar';
 import { Pagination } from './components/Pagination';
 import { ProductCard } from './components/ProductCard';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 const num = (v: string | null) => (v === null || v === '' ? undefined : Number(v));
 
@@ -51,6 +52,7 @@ export function CatalogPage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title={filters.q ? `"${filters.q}"` : 'Shop'} />
       <div>
         <h1 className="text-2xl font-bold">{filters.q ? `Results for "${filters.q}"` : 'Shop'}</h1>
         {data && <p className="text-sm text-slate-500">{data.total} products</p>}

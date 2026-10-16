@@ -4,6 +4,7 @@ import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
 import { formatPrice } from '@/lib/format';
 import { useOrders } from './orders.api';
 import { OrderStatusBadge } from './OrderStatusBadge';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 const formatDate = (iso: string) =>
   new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
@@ -17,6 +18,7 @@ export function OrdersPage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="My orders" />
       <h1 className="text-2xl font-bold">My orders</h1>
 
       {orders.length === 0 ? (

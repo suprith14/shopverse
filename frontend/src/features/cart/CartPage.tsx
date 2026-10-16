@@ -11,6 +11,7 @@ import { useCouponPreview } from '@/features/coupons/coupons.api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
 import { usePlaceOrder } from '@/features/orders/orders.api';
 import { DeliveryAddressPicker } from '@/features/account/DeliveryAddressPicker';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 // Same limit as the backend. The backend still enforces it; this only disables the + button.
 const MAX_QUANTITY_PER_ITEM = 10;
@@ -32,6 +33,7 @@ export function CartPage() {
   if (cart.items.length === 0) {
     return (
       <div className="space-y-4">
+        <PageTitle title="Your cart" />
         <h1 className="text-2xl font-bold">Your cart</h1>
         <EmptyState title="Your cart is empty" hint="Find something you like in the shop." />
         <div className="text-center">
@@ -43,6 +45,7 @@ export function CartPage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Your cart" />
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-bold">Your cart <span className="text-base font-normal text-slate-500">({cart.itemCount} items)</span></h1>
         <button onClick={() => clearCart.mutate(undefined)} className="text-sm text-slate-500 hover:text-red-600">Clear cart</button>

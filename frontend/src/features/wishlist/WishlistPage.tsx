@@ -2,6 +2,7 @@ import { Link } from 'react-router';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
 import { ProductCard } from '@/features/catalog/components/ProductCard';
 import { useWishlist } from './wishlist.api';
+import { PageTitle } from '@/components/layout/PageTitle';
 
 export function WishlistPage() {
   const { data: items, isLoading, isError, error } = useWishlist();
@@ -11,6 +12,7 @@ export function WishlistPage() {
 
   return (
     <div className="space-y-6">
+      <PageTitle title="Wishlist" />
       <h1 className="text-2xl font-bold">
         Your wishlist <span className="text-base font-normal text-slate-500">({items.length} saved)</span>
       </h1>
