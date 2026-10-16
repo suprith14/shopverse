@@ -36,6 +36,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 12 | Advanced search | ✅ | ✅ | [12-search](./features/12-search.md) | PostgreSQL full-text search, ranking, facet counts, debouncing |
 | 13 | Admin: product & order management | ✅ | ✅ | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | Role-based access, CRUD, order status transitions |
 | 14 | Admin analytics dashboard | ✅ | ✅ | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | SQL aggregations, time series, charts |
+| 16 | User profile & address book | 🚧 | ⬜ | [16-profile](./features/16-profile.md) | One-default-slot design, address snapshots, "me" URLs (no IDOR), E.164 phones, baselining |
 
 ## Change log
 
@@ -60,3 +61,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Scope change: Phase 6 (AI recommendations + AI shopping assistant) dropped. Next is Phase 7 (tests, deployment, polish). |
 | 2026-10-16 | Phase 7, step 1: production prep. Backend build/start/db:deploy scripts and Node 24 engine, SameSite=Lax refresh cookie, email redirect usable on the live demo, vercel.json rewrites for store and admin, VITE_STORE_URL for admin links, docs/DEPLOYMENT.md. |
 | 2026-10-16 | Phase 7: deployed. Neon production branch, API on Render (Ohio), store and admin on Vercel with /api rewrites, Stripe webhook destination for the live API. Verified a live 4242 purchase end to end. |
+| 2026-10-16 | Profile feature, steps 1–2: add_user_profile migration (phone, date of birth, avatar URL, default address slot, Address table) and /api/profile APIs (profile edit, address book with default handling, validation). Dev DB was wiped by a misused shadow database URL and restored with seeds + migration baselining. |
