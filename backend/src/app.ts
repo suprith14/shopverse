@@ -9,6 +9,7 @@ import { catalogRouter } from './modules/catalog/catalog.routes.js';
 import { cartRouter } from './modules/cart/cart.routes.js';
 import { wishlistRouter } from './modules/wishlist/wishlist.routes.js';
 import { couponsRouter } from './modules/coupons/coupons.routes.js';
+import { ordersRouter } from './modules/orders/orders.routes.js';
 
 // Builds the Express app. Kept separate from server.ts so tests can import the app
 // without starting a real HTTP server.
@@ -28,6 +29,7 @@ export function createApp() {
   app.use('/api/cart', cartRouter);
   app.use('/api/wishlist', wishlistRouter);
   app.use('/api/coupons', couponsRouter);
+  app.use('/api/orders', ordersRouter);
 
   app.use(notFoundHandler);
   app.use(errorHandler);

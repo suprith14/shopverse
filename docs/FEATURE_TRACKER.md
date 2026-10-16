@@ -11,7 +11,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 |---|---|---|
 | 1 | Foundation, authentication, product catalog | ✅ Done |
 | 2 | Cart, wishlist, coupons | ✅ Done |
-| 3 | Checkout, Stripe payments + webhooks, inventory reservation, orders, order emails | ⬜ Planned |
+| 3 | Checkout, Stripe payments + webhooks, inventory reservation, orders, order emails | 🚧 In progress |
 | 4 | Reviews & ratings, advanced search (full-text + facets) | ⬜ Planned |
 | 5 | Admin panel: product management, order management, analytics dashboard | ⬜ Planned |
 | 6 | AI: product recommendations + AI shopping assistant | ⬜ Planned |
@@ -29,8 +29,8 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 5 | Coupons | ✅ | ✅ | [05-coupons](./features/05-coupons.md) | Discount rules (%, fixed, min order, expiry, usage limits) |
 | 6 | Checkout + Stripe payments | ⬜ | ⬜ | - | Stripe Checkout Sessions, never trusting client prices |
 | 7 | Stripe webhooks | ⬜ | ⬜ | - | Signature verification, idempotency, event-driven state |
-| 8 | Inventory concurrency | ⬜ | ⬜ | - | Stock reservations, atomic conditional updates, expiry job |
-| 9 | Orders & order history | ⬜ | ⬜ | - | Order lifecycle (state machine), price snapshots |
+| 8 | Inventory concurrency | ✅ | ⬜ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Stock reservations, atomic conditional updates, expiry job |
+| 9 | Orders & order history | ✅ | ⬜ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Order lifecycle (state machine), price snapshots |
 | 10 | Order emails | ⬜ | ⬜ | - | Transactional email (Resend), side effects after commit |
 | 11 | Reviews & ratings | ⬜ | ⬜ | - | Verified-buyer check, denormalized rating stats |
 | 12 | Advanced search | ⬜ | ⬜ | - | PostgreSQL full-text search, ranking, facet counts, debouncing |
@@ -47,3 +47,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 2: cart (server-side cart API with stock checks and a quantity limit, cart page with optimistic updates, Add to cart button, header cart badge). |
 | 2026-10-16 | Phase 2: wishlist (idempotent save/unsave API, heart button on product cards and product page, wishlist page, header link). Shared product card shape moved to catalog.service.ts. |
 | 2026-10-16 | Phase 2: coupons (server-side coupon preview with expiry, usage-limit and minimum-order rules, coupon box and discount lines in the cart, FLASH50 demo coupon). Phase 2 complete. |
+| 2026-10-16 | Phase 3, step 1: orders API (place, list, view, cancel), atomic stock reservation (no overselling), price snapshots, coupon redemption, expiry job that cancels unpaid orders after 30 min. |
