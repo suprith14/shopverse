@@ -12,7 +12,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 1 | Foundation, authentication, product catalog | ✅ Done |
 | 2 | Cart, wishlist, coupons | ✅ Done |
 | 3 | Checkout, Stripe payments + webhooks, inventory reservation, orders, order emails | ✅ Done |
-| 4 | Reviews & ratings, advanced search (full-text + facets) | ⬜ Planned |
+| 4 | Reviews & ratings, advanced search (full-text + facets) | 🚧 In progress |
 | 5 | Admin panel: product management, order management, analytics dashboard | ⬜ Planned |
 | 6 | AI: product recommendations + AI shopping assistant | ⬜ Planned |
 | 7 | Tests, deployment, README screenshots, polish | ⬜ Planned |
@@ -32,7 +32,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 8 | Inventory concurrency | ✅ | ✅ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Stock reservations, atomic conditional updates, expiry job |
 | 9 | Orders & order history | ✅ | ✅ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Order lifecycle (state machine), price snapshots |
 | 10 | Order emails | ✅ | - | [10-order-emails](./features/10-order-emails.md) | Transactional email (Resend), side effects after commit |
-| 11 | Reviews & ratings | ⬜ | ⬜ | - | Verified-buyer check, denormalized rating stats |
+| 11 | Reviews & ratings | ✅ | ✅ | [11-reviews](./features/11-reviews.md) | Verified-buyer check, denormalized rating stats |
 | 12 | Advanced search | ⬜ | ⬜ | - | PostgreSQL full-text search, ranking, facet counts, debouncing |
 | 13 | Admin: product & order management | ⬜ | ⬜ | - | Role-based access, CRUD, order status transitions |
 | 14 | Admin analytics dashboard | ⬜ | ⬜ | - | SQL aggregations, time series, charts |
@@ -52,3 +52,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 3, step 3: Stripe webhook (signature check on the raw body, idempotent by event id and by conditional updates). Orders become PAID (reservations consumed, bought items removed from cart), expired sessions release stock, late payments for cancelled orders are refunded automatically. |
 | 2026-10-16 | Phase 3, step 4: frontend for checkout and orders. Checkout button in the cart, My orders page, order page with status banner (polls until the webhook confirms payment, Pay now / Cancel for unpaid orders), header link. |
 | 2026-10-16 | Phase 3, step 5: order confirmation emails via Resend (sent after the PAID transaction commits, once per order, dev redirect to the developer's inbox, console fallback without an API key). Phase 3 complete. |
+| 2026-10-16 | Phase 4, step 1: reviews and ratings (verified buyers only, one review per user per product, edit/delete, stored average recalculated in the same transaction under a row lock, star breakdown, reviews section with star picker on the product page). |

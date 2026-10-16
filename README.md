@@ -24,7 +24,7 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Stripe checkout + webhooks
 - ✅ Inventory reservation (no overselling under concurrency)
 - ✅ Order history + confirmation emails
-- ⬜ Reviews & ratings
+- ✅ Reviews & ratings (verified buyers only)
 - ⬜ Full-text search
 - ⬜ Admin panel + analytics dashboard
 - ⬜ AI recommendations + AI shopping assistant

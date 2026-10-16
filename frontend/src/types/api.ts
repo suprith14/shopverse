@@ -82,6 +82,35 @@ export interface Cart {
   hasIssues: boolean;
 }
 
+export interface Review {
+  id: string;
+  productId: string;
+  rating: number; // 1..5
+  title: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface PublicReview extends Review {
+  author: string; // "Demo C."
+  verifiedPurchase: boolean;
+}
+
+export interface ReviewList {
+  ratingAvg: number;
+  ratingCount: number;
+  distribution: Record<'1' | '2' | '3' | '4' | '5', number>;
+  items: PublicReview[];
+  page: number;
+  totalPages: number;
+}
+
+export interface MyReviewStatus {
+  canReview: boolean;
+  reason: string | null;
+  review: Review | null;
+}
+
 export type OrderStatus = 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
 
 export interface OrderItem {

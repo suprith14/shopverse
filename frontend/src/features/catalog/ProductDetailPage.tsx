@@ -9,6 +9,7 @@ import type { ProductDetail, ProductVariant } from '@/types/api';
 import { useAuthStore } from '@/features/auth/auth.store';
 import { useAddToCart } from '@/features/cart/cart.api';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
+import { ProductReviews } from '@/features/reviews/ProductReviews';
 import { useProduct } from './catalog.api';
 
 export function ProductDetailPage() {
@@ -91,6 +92,8 @@ function ProductView({ product }: { product: ProductDetail }) {
           <Attributes attributes={product.attributes} />
         </div>
       </div>
+
+      <ProductReviews productId={product.id} />
     </div>
   );
 }
