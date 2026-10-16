@@ -5,6 +5,7 @@ import { HttpError, badRequest, conflict, notFound } from '../../lib/http-error.
 import { getCart } from '../cart/cart.service.js';
 import { calculateDiscount, findCoupon } from '../coupons/coupons.service.js';
 import { createCheckoutSession, getCheckoutUrl } from '../payments/payments.service.js';
+import { sendOrderConfirmationEmail } from './order-emails.js';
 import type { CreateOrderInput } from './orders.schema.js';
 
 // How long stock is held for an unpaid order. The Stripe payment page closes after 30
@@ -230,6 +231,20 @@ export async function markOrderPaid(orderId: string, paymentIntentId: string) {
       data: { status: 'REFUNDED', stripePaymentIntentId: paymentIntentId },
     });
     return 'REFUNDED_LATE_PAYMENT';
+  }
+
+  if (result === 'PAID_NOW') {
+    // Side effect AFTER the transaction committed: never email "order confirmed" for a change
+    // that might still be rolled back. And only on the first PAID_NOW, so duplicates of the
+    // webhook don't send a second email.
+    // If the email fails, we log it and still answer Stripe with 200: the payment is recorded,
+    // and failing would make Stripe resend an event we'd then skip anyway. (Bigger systems use
+    // an "outbox" table plus a retry job so no email is ever lost.)
+    try {
+      await sendOrderConfirmationEmail(orderId);
+    } catch (err) {
+      console.error(`[email] order confirmation failed for ${orderId}`, err);
+    }
   }
   return result;
 }

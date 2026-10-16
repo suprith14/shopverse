@@ -12,7 +12,7 @@ overselling, webhooks, analytics and AI-powered shopping.
 |---|---|
 | **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
 | **Backend** | Node.js, Express 5, TypeScript, Prisma ORM, PostgreSQL, Zod, JWT |
-| **Integrations (planned)** | Stripe (payments), Resend (email), Claude API (AI assistant) |
+| **Integrations** | Stripe (payments), Resend (email), Claude API (AI assistant, planned) |
 
 ## Features
 
@@ -23,7 +23,7 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Cart, wishlist, coupons
 - ✅ Stripe checkout + webhooks
 - ✅ Inventory reservation (no overselling under concurrency)
-- 🚧 Order history ✅ + confirmation emails
+- ✅ Order history + confirmation emails
 - ⬜ Reviews & ratings
 - ⬜ Full-text search
 - ⬜ Admin panel + analytics dashboard
@@ -50,7 +50,7 @@ Read **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** to understand how everythi
 ```bash
 cd backend
 npm install
-cp .env.example .env        # then set DATABASE_URL, JWT_ACCESS_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+cp .env.example .env        # then set DATABASE_URL, JWT_ACCESS_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET (+ optional RESEND_API_KEY, EMAIL_DEV_REDIRECT_TO)
 npm run db:migrate          # create tables
 npm run db:seed             # demo products + users
 npm run dev                 # http://localhost:4000

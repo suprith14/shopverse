@@ -13,6 +13,12 @@ const envSchema = z.object({
   // Proves webhook requests really come from Stripe. Optional so the rest of the app runs
   // without it, but payments can't be confirmed until it's set.
   STRIPE_WEBHOOK_SECRET: z.string().regex(/^whsec_/, 'must start with whsec_').optional(),
+  // Emails. Without an API key, emails are printed to the console instead of sent.
+  RESEND_API_KEY: z.string().regex(/^re_/, 'must start with re_').optional(),
+  // onboarding@resend.dev works without owning a domain. Real stores send from their own domain.
+  EMAIL_FROM: z.string().default('ShopVerse <onboarding@resend.dev>'),
+  // Outside production, EVERY email goes to this address instead of the real recipient.
+  EMAIL_DEV_REDIRECT_TO: z.email().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
