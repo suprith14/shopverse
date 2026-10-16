@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { SlidersHorizontal } from 'lucide-react';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
 import { useProducts, type ProductFilters } from './catalog.api';
 import { CategoryTabs } from './components/CategoryTabs';
@@ -49,6 +51,8 @@ function useFiltersFromUrl() {
 export function CatalogPage() {
   const { filters, update, reset } = useFiltersFromUrl();
   const { data, isLoading, isError, error, isFetching } = useProducts(filters);
+  const [showFilters, setShowFilters] = useState(false);
+  const activeFilters = [filters.brand, filters.minPrice ?? filters.maxPrice, filters.minRating].filter((v) => v !== undefined).length;
 
   return (
     <div className="space-y-6">
@@ -62,8 +66,18 @@ export function CatalogPage() {
       <CategoryTabs active={filters.category} facets={data?.facets}
         onChange={(category) => update({ category, brand: undefined })} />
 
+      {/* Phones and tablets: filters fold away behind a button, so products come first.
+          The count shows filters are active even while they're hidden. */}
+      <button onClick={() => setShowFilters((s) => !s)} aria-expanded={showFilters} aria-controls="filters"
+        className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium lg:hidden">
+        <SlidersHorizontal className="size-4" /> {showFilters ? 'Hide filters' : 'Filters'}
+        {activeFilters > 0 && <span className="rounded-full bg-brand-600 px-2 text-xs text-white">{activeFilters}</span>}
+      </button>
+
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
-        <FilterSidebar filters={filters} facets={data?.facets} onChange={update} onReset={reset} />
+        <div id="filters" className={showFilters ? 'block' : 'hidden lg:block'}>
+          <FilterSidebar filters={filters} facets={data?.facets} onChange={update} onReset={reset} />
+        </div>
 
         <div className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">

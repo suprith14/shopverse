@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { Loader2, Search, Tag, LayoutGrid } from 'lucide-react';
 import { formatPrice } from '@/lib/format';
@@ -11,7 +11,8 @@ type Row = { key: string; to: string; label: string; sub?: string; image?: strin
 // Header search with suggestions as you type.
 //  - Debounced: waits 250 ms after the last keystroke before asking the server.
 //  - Keyboard: ↑/↓ move, Enter opens the highlighted row (or searches), Esc closes.
-export function SearchBox() {
+// className positions the box (the header uses it twice: inline on wide screens, own row on phones).
+export function SearchBox({ className = '' }: { className?: string }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [params] = useSearchParams();
@@ -21,6 +22,7 @@ export function SearchBox() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(-1); // highlighted row, -1 = none
   const boxRef = useRef<HTMLDivElement>(null);
+  const listId = useId(); // unique per instance: the header renders two search boxes (desktop + phone)
 
   // Keep the box in sync when the search changes from elsewhere (back button, clear filters).
   useEffect(() => setText(urlQuery), [urlQuery]);
@@ -77,7 +79,7 @@ export function SearchBox() {
   const showDropdown = open && rows.length > 0;
 
   return (
-    <div ref={boxRef} className="relative ml-auto hidden max-w-sm flex-1 sm:block">
+    <div ref={boxRef} className={`relative ${className}`}>
       <form onSubmit={onSubmit} role="search">
         <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
         <input
@@ -89,8 +91,8 @@ export function SearchBox() {
           aria-label="Search products"
           role="combobox"
           aria-expanded={showDropdown}
-          aria-controls="search-suggestions"
-          aria-activedescendant={active >= 0 ? `suggestion-${active}` : undefined}
+          aria-controls={listId}
+          aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
           autoComplete="off"
           className="w-full rounded-full border border-slate-300 bg-slate-50 py-2 pl-9 pr-9 text-sm outline-none focus:border-brand-500 focus:bg-white"
         />
@@ -98,10 +100,10 @@ export function SearchBox() {
       </form>
 
       {showDropdown && (
-        <ul id="search-suggestions" role="listbox"
+        <ul id={listId} role="listbox"
           className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg">
           {rows.map((row, i) => (
-            <li key={row.key} id={`suggestion-${i}`} role="option" aria-selected={i === active}
+            <li key={row.key} id={`${listId}-${i}`} role="option" aria-selected={i === active}
               onMouseEnter={() => setActive(i)}
               // mousedown (not click) fires before the input loses focus, so the dropdown is still there
               onMouseDown={(e) => { e.preventDefault(); go(row.to); }}
