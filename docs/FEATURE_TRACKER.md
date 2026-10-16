@@ -15,7 +15,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 4 | Reviews & ratings, advanced search (full-text + facets) | ✅ Done |
 | 5 | Admin panel: product management, order management, analytics dashboard | ✅ Done |
 | 6 | ~~AI: product recommendations + AI shopping assistant~~ | ❌ Dropped (out of scope) |
-| 7 | Deployment (Neon + Render + Vercel) | 🚧 In progress |
+| 7 | Deployment (Neon + Render + Vercel) | ✅ Done |
 
 ## Features
 
@@ -59,3 +59,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 5, step 5: admin analytics dashboard (period filter, KPI stat tiles with change vs previous period, daily revenue/orders line chart with table view, best sellers and revenue-by-category bars, orders-needing-attention and low-stock lists), lazy-loaded route for code splitting, demo sales generator (npm run db:seed-orders). Phase 5 complete. |
 | 2026-10-16 | Scope change: Phase 6 (AI recommendations + AI shopping assistant) dropped. Next is Phase 7 (tests, deployment, polish). |
 | 2026-10-16 | Phase 7, step 1: production prep. Backend build/start/db:deploy scripts and Node 24 engine, SameSite=Lax refresh cookie, email redirect usable on the live demo, vercel.json rewrites for store and admin, VITE_STORE_URL for admin links, docs/DEPLOYMENT.md. |
+| 2026-10-16 | Phase 7: deployed. Neon production branch, API on Render (Ohio), store and admin on Vercel with /api rewrites, Stripe webhook destination for the live API. Verified a live 4242 purchase end to end. |

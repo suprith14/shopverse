@@ -4,6 +4,9 @@ A full-stack e-commerce platform built as a portfolio project. It covers the pro
 online stores solve: secure authentication, product variants, payments, preventing
 overselling, webhooks, full-text search, and an admin panel with analytics.
 
+**Live demo:** [Store](https://shopverse-eta-ecru.vercel.app) · [Admin](https://shopverse-admin-lemon.vercel.app)
+(free hosting: the API sleeps when idle, so the first load can take ~30–50 s)
+
 **Stores:** Sneakers · Electronics · Books · Home Decor
 
 ## Tech stack
