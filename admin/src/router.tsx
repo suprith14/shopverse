@@ -1,6 +1,5 @@
 import { createBrowserRouter } from 'react-router';
 import { AdminLayout } from '@/components/layout/AdminLayout';
-import { ComingSoon } from '@/components/layout/ComingSoon';
 import { NotFound } from '@/components/layout/NotFound';
 import { LoginPage } from '@/features/auth/LoginPage';
 import { RequireAdmin } from '@/features/auth/RequireAdmin';
@@ -15,7 +14,9 @@ export const router = createBrowserRouter([
   {
     element: <RequireAdmin><AdminLayout /></RequireAdmin>,
     children: [
-      { path: '/', element: <ComingSoon title="Dashboard" step="step 5" /> },
+      // Code splitting: the dashboard (and its big chart library) is downloaded only when it's
+      // opened, so the login, products and orders pages load faster.
+      { path: '/', lazy: async () => ({ Component: (await import('@/features/dashboard/DashboardPage')).DashboardPage }) },
       { path: '/products', element: <ProductsPage /> },
       { path: '/products/new', element: <ProductCreatePage /> },
       { path: '/products/:id', element: <ProductEditPage /> },

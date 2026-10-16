@@ -27,7 +27,7 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Order history + confirmation emails
 - ✅ Reviews & ratings (verified buyers only)
 - ✅ Full-text search with relevance ranking, facet counts and suggestions
-- ⬜ Admin panel + analytics dashboard
+- ✅ Admin panel (separate app): products, orders, analytics dashboard
 - ⬜ AI recommendations + AI shopping assistant
 
 ## Project structure
@@ -55,6 +55,7 @@ npm install
 cp .env.example .env        # then set DATABASE_URL, JWT_ACCESS_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET (+ optional RESEND_API_KEY, EMAIL_DEV_REDIRECT_TO)
 npm run db:migrate          # create tables
 npm run db:seed             # demo products + users
+npm run db:seed-orders      # optional: 90 days of demo sales for the admin dashboard
 npm run dev                 # http://localhost:4000
 ```
 

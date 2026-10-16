@@ -13,7 +13,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2 | Cart, wishlist, coupons | ✅ Done |
 | 3 | Checkout, Stripe payments + webhooks, inventory reservation, orders, order emails | ✅ Done |
 | 4 | Reviews & ratings, advanced search (full-text + facets) | ✅ Done |
-| 5 | Admin panel: product management, order management, analytics dashboard | 🚧 In progress |
+| 5 | Admin panel: product management, order management, analytics dashboard | ✅ Done |
 | 6 | AI: product recommendations + AI shopping assistant | ⬜ Planned |
 | 7 | Tests, deployment, README screenshots, polish | ⬜ Planned |
 
@@ -35,7 +35,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 11 | Reviews & ratings | ✅ | ✅ | [11-reviews](./features/11-reviews.md) | Verified-buyer check, denormalized rating stats |
 | 12 | Advanced search | ✅ | ✅ | [12-search](./features/12-search.md) | PostgreSQL full-text search, ranking, facet counts, debouncing |
 | 13 | Admin: product & order management | ✅ | ✅ | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | Role-based access, CRUD, order status transitions |
-| 14 | Admin analytics dashboard | ✅ | ⬜ | [13-admin-api](./features/13-admin-api.md) | SQL aggregations, time series, charts |
+| 14 | Admin analytics dashboard | ✅ | ✅ | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | SQL aggregations, time series, charts |
 | 15 | AI recommendations | ⬜ | ⬜ | - | Co-purchase + similarity, LLM re-ranking |
 | 16 | AI shopping assistant | ⬜ | ⬜ | - | LLM tool use (searches the real catalog), streaming responses |
 
@@ -58,3 +58,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 5, step 2: new admin/ app (Vite + React + TypeScript, Redux Toolkit + RTK Query, React Router, Tailwind, ESLint) on port 5174. Admin-only login, session restore and single-flight token refresh in the RTK Query base query, sidebar layout, placeholder pages. |
 | 2026-10-16 | Phase 5, step 3: admin product management. List (debounced search incl. SKU, category/status/low-stock filters in the URL, pagination), create with variants, edit details, hide/show, variant rename/reprice, stock add/remove by delta, add/delete variants. RTK Query cache tags keep lists and dashboard in sync. |
 | 2026-10-16 | Phase 5, step 4: admin order management. Status tabs with counts, search by order number/name/email, order page with Paid → Shipped → Delivered tracker, next-step action button, refund with optional restock, Stripe payment link. |
+| 2026-10-16 | Phase 5, step 5: admin analytics dashboard (period filter, KPI stat tiles with change vs previous period, daily revenue/orders line chart with table view, best sellers and revenue-by-category bars, orders-needing-attention and low-stock lists), lazy-loaded route for code splitting, demo sales generator (npm run db:seed-orders). Phase 5 complete. |

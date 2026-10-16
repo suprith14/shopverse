@@ -1,6 +1,6 @@
 # Admin App (`admin/`)
 
-**Status:** 🚧 In progress (Phase 5). Login, products and orders are done; the dashboard comes next.
+**Status:** ✅ Done (Phase 5): login, products, orders and the analytics dashboard.
 
 A **separate React app** for staff, at `http://localhost:5174`, talking to the same backend as the
 store. All admin API calls go to `/api/admin/*` (see [13-admin-api](./13-admin-api.md)).
@@ -40,7 +40,8 @@ admin/src/
 │   ├── auth/           authSlice (state + reducers), authApi (login/logout/restore), LoginPage, RequireAdmin
 │   ├── products/       productsApi, ProductsPage (list), ProductEditPage (+ create), ProductForm, VariantsManager
 │   ├── orders/         ordersApi, OrdersPage (list), OrderDetailPage, OrderStatusBadge, orderStatus
-│   └── analytics/      analyticsApi (status counts now, dashboard data in step 5)
+│   ├── analytics/      analyticsApi (one query per dashboard widget)
+│   └── dashboard/      DashboardPage, StatTile, SalesChart, RankedBars, chartTheme
 ├── components/         layout (sidebar layout, 404) + ui (Button, Input, loading/error/empty states)
 ├── lib/                format (money, dates, order numbers, RTK errors), useDebounce
 ├── router.tsx          routes; everything except /login is wrapped in <RequireAdmin>
@@ -91,6 +92,31 @@ an admin", and that session is ended immediately. Session restore runs once on l
   - the payment intent links to the Stripe dashboard
 - Status changes and refunds invalidate the `Order` and `Analytics` tags (and `Product` for restocks), so lists, tab counts and stock refresh by themselves.
 
+## Dashboard (`/`)
+
+One period filter (**last 7 / 30 / 90 days**, kept in the URL as `?days=`) above everything. Six widgets load
+**in parallel**, each from its own endpoint, and each shows its own loading state.
+
+| Widget | Form | Why this form |
+|---|---|---|
+| Revenue, orders, average order value, customers who bought | **Stat tiles** with `+12% vs previous 30 days` | A headline number is best shown as a number, not a one-bar chart |
+| Revenue / orders per day | **Line chart** with a Revenue/Orders switch, hover crosshair + tooltip, "View as table" | Change over time. Dollars and counts have different scales, so a switch is used instead of a misleading two-axis chart |
+| Best sellers, revenue by category | **Horizontal bars**, one colour, value labels | "Which is biggest?" Horizontal keeps names readable. One colour, because the bars don't need different identities |
+| Orders needing attention | Counts linking to the filtered orders page | A to-do list, not a chart |
+| Low stock | List with ⚠ icon + "3 left" / "Out of stock" | Action items, linked to the product page |
+
+**Chart rules applied** (from the data-viz guidelines): the series colour `#2a78d6` was **validated** for lightness,
+chroma and ≥ 3:1 contrast on the white cards. Colours are defined by role in `chartTheme.ts`. Lines are 2 px with
+no dots until hover. Bars are rounded only at the data end (4 px). Gridlines are faint and horizontal only.
+Changes are shown with an **arrow + words**, never colour alone. There's no dual-axis chart, and there's a table view for exact numbers.
+
+**Code splitting:** the dashboard route is loaded with React Router's `lazy`, so the chart library (Recharts,
+~360 kB) is downloaded only when the dashboard opens. The other pages' bundle dropped from 798 kB to 441 kB.
+
+**Demo data:** `npm run db:seed-orders` (in `backend/`) creates 40 demo customers and ~90 days of orders
+from the real catalog (busier weekends, growth over time, some refunds, cancellations and coupons). It's
+re-runnable, never touches real customers or stock, and demo orders have no Stripe payment, so they can't be refunded.
+
 ## Concepts to be able to explain
 
 1. What's a Redux slice, an action and a reducer? What does Immer let you write?
@@ -99,3 +125,5 @@ an admin", and that session is ended immediately. Session restore runs once on l
 4. Why is `RequireAdmin` not real security, and what is?
 5. Why are filters kept in the URL instead of component state?
 6. Why does the order page show only the next allowed action, when the backend checks it anyway?
+7. Why is a dual-axis chart (revenue and orders on two y-scales) a bad idea, and what was done instead?
+8. What is code splitting, and what did it change in the build output?
