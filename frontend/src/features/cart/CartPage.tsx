@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link } from 'react-router';
 import { AlertTriangle, Lock, Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
+import { EmptyState, ErrorState } from '@/components/ui/States';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/format';
 import type { CartItem } from '@/types/api';
 import { useAddToCart, useCart, useClearCart, useRemoveCartItem, useUpdateCartItem } from './cart.api';
@@ -12,6 +13,7 @@ import { useCouponPreview } from '@/features/coupons/coupons.api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
 import { usePlaceOrder } from '@/features/orders/orders.api';
 import { DeliveryAddressPicker } from '@/features/account/DeliveryAddressPicker';
+import { CheckoutSteps } from '@/features/orders/CheckoutSteps';
 import { PageTitle } from '@/components/layout/PageTitle';
 
 // Same limit as the backend. The backend still enforces it; this only disables the + button.
@@ -28,7 +30,7 @@ export function CartPage() {
   const placeOrder = usePlaceOrder();
   const [addressId, setAddressId] = useState<string | null>(null);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ListSkeleton />;
   if (isError || !cart) return <ErrorState error={error} />;
 
   if (cart.items.length === 0) {
@@ -47,6 +49,7 @@ export function CartPage() {
   return (
     <div className="space-y-6">
       <PageTitle title="Your cart" />
+      <CheckoutSteps current={1} />
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-bold">Your cart <span className="text-base font-normal text-slate-500">({cart.itemCount} items)</span></h1>
         <button onClick={() => clearCart.mutate(undefined)} className="text-sm text-slate-500 hover:text-red-600">Clear cart</button>

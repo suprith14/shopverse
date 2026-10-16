@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { SlidersHorizontal } from 'lucide-react';
-import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
+import { EmptyState, ErrorState } from '@/components/ui/States';
+import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { useProducts, type ProductFilters } from './catalog.api';
 import { CategoryTabs } from './components/CategoryTabs';
 import { FilterSidebar } from './components/FilterSidebar';
@@ -101,7 +102,7 @@ export function CatalogPage() {
             </select>
           </div>
 
-          {isLoading && <Spinner />}
+          {isLoading && <ProductGridSkeleton count={6} className="grid grid-cols-2 gap-4 md:grid-cols-3" />}
           {isError && <ErrorState error={error} />}
           {data && data.items.length === 0 && <EmptyState title="No products found" hint="Try removing some filters." />}
 

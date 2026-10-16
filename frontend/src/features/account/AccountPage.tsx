@@ -2,7 +2,8 @@ import { useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } fr
 import { Camera, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { ErrorState, Spinner } from '@/components/ui/States';
+import { ErrorState } from '@/components/ui/States';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 import type { Address, Profile } from '@/types/api';
 import { AddressForm } from './AddressForm';
 import { AddressLines } from './AddressCard';
@@ -21,7 +22,7 @@ import {
 
 export function AccountPage() {
   const { data: profile, isLoading, isError, error } = useProfile();
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ListSkeleton rows={3} />;
   if (isError || !profile) return <ErrorState error={error} />;
 
   return (

@@ -3,13 +3,15 @@ import { Link, useParams, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, Clock, Loader2, RotateCcw, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { ErrorState, Spinner } from '@/components/ui/States';
+import { ErrorState } from '@/components/ui/States';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/format';
 import { AddressLines } from '@/features/account/AddressCard';
 import type { Order } from '@/types/api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
 import { useCancelOrder, useOrder, usePayOrder } from './orders.api';
 import { OrderStatusBadge } from './OrderStatusBadge';
+import { CheckoutSteps } from './CheckoutSteps';
 import { PageTitle } from '@/components/layout/PageTitle';
 
 // Stripe sends the customer here after paying (?payment=success) or after pressing back
@@ -33,7 +35,7 @@ export function OrderDetailPage() {
     removeCoupon();
   }, [isPaid, queryClient, removeCoupon]);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ListSkeleton rows={2} />;
   if (isError || !order) return <ErrorState error={error} />;
 
   return (
@@ -43,6 +45,10 @@ export function OrderDetailPage() {
         <Link to="/orders" className="hover:underline">My orders</Link> / #{order.id.slice(-8).toUpperCase()}
       </nav>
 
+      {/* Steps only around the purchase itself: waiting for payment, or just back from Stripe */}
+      {(order.status === 'PENDING' || payment) && ['PENDING', 'PAID'].includes(order.status) && (
+        <CheckoutSteps current={order.status === 'PENDING' ? 2 : 3} done={order.status === 'PAID'} />
+      )}
       <StatusBanner order={order} payment={payment} />
 
       <div className="rounded-xl border border-slate-200 bg-white">

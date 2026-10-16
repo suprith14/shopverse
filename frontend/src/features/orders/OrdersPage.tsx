@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { ChevronRight } from 'lucide-react';
-import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
+import { EmptyState, ErrorState } from '@/components/ui/States';
+import { ListSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/format';
 import { useOrders } from './orders.api';
 import { OrderStatusBadge } from './OrderStatusBadge';
@@ -13,7 +14,7 @@ const formatDate = (iso: string) =>
 export function OrdersPage() {
   const { data: orders, isLoading, isError, error } = useOrders();
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ListSkeleton rows={4} />;
   if (isError || !orders) return <ErrorState error={error} />;
 
   return (

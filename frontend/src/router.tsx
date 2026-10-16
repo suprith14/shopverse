@@ -1,33 +1,57 @@
 import { createBrowserRouter, Link } from 'react-router';
 import { RootLayout } from '@/components/layout/RootLayout';
-import { LoginPage } from '@/features/auth/LoginPage';
-import { RegisterPage } from '@/features/auth/RegisterPage';
 import { HomePage } from '@/features/catalog/HomePage';
 import { CatalogPage } from '@/features/catalog/CatalogPage';
 import { ProductDetailPage } from '@/features/catalog/ProductDetailPage';
 import { RequireAuth } from '@/features/auth/RequireAuth';
 import { CartPage } from '@/features/cart/CartPage';
-import { WishlistPage } from '@/features/wishlist/WishlistPage';
-import { OrdersPage } from '@/features/orders/OrdersPage';
-import { OrderDetailPage } from '@/features/orders/OrderDetailPage';
-import { AccountPage } from '@/features/account/AccountPage';
 import { PageTitle } from '@/components/layout/PageTitle';
+import { Spinner } from '@/components/ui/States';
 
-// All routes in one place. Protected pages get wrapped in <RequireAuth> as they are added.
+// All routes in one place. Protected pages are wrapped in <RequireAuth>.
+//
+// Code splitting: the pages almost every visitor sees (home, shop, product, cart) are in the
+// main bundle. The rest is downloaded only when first opened (`lazy`), so the first visit is lighter.
 export const router = createBrowserRouter([
   {
     element: <RootLayout />,
+    // Shown on a first visit straight to a lazy page (e.g. a bookmarked /orders) while its code loads.
+    hydrateFallbackElement: <Spinner />,
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/shop', element: <CatalogPage /> },
       { path: '/products/:slug', element: <ProductDetailPage /> },
       { path: '/cart', element: <RequireAuth><CartPage /></RequireAuth> },
-      { path: '/wishlist', element: <RequireAuth><WishlistPage /></RequireAuth> },
-      { path: '/orders', element: <RequireAuth><OrdersPage /></RequireAuth> },
-      { path: '/orders/:id', element: <RequireAuth><OrderDetailPage /></RequireAuth> },
-      { path: '/account', element: <RequireAuth><AccountPage /></RequireAuth> },
-      { path: '/login', element: <LoginPage /> },
-      { path: '/register', element: <RegisterPage /> },
+      {
+        path: '/wishlist',
+        lazy: async () => {
+          const { WishlistPage } = await import('@/features/wishlist/WishlistPage');
+          return { element: <RequireAuth><WishlistPage /></RequireAuth> };
+        },
+      },
+      {
+        path: '/orders',
+        lazy: async () => {
+          const { OrdersPage } = await import('@/features/orders/OrdersPage');
+          return { element: <RequireAuth><OrdersPage /></RequireAuth> };
+        },
+      },
+      {
+        path: '/orders/:id',
+        lazy: async () => {
+          const { OrderDetailPage } = await import('@/features/orders/OrderDetailPage');
+          return { element: <RequireAuth><OrderDetailPage /></RequireAuth> };
+        },
+      },
+      {
+        path: '/account',
+        lazy: async () => {
+          const { AccountPage } = await import('@/features/account/AccountPage');
+          return { element: <RequireAuth><AccountPage /></RequireAuth> };
+        },
+      },
+      { path: '/login', lazy: async () => ({ Component: (await import('@/features/auth/LoginPage')).LoginPage }) },
+      { path: '/register', lazy: async () => ({ Component: (await import('@/features/auth/RegisterPage')).RegisterPage }) },
       { path: '*', element: <NotFound /> },
     ],
   },

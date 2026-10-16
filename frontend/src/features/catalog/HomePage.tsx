@@ -1,6 +1,7 @@
 import { Link } from 'react-router';
 import { ArrowRight, BookOpen, Footprints, Lamp, Smartphone, type LucideIcon } from 'lucide-react';
-import { ErrorState, Spinner } from '@/components/ui/States';
+import { ErrorState } from '@/components/ui/States';
+import { Skeleton, ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { useCategories, useProducts } from './catalog.api';
 import { ProductCard } from './components/ProductCard';
 import { PageTitle } from '@/components/layout/PageTitle';
@@ -34,7 +35,7 @@ export function HomePage() {
 
       <section>
         <h2 className="mb-4 text-xl font-bold">Shop by category</h2>
-        {categories.isLoading && <Spinner />}
+        {categories.isLoading && <div className="grid grid-cols-2 gap-4 md:grid-cols-4">{Array.from({ length: 4 }, (_, i) => <Skeleton key={i} className="h-36 rounded-2xl" />)}</div>}
         {categories.isError && <ErrorState error={categories.error} />}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {categories.data?.map((c) => {
@@ -56,7 +57,7 @@ export function HomePage() {
           <h2 className="text-xl font-bold">Featured products</h2>
           <Link to="/shop" className="text-sm font-medium text-brand-600 hover:underline">View all</Link>
         </div>
-        {topRated.isLoading && <Spinner />}
+        {topRated.isLoading && <ProductGridSkeleton />}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           {topRated.data?.items.slice(0, 8).map((p) => <ProductCard key={p.id} product={p} />)}
         </div>

@@ -37,6 +37,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 13 | Admin: product & order management | ✅ | ✅ | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | Role-based access, CRUD, order status transitions |
 | 14 | Admin analytics dashboard | ✅ | ✅ | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | SQL aggregations, time series, charts |
 | 16 | User profile & address book | ✅ | ✅ | [16-profile](./features/16-profile.md) | One-default-slot design, address snapshots, "me" URLs (no IDOR), E.164 phones, baselining |
+| 17 | Store UX improvements | - | ✅ | [17-ux-improvements](./features/17-ux-improvements.md) | Skeletons, toasts with undo, mobile header, scroll restoration, code splitting |
 
 ## Change log
 
@@ -64,3 +65,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Profile feature, steps 1–2: add_user_profile migration (phone, date of birth, avatar URL, default address slot, Address table) and /api/profile APIs (profile edit, address book with default handling, validation). Dev DB was wiped by a misused shadow database URL and restored with seeds + migration baselining. |
 | 2026-10-16 | Profile feature, step 3: profile photos via Cloudinary signed direct uploads (no SDK; fixed per-user image id, 400×400 face crop on upload, jpg/png/webp only), URL ownership check, delete on remove. |
 | 2026-10-16 | Profile feature, steps 4–5: checkout requires a saved address (ownership checked, snapshotted into the order), My account page (photo, details, address book), Deliver-to picker in the cart, delivery address on the customer's order page and a Ship-to box in the admin. Feature complete. |
+| 2026-10-16 | Store UX: honest hero text, slow-server banner, page titles, scroll restoration, mobile header with menu and search row, collapsible filters, toasts with undo, quantity picker, skeleton loading, checkout steps, lazy-loaded routes (main bundle 519 → 427 kB). |

@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { ErrorState, Spinner } from '@/components/ui/States';
+import { ErrorState } from '@/components/ui/States';
+import { ProductDetailSkeleton } from '@/components/ui/Skeleton';
 import { StarRating } from '@/components/ui/StarRating';
 import { formatPrice } from '@/lib/format';
 import type { ProductDetail, ProductVariant } from '@/types/api';
@@ -18,7 +19,7 @@ export function ProductDetailPage() {
   const { slug = '' } = useParams();
   const { data: product, isLoading, isError, error } = useProduct(slug);
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ProductDetailSkeleton />;
   if (isError || !product) return <ErrorState error={error} />;
   // key={product.id} resets the selected image/variant when navigating to another product.
   return <ProductView key={product.id} product={product} />;

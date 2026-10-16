@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
-import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
+import { EmptyState, ErrorState } from '@/components/ui/States';
+import { ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { ProductCard } from '@/features/catalog/components/ProductCard';
 import { useWishlist } from './wishlist.api';
 import { PageTitle } from '@/components/layout/PageTitle';
@@ -7,7 +8,7 @@ import { PageTitle } from '@/components/layout/PageTitle';
 export function WishlistPage() {
   const { data: items, isLoading, isError, error } = useWishlist();
 
-  if (isLoading) return <Spinner />;
+  if (isLoading) return <ProductGridSkeleton count={4} className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4" />;
   if (isError || !items) return <ErrorState error={error} />;
 
   return (
