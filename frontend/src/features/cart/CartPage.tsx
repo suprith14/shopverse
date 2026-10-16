@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { AlertTriangle, Lock, Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -29,6 +29,7 @@ export function CartPage() {
   const discount = coupon?.discount ?? 0;
   const placeOrder = usePlaceOrder();
   const [addressId, setAddressId] = useState<string | null>(null);
+  const addressSection = useRef<HTMLDivElement>(null);
 
   if (isLoading) return <ListSkeleton />;
   if (isError || !cart) return <ErrorState error={error} />;
@@ -78,7 +79,7 @@ export function CartPage() {
             <span>{formatPrice(cart.subtotal - discount)}</span>
           </div>
           <CouponBox preview={couponPreview} />
-          <div className="border-t border-slate-200 pt-4">
+          <div ref={addressSection} className="scroll-mt-24 border-t border-slate-200 pt-4">
             <DeliveryAddressPicker value={addressId} onChange={setAddressId} />
           </div>
           {cart.hasIssues && (
@@ -88,10 +89,21 @@ export function CartPage() {
           )}
           {placeOrder.isError && <ErrorState error={placeOrder.error} />}
           {/* Only a coupon the backend accepted is sent. The backend checks it again anyway. */}
-          {!addressId && <p className="text-xs text-slate-500">Add a delivery address to continue.</p>}
-          <Button className="w-full py-3" loading={placeOrder.isPending} disabled={cart.hasIssues || cart.subtotal === 0 || !addressId}
-            onClick={() => addressId && placeOrder.mutate({ couponCode: coupon?.code, addressId })}>
-            <Lock className="size-4" /> Checkout · {formatPrice(cart.subtotal - discount)}
+          {/* Not disabled when the address is missing: a dead button doesn't say why (and tooltips
+              don't exist on phones). Tapping it takes you to the address form instead. */}
+          <Button className="w-full py-3" loading={placeOrder.isPending} disabled={cart.hasIssues || cart.subtotal === 0}
+            onClick={() => {
+              if (!addressId) {
+                addressSection.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                // Put the cursor in the first field of the address form, so typing can start right away.
+                addressSection.current?.querySelector<HTMLInputElement>('input')?.focus({ preventScroll: true });
+                notify.error(new Error('Please add a delivery address first.'));
+                return;
+              }
+              placeOrder.mutate({ couponCode: coupon?.code, addressId });
+            }}>
+            <Lock className="size-4" />
+            {addressId ? `Checkout · ${formatPrice(cart.subtotal - discount)}` : 'Add delivery address to continue'}
           </Button>
           <p className="text-center text-xs text-slate-500">You'll pay securely on Stripe. Test card: 4242 4242 4242 4242</p>
           <Link to="/shop" className="block text-center text-sm text-brand-600 hover:underline">Continue shopping</Link>
