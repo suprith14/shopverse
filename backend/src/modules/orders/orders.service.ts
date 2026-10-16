@@ -5,6 +5,7 @@ import { HttpError, badRequest, conflict, notFound } from '../../lib/http-error.
 import { getCart } from '../cart/cart.service.js';
 import { calculateDiscount, findCoupon } from '../coupons/coupons.service.js';
 import { createCheckoutSession, getCheckoutUrl } from '../payments/payments.service.js';
+import { storeOrigin } from '../../lib/store-origin.js';
 import { sendOrderConfirmationEmail } from './order-emails.js';
 import { formatInvoiceNumber, loadInvoiceOrder, renderInvoicePdf, saveCardDetails, takeNextInvoiceNumber } from './invoice.js';
 import type { CreateOrderInput } from './orders.schema.js';
@@ -59,12 +60,13 @@ export type OrderResponse = ReturnType<typeof toOrderResponse>;
 // ------------------------------------------------------------------ Checkout
 
 // What "Place order" does: create the order (stock held), then open a Stripe payment page for it.
-export async function checkout(userId: string, input: CreateOrderInput) {
+// requestOrigin: the browser's Origin header, used (if allowed) as Stripe's return address.
+export async function checkout(userId: string, input: CreateOrderInput, requestOrigin?: string) {
   const order = await createOrder(userId, input);
   const { email } = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { email: true } });
 
   try {
-    const session = await createCheckoutSession(order, email);
+    const session = await createCheckoutSession(order, email, storeOrigin(requestOrigin));
     await prisma.order.update({ where: { id: order.id }, data: { stripeSessionId: session.id } });
     return { order, checkoutUrl: session.url! };
   } catch (err) {

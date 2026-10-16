@@ -6,8 +6,8 @@ import { sendPdf } from '../../lib/send-pdf.js';
 const userId = (res: Response) => (res.locals.user as AuthUser).id;
 
 // Returns the new order plus the Stripe URL the browser should go to.
-export async function checkout(_req: Request, res: Response) {
-  res.status(201).json(await ordersService.checkout(userId(res), res.locals.body));
+export async function checkout(req: Request, res: Response) {
+  res.status(201).json(await ordersService.checkout(userId(res), res.locals.body, req.get('origin')));
 }
 
 export async function getPaymentUrl(_req: Request, res: Response) {

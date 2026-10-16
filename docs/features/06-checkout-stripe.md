@@ -50,6 +50,18 @@ user gets `502 "The payment service is unavailable"`.
 **Tested:** order total $124.20 (2 × $69 − 10%) matched Stripe's `amount_total` (12420) exactly. The
 session is `open`, `metadata.orderId` points to the order, and "pay now" returns the same page.
 
+## Where Stripe sends the customer back (`lib/store-origin.ts`)
+
+`success_url` / `cancel_url` use the store address the customer **came from** (the request's `Origin` header), but only
+if it's allowed: `CLIENT_URL` always, plus **in development only** `localhost` and private network addresses
+(`192.168.x.x`, `10.x.x.x`, `172.16–31.x.x`). Anything else falls back to `CLIENT_URL`.
+
+Why: when testing on a phone over Wi-Fi (`vite --host`), the store is at e.g. `http://192.168.31.234:5173`, and a
+`localhost` return address would point at the phone itself. Trusting any `Origin` would be an **open redirect**
+(Stripe could be made to send customers to a look-alike site), hence the allow-list, and the strict production behaviour.
+
+Tested: phone origin → back to the phone address. `localhost` → `localhost`. `https://evil-shop.example.com` → ignored, `CLIENT_URL`.
+
 ## Test cards (test mode only)
 
 | Card number | Result |

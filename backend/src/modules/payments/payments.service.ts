@@ -12,7 +12,8 @@ import type { OrderResponse } from '../orders/orders.service.js';
 // last second for stock that was already given back.
 export const CHECKOUT_PAGE_MINUTES = 30;
 
-export async function createCheckoutSession(order: OrderResponse, customerEmail: string) {
+// returnTo: the store address Stripe sends the customer back to (see lib/store-origin.ts).
+export async function createCheckoutSession(order: OrderResponse, customerEmail: string, returnTo: string = env.CLIENT_URL) {
   // The discount is passed to Stripe as a one-time coupon for exactly this order's discount,
   // so the total the customer pays on Stripe matches order.total to the cent.
   const stripeCoupon =
@@ -53,8 +54,8 @@ export async function createCheckoutSession(order: OrderResponse, customerEmail:
       expires_at: Math.floor(Date.now() / 1000) + CHECKOUT_PAGE_MINUTES * 60,
       // Where Stripe sends the customer afterwards. Landing on success_url does NOT prove
       // payment (anyone can type that URL). Only the webhook marks an order as paid.
-      success_url: `${env.CLIENT_URL}/orders/${order.id}?payment=success`,
-      cancel_url: `${env.CLIENT_URL}/orders/${order.id}?payment=cancelled`,
+      success_url: `${returnTo}/orders/${order.id}?payment=success`,
+      cancel_url: `${returnTo}/orders/${order.id}?payment=cancelled`,
     },
     // Idempotency key: if this request is sent twice (a retry after a network error),
     // Stripe returns the same session instead of creating a second one.
