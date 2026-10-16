@@ -1,5 +1,6 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
+import { stripe } from '../../lib/stripe.js';
 import { HttpError, badRequest, conflict, notFound } from '../../lib/http-error.js';
 import { getCart } from '../cart/cart.service.js';
 import { calculateDiscount, findCoupon } from '../coupons/coupons.service.js';
@@ -185,6 +186,52 @@ export async function releaseOrder(orderId: string) {
     },
     { timeout: 15_000 },
   );
+}
+
+// ------------------------------------------------------------------ Payment confirmed
+
+// Called by the Stripe webhook when payment succeeded. Returns what happened, for logging.
+export async function markOrderPaid(orderId: string, paymentIntentId: string) {
+  const result = await prisma.$transaction(
+    async (tx) => {
+      // PENDING -> PAID, and only from PENDING. If Stripe sends the same event twice,
+      // the second time matches 0 rows and nothing happens again.
+      const { count } = await tx.order.updateMany({
+        where: { id: orderId, status: 'PENDING' },
+        data: { status: 'PAID', stripePaymentIntentId: paymentIntentId },
+      });
+      if (count === 0) {
+        const order = await tx.order.findUnique({ where: { id: orderId }, select: { status: true } });
+        return order?.status ?? 'MISSING';
+      }
+
+      // The held stock is now sold for good.
+      await tx.stockReservation.updateMany({ where: { orderId, status: 'ACTIVE' }, data: { status: 'CONSUMED' } });
+
+      // Empty the cart, but only of what was bought (the customer may have added more since).
+      const order = await tx.order.findUniqueOrThrow({ where: { id: orderId }, include: { items: true } });
+      await tx.cartItem.deleteMany({
+        where: { userId: order.userId, variantId: { in: order.items.map((i) => i.variantId) } },
+      });
+      return 'PAID_NOW';
+    },
+    { timeout: 15_000 },
+  );
+
+  // Rare edge case: the money arrived AFTER the order was cancelled (stock already given back,
+  // maybe already sold to someone else). We can't ship it, so give the money back.
+  if (result === 'CANCELLED') {
+    await stripe.refunds.create(
+      { payment_intent: paymentIntentId, reason: 'requested_by_customer' },
+      { idempotencyKey: `refund-${orderId}` }, // never refund twice
+    );
+    await prisma.order.update({
+      where: { id: orderId },
+      data: { status: 'REFUNDED', stripePaymentIntentId: paymentIntentId },
+    });
+    return 'REFUNDED_LATE_PAYMENT';
+  }
+  return result;
 }
 
 // Called every minute by the expiry job: cancels unpaid orders whose time ran out.

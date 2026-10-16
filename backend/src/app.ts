@@ -10,6 +10,7 @@ import { cartRouter } from './modules/cart/cart.routes.js';
 import { wishlistRouter } from './modules/wishlist/wishlist.routes.js';
 import { couponsRouter } from './modules/coupons/coupons.routes.js';
 import { ordersRouter } from './modules/orders/orders.routes.js';
+import { handleStripeWebhook } from './modules/webhooks/stripe-webhook.js';
 
 // Builds the Express app. Kept separate from server.ts so tests can import the app
 // without starting a real HTTP server.
@@ -18,6 +19,10 @@ export function createApp() {
 
   app.use(helmet()); // sets secure HTTP headers
   app.use(cors({ origin: env.CLIENT_URL, credentials: true })); // credentials: allow the refresh cookie
+  // Stripe webhooks need the raw body to verify the signature, so this route is registered
+  // BEFORE express.json() turns the body into an object.
+  app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), handleStripeWebhook);
+
   app.use(express.json({ limit: '1mb' }));
   app.use(cookieParser());
 

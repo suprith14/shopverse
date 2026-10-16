@@ -10,6 +10,9 @@ const envSchema = z.object({
   CLIENT_URL: z.string().default('http://localhost:5173'),
   JWT_ACCESS_SECRET: z.string().min(16),
   STRIPE_SECRET_KEY: z.string().regex(/^sk_(test|live)_/, 'must be a Stripe secret key (sk_test_...)'),
+  // Proves webhook requests really come from Stripe. Optional so the rest of the app runs
+  // without it, but payments can't be confirmed until it's set.
+  STRIPE_WEBHOOK_SECRET: z.string().regex(/^whsec_/, 'must start with whsec_').optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);
