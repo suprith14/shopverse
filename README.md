@@ -10,7 +10,8 @@ overselling, webhooks, analytics and AI-powered shopping.
 
 | | |
 |---|---|
-| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
+| **Frontend** (store) | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
+| **Admin** (separate app) | React 19, TypeScript, Vite, Tailwind CSS, React Router, Redux Toolkit + RTK Query, ESLint |
 | **Backend** | Node.js, Express 5, TypeScript, Prisma ORM, PostgreSQL, Zod, JWT |
 | **Integrations** | Stripe (payments), Resend (email), Claude API (AI assistant, planned) |
 
@@ -34,7 +35,8 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 ```
 shopverse/
 ├── backend/    # REST API (independent project)
-├── frontend/   # React storefront (independent project)
+├── frontend/   # React storefront for customers (independent project)
+├── admin/      # React admin panel for staff (independent project, same backend)
 └── docs/       # architecture, feature tracker, per-feature explanations
 ```
 
@@ -75,6 +77,17 @@ stripe listen --events checkout.session.completed,checkout.session.async_payment
 
 Put the `whsec_...` secret it prints into `backend/.env` as `STRIPE_WEBHOOK_SECRET` and restart the backend.
 Pay with the test card `4242 4242 4242 4242` (any future date, any CVC).
+
+### 4. Admin panel (optional, another terminal)
+
+```bash
+cd admin
+npm install
+npm run dev                 # http://localhost:5174 (log in with the admin account below)
+```
+
+On `localhost` both apps share cookies, so logging into one replaces the session in the other.
+Use a private window for the second one if you need both logged in.
 
 ### Demo accounts
 
