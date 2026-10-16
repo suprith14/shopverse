@@ -1,6 +1,7 @@
 import { prisma } from '../../lib/prisma.js';
 import { sendEmail } from '../../lib/email.js';
 import { env } from '../../config/env.js';
+import { formatInvoiceNumber, loadInvoiceOrder, renderInvoicePdf } from './invoice.js';
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -64,5 +65,11 @@ export async function sendOrderConfirmationEmail(orderId: string) {
     `View your order: ${orderUrl}`,
   ].join('\n');
 
-  await sendEmail({ to: order.user.email, subject: `Order confirmed #${orderNumber}`, html, text });
+  // The invoice PDF goes along as an attachment. If drawing it fails, the confirmation is still sent.
+  const invoiceOrder = await loadInvoiceOrder({ id: orderId }).catch(() => null);
+  const attachments = invoiceOrder
+    ? [{ filename: `${formatInvoiceNumber(invoiceOrder.invoiceNumber, invoiceOrder.invoiceIssuedAt)}.pdf`, content: await renderInvoicePdf(invoiceOrder) }]
+    : undefined;
+
+  await sendEmail({ to: order.user.email, subject: `Order confirmed #${orderNumber}`, html, text, attachments });
 }

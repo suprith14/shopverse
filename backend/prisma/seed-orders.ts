@@ -104,6 +104,22 @@ async function main() {
     if (age % 15 === 0) process.stdout.write(`  ${DAYS - age}/${DAYS} days, ${created} orders\n`);
   }
 
+  // Paid demo orders get invoice numbers like real ones (continuing the counter, in date order).
+  // Demo data only: deleting old demo orders on a re-run leaves gaps, which real data never has.
+  console.log('Numbering invoices...');
+  await prisma.invoiceCounter.upsert({ where: { id: 'invoice' }, create: { id: 'invoice', value: 0 }, update: {} });
+  await prisma.$executeRaw`
+    WITH start AS (SELECT value FROM "InvoiceCounter" WHERE id = 'invoice'),
+    numbered AS (
+      SELECT id, "createdAt", (SELECT value FROM start) + ROW_NUMBER() OVER (ORDER BY "createdAt", id) AS n
+      FROM "Order"
+      WHERE status IN ('PAID', 'SHIPPED', 'DELIVERED', 'REFUNDED') AND "invoiceNumber" IS NULL
+    )
+    UPDATE "Order" o SET "invoiceNumber" = numbered.n, "invoiceIssuedAt" = numbered."createdAt"
+    FROM numbered WHERE o.id = numbered.id`;
+  await prisma.$executeRaw`
+    UPDATE "InvoiceCounter" SET value = (SELECT COALESCE(MAX("invoiceNumber"), 0) FROM "Order") WHERE id = 'invoice'`;
+
   console.log(`Done. ${customers.length} demo customers, ${created} orders over ${DAYS} days.`);
 }
 

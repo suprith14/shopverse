@@ -74,6 +74,10 @@ interface OrderBase {
   total: number;
   stripeSessionId: string | null;
   stripePaymentIntentId: string | null;
+  invoiceNumber: number | null;
+  cardBrand: string | null;
+  cardLast4: string | null;
+  receiptUrl: string | null;
   // Copied from the customer's address book at checkout. null for orders placed before addresses existed.
   shippingAddress: {
     fullName: string;
@@ -95,6 +99,7 @@ export interface AdminOrderListItem extends OrderBase {
 }
 
 export interface AdminOrderDetail extends OrderBase {
+  invoiceLabel: string | null; // "INV-2026-00042" once paid
   user: { id: string; name: string; email: string };
   coupon: { code: string } | null;
   items: {

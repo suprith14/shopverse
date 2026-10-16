@@ -107,6 +107,8 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.coupon.deleteMany();
+  // All orders are gone, so invoice numbering starts again from 1.
+  await prisma.invoiceCounter.upsert({ where: { id: 'invoice' }, create: { id: 'invoice', value: 0 }, update: { value: 0 } });
   await prisma.refreshToken.deleteMany();
   await prisma.user.deleteMany();
 

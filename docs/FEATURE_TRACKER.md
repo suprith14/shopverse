@@ -38,6 +38,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 14 | Admin analytics dashboard | ✅ | ✅ | [13-admin-api](./features/13-admin-api.md), [15-admin-app](./features/15-admin-app.md) | SQL aggregations, time series, charts |
 | 16 | User profile & address book | ✅ | ✅ | [16-profile](./features/16-profile.md) | One-default-slot design, address snapshots, "me" URLs (no IDOR), E.164 phones, baselining |
 | 17 | Store UX improvements | - | ✅ | [17-ux-improvements](./features/17-ux-improvements.md) | Skeletons, toasts with undo, mobile header, scroll restoration, code splitting |
+| 18 | Invoices & payment details | ✅ | ✅ | [18-invoices](./features/18-invoices.md) | Gapless invoice numbers (locked counter row), server-side PDFs, back-fill migration |
 
 ## Change log
 
@@ -66,3 +67,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Profile feature, step 3: profile photos via Cloudinary signed direct uploads (no SDK; fixed per-user image id, 400×400 face crop on upload, jpg/png/webp only), URL ownership check, delete on remove. |
 | 2026-10-16 | Profile feature, steps 4–5: checkout requires a saved address (ownership checked, snapshotted into the order), My account page (photo, details, address book), Deliver-to picker in the cart, delivery address on the customer's order page and a Ship-to box in the admin. Feature complete. |
 | 2026-10-16 | Store UX: honest hero text, slow-server banner, page titles, scroll restoration, mobile header with menu and search row, collapsible filters, toasts with undo, quantity picker, skeleton loading, checkout steps, lazy-loaded routes (main bundle 519 → 427 kB). |
+| 2026-10-16 | Invoices: add_invoices migration (invoice number, card details, receipt URL, counter table, back-fill of 384 paid orders), gapless numbering in the paid transaction, card details saved from Stripe, PDF invoices (pdfkit) for customers and admins, invoice attached to confirmation emails, Download invoice + Stripe receipt in store and admin. |

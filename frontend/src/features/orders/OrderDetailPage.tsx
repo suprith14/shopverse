@@ -1,11 +1,13 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
-import { CheckCircle2, Clock, Loader2, RotateCcw, XCircle } from 'lucide-react';
+import { CheckCircle2, Clock, Download, ExternalLink, Loader2, RotateCcw, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/States';
 import { ListSkeleton } from '@/components/ui/Skeleton';
 import { formatPrice } from '@/lib/format';
+import { downloadFile } from '@/lib/download';
+import { notify } from '@/lib/notify';
 import { AddressLines } from '@/features/account/AddressCard';
 import type { Order } from '@/types/api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
@@ -89,6 +91,8 @@ export function OrderDetailPage() {
         </dl>
       </div>
 
+      {order.invoiceLabel && <PaymentDetails order={order} />}
+
       {/* The address copied into the order at checkout (not the current address book entry) */}
       {order.shippingAddress && (
         <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -171,6 +175,47 @@ function Banner({ tone, icon, title, children }: { tone: keyof typeof tones; ico
       <div className="text-sm">
         <p className="text-base font-semibold">{title}</p>
         <div className="mt-1">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+// Invoice download + card used + Stripe's receipt. Only shown once the order is paid.
+function PaymentDetails({ order }: { order: Order }) {
+  const [downloading, setDownloading] = useState(false);
+  const card = order.cardBrand && order.cardLast4
+    ? `${order.cardBrand.charAt(0).toUpperCase()}${order.cardBrand.slice(1)} •••• ${order.cardLast4}`
+    : 'Card via Stripe';
+
+  const download = async () => {
+    setDownloading(true);
+    try {
+      await downloadFile(`/orders/${order.id}/invoice`, `${order.invoiceLabel}.pdf`);
+    } catch (err) {
+      notify.error(err);
+    } finally {
+      setDownloading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4">
+      <div>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Payment</h2>
+        <p className="mt-1 text-sm text-slate-700">
+          {card} · Invoice <span className="font-mono">{order.invoiceLabel}</span>
+        </p>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" loading={downloading} onClick={download}>
+          <Download className="size-4" /> Download invoice
+        </Button>
+        {order.receiptUrl && (
+          <a href={order.receiptUrl} target="_blank" rel="noreferrer"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm text-brand-700 hover:bg-brand-50">
+            <ExternalLink className="size-4" /> Stripe receipt
+          </a>
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router';
-import { ArrowLeft, Check, ExternalLink, PackageCheck, RotateCcw, Truck } from 'lucide-react';
+import { ArrowLeft, Check, Download, ExternalLink, PackageCheck, RotateCcw, Truck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ErrorState, Spinner } from '@/components/ui/States';
 import { formatDateTime, formatPrice, getErrorMessage, orderNumber } from '@/lib/format';
 import type { AdminOrderDetail, OrderStatus } from '@/types/api';
 import { useGetOrderQuery, useRefundOrderMutation, useUpdateOrderStatusMutation } from './ordersApi';
+import { downloadFile } from '@/lib/download';
 import { OrderStatusBadge } from './OrderStatusBadge';
 
 const REFUNDABLE: OrderStatus[] = ['PAID', 'SHIPPED', 'DELIVERED'];
@@ -67,6 +68,10 @@ export function OrderDetailPage() {
             {order.reservations[0] && (
               <p className="mt-2 text-xs text-slate-500">Stock reservation: {order.reservations[0].status.toLowerCase()}</p>
             )}
+            {order.cardLast4 && (
+              <p className="mt-2 text-sm capitalize text-slate-700">{order.cardBrand} •••• {order.cardLast4}</p>
+            )}
+            {order.invoiceLabel && <InvoiceActions order={order} />}
           </Box>
         </div>
       </div>
@@ -185,6 +190,38 @@ function Box({ title, children }: { title: string; children: ReactNode }) {
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</h2>
       {children}
+    </div>
+  );
+}
+
+function InvoiceActions({ order }: { order: AdminOrderDetail }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const download = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await downloadFile(`/admin/orders/${order.id}/invoice`, `${order.invoiceLabel}.pdf`);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <div className="mt-3 space-y-2 border-t border-slate-100 pt-3">
+      <p className="text-xs text-slate-500">Invoice <span className="font-mono text-slate-700">{order.invoiceLabel}</span></p>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" className="px-3 py-1.5 text-xs" loading={busy} onClick={download}>
+          <Download className="size-3.5" /> Download invoice
+        </Button>
+        {order.receiptUrl && (
+          <a href={order.receiptUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 px-2 py-1.5 text-xs text-brand-700 hover:underline">
+            Stripe receipt <ExternalLink className="size-3" />
+          </a>
+        )}
+      </div>
+      {error && <ErrorState message={error} />}
     </div>
   );
 }

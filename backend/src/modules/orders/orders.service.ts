@@ -6,6 +6,7 @@ import { getCart } from '../cart/cart.service.js';
 import { calculateDiscount, findCoupon } from '../coupons/coupons.service.js';
 import { createCheckoutSession, getCheckoutUrl } from '../payments/payments.service.js';
 import { sendOrderConfirmationEmail } from './order-emails.js';
+import { formatInvoiceNumber, loadInvoiceOrder, renderInvoicePdf, saveCardDetails, takeNextInvoiceNumber } from './invoice.js';
 import type { CreateOrderInput } from './orders.schema.js';
 
 // How long stock is held for an unpaid order. The Stripe payment page closes after 30
@@ -41,6 +42,7 @@ function toOrderResponse({ items, coupon, reservations, ...order }: OrderRow) {
   return {
     ...order,
     couponCode: coupon?.code ?? null,
+    invoiceLabel: formatInvoiceNumber(order.invoiceNumber, order.invoiceIssuedAt), // "INV-2026-00042" or null
     // Unpaid orders must be paid before this time, or they are cancelled automatically.
     paymentDeadline: order.status === 'PENDING' ? (reservations[0]?.expiresAt ?? null) : null,
     items: items.map(({ variant, ...item }) => ({
@@ -227,6 +229,10 @@ export async function markOrderPaid(orderId: string, paymentIntentId: string) {
       // The held stock is now sold for good.
       await tx.stockReservation.updateMany({ where: { orderId, status: 'ACTIVE' }, data: { status: 'CONSUMED' } });
 
+      // Invoice number, in the SAME transaction: an order is paid if and only if it has one.
+      const invoiceNumber = await takeNextInvoiceNumber(tx);
+      await tx.order.update({ where: { id: orderId }, data: { invoiceNumber, invoiceIssuedAt: new Date() } });
+
       // Empty the cart, but only of what was bought (the customer may have added more since).
       const order = await tx.order.findUniqueOrThrow({ where: { id: orderId }, include: { items: true } });
       await tx.cartItem.deleteMany({
@@ -258,6 +264,13 @@ export async function markOrderPaid(orderId: string, paymentIntentId: string) {
     // If the email fails, we log it and still answer Stripe with 200: the payment is recorded,
     // and failing would make Stripe resend an event we'd then skip anyway. (Bigger systems use
     // an "outbox" table plus a retry job so no email is ever lost.)
+    // Card brand / last 4 / receipt link for the invoice. If Stripe is briefly unreachable the
+    // invoice just says "Card (via Stripe)": the payment itself is already recorded.
+    try {
+      await saveCardDetails(orderId, paymentIntentId);
+    } catch (err) {
+      console.error(`[invoice] could not load card details for ${orderId}`, err);
+    }
     try {
       await sendOrderConfirmationEmail(orderId);
     } catch (err) {
@@ -294,6 +307,13 @@ export async function getMyOrder(userId: string, orderId: string) {
   const order = await prisma.order.findFirst({ where: { id: orderId, userId }, include: orderInclude });
   if (!order) throw notFound('Order not found');
   return toOrderResponse(order);
+}
+
+// My invoice as a PDF. Filtering by userId too: another customer's order is "not found".
+export async function getMyInvoice(userId: string, orderId: string) {
+  const order = await loadInvoiceOrder({ id: orderId, userId });
+  if (!order) throw notFound('Order not found');
+  return { filename: `${formatInvoiceNumber(order.invoiceNumber, order.invoiceIssuedAt)}.pdf`, pdf: await renderInvoicePdf(order) };
 }
 
 export async function cancelMyOrder(userId: string, orderId: string) {

@@ -182,6 +182,10 @@ export interface Order {
   paymentDeadline: string | null; // only while PENDING
   createdAt: string;
   shippingAddress: ShippingAddress | null; // null for orders placed before addresses existed
+  invoiceLabel: string | null; // "INV-2026-00042" once paid
+  cardBrand: string | null; // "visa"
+  cardLast4: string | null;
+  receiptUrl: string | null; // Stripe's hosted receipt
   items: OrderItem[];
 }
 

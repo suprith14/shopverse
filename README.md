@@ -32,6 +32,7 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Full-text search with relevance ranking, facet counts and suggestions
 - ✅ Admin panel (separate app): products, orders, analytics dashboard
 - ✅ My account: profile photo (Cloudinary), details, address book; address step at checkout
+- ✅ PDF invoices with sequential numbering, card details and Stripe receipts
 
 ## Project structure
 

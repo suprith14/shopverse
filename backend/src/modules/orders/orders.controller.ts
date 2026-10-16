@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import type { AuthUser } from '../../middleware/auth.js';
 import * as ordersService from './orders.service.js';
+import { sendPdf } from '../../lib/send-pdf.js';
 
 const userId = (res: Response) => (res.locals.user as AuthUser).id;
 
@@ -23,4 +24,8 @@ export async function getMyOrder(_req: Request, res: Response) {
 
 export async function cancelMyOrder(_req: Request, res: Response) {
   res.json({ order: await ordersService.cancelMyOrder(userId(res), res.locals.params.id) });
+}
+
+export async function getMyInvoice(_req: Request, res: Response) {
+  sendPdf(res, await ordersService.getMyInvoice(userId(res), res.locals.params.id));
 }

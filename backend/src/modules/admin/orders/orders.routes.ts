@@ -8,5 +8,6 @@ export const adminOrdersRouter = Router();
 
 adminOrdersRouter.get('/', validate(listAdminOrdersQuery, 'query'), controller.listOrders);
 adminOrdersRouter.get('/:id', validate(idParams, 'params'), controller.getOrder);
+adminOrdersRouter.get('/:id/invoice', validate(idParams, 'params'), controller.getInvoice);
 adminOrdersRouter.patch('/:id/status', validate(idParams, 'params'), validate(updateStatusSchema), controller.updateStatus);
 adminOrdersRouter.post('/:id/refund', validate(idParams, 'params'), validate(refundSchema), controller.refundOrder);

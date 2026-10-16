@@ -209,11 +209,29 @@ model Order {
   createdAt             DateTime    @default(now())
   updatedAt             DateTime    @updatedAt
 
+  // Invoice: numbered only once paid, from InvoiceCounter (sequential, no gaps). Shown as INV-2026-00042.
+  invoiceNumber   Int?      @unique
+  invoiceIssuedAt DateTime?
+  // Card details copied from Stripe when the payment is confirmed, so invoices don't call Stripe.
+  // Only the brand and last 4 digits: the full card number never reaches us (Stripe keeps it).
+  cardBrand       String? // "visa", "mastercard"...
+  cardLast4       String?
+  receiptUrl      String? // Stripe's hosted receipt page
+
   items        OrderItem[]
   reservations StockReservation[]
 
   @@index([userId])
   @@index([status, createdAt])
+}
+
+// One row per counter (id "invoice"). Taking the next invoice number is an atomic
+// "UPDATE ... SET value = value + 1 RETURNING value" inside the payment transaction:
+// the row lock makes simultaneous payments take turns (no duplicates), and a failed
+// transaction rolls the +1 back (no gaps), which a PostgreSQL sequence can't promise.
+model InvoiceCounter {
+  id    String @id
+  value Int    @default(0)
 }
 
 // Snapshot of what was bought. Product name/price are copied so the order history

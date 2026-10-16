@@ -3,6 +3,7 @@ import { prisma } from '../../../lib/prisma.js';
 import { stripe } from '../../../lib/stripe.js';
 import { badRequest, notFound } from '../../../lib/http-error.js';
 import type { ListAdminOrdersQuery } from './orders.schema.js';
+import { formatInvoiceNumber, loadInvoiceOrder, renderInvoicePdf } from '../../orders/invoice.js';
 
 // The order state machine, admin part:
 //   PAID -> SHIPPED -> DELIVERED
@@ -55,7 +56,14 @@ export async function getOrder(id: string) {
     },
   });
   if (!order) throw notFound('Order not found');
-  return order;
+  return { ...order, invoiceLabel: formatInvoiceNumber(order.invoiceNumber, order.invoiceIssuedAt) };
+}
+
+// Any order's invoice (admins aren't limited to their own orders).
+export async function getInvoice(id: string) {
+  const order = await loadInvoiceOrder({ id });
+  if (!order) throw notFound('Order not found');
+  return { filename: `${formatInvoiceNumber(order.invoiceNumber, order.invoiceIssuedAt)}.pdf`, pdf: await renderInvoicePdf(order) };
 }
 
 // Mark shipped / delivered. Conditional update: only moves forward from the right state,

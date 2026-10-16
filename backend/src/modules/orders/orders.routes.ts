@@ -13,4 +13,5 @@ ordersRouter.post('/', validate(createOrderSchema), controller.checkout);
 ordersRouter.get('/', controller.listMyOrders);
 ordersRouter.get('/:id', validate(orderIdParams, 'params'), controller.getMyOrder);
 ordersRouter.post('/:id/pay', validate(orderIdParams, 'params'), controller.getPaymentUrl);
+ordersRouter.get('/:id/invoice', validate(orderIdParams, 'params'), controller.getMyInvoice);
 ordersRouter.post('/:id/cancel', validate(orderIdParams, 'params'), controller.cancelMyOrder);

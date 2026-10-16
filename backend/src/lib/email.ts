@@ -11,6 +11,7 @@ export interface EmailMessage {
   subject: string;
   html: string;
   text: string; // plain-text version: some email apps and spam filters prefer it
+  attachments?: { filename: string; content: Buffer }[]; // e.g. the invoice PDF
 }
 
 export async function sendEmail(message: EmailMessage) {
@@ -29,7 +30,7 @@ export async function sendEmail(message: EmailMessage) {
     return;
   }
 
-  const { data, error } = await resend.emails.send({ from: env.EMAIL_FROM, to, subject, html: message.html, text: message.text });
+  const { data, error } = await resend.emails.send({ from: env.EMAIL_FROM, to, subject, html: message.html, text: message.text, attachments: message.attachments });
   if (error) throw new Error(`Email failed: ${error.message}`);
   console.log(`[email] sent to=${to} subject="${subject}" id=${data?.id}`);
 }
