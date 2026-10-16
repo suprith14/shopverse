@@ -9,7 +9,8 @@ export const ordersRouter = Router();
 
 ordersRouter.use(requireAuth);
 
-ordersRouter.post('/', validate(createOrderSchema), controller.createOrder);
+ordersRouter.post('/', validate(createOrderSchema), controller.checkout);
 ordersRouter.get('/', controller.listMyOrders);
 ordersRouter.get('/:id', validate(orderIdParams, 'params'), controller.getMyOrder);
+ordersRouter.post('/:id/pay', validate(orderIdParams, 'params'), controller.getPaymentUrl);
 ordersRouter.post('/:id/cancel', validate(orderIdParams, 'params'), controller.cancelMyOrder);

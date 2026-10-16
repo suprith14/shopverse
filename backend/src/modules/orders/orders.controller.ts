@@ -4,8 +4,13 @@ import * as ordersService from './orders.service.js';
 
 const userId = (res: Response) => (res.locals.user as AuthUser).id;
 
-export async function createOrder(_req: Request, res: Response) {
-  res.status(201).json({ order: await ordersService.createOrder(userId(res), res.locals.body) });
+// Returns the new order plus the Stripe URL the browser should go to.
+export async function checkout(_req: Request, res: Response) {
+  res.status(201).json(await ordersService.checkout(userId(res), res.locals.body));
+}
+
+export async function getPaymentUrl(_req: Request, res: Response) {
+  res.json({ checkoutUrl: await ordersService.getPaymentUrl(userId(res), res.locals.params.id) });
 }
 
 export async function listMyOrders(_req: Request, res: Response) {

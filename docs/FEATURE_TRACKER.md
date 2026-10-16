@@ -27,7 +27,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 3 | Cart | ✅ | ✅ | [03-cart](./features/03-cart.md) | Server-side cart, optimistic updates, stock validation |
 | 4 | Wishlist | ✅ | ✅ | [04-wishlist](./features/04-wishlist.md) | Toggle pattern, unique constraints |
 | 5 | Coupons | ✅ | ✅ | [05-coupons](./features/05-coupons.md) | Discount rules (%, fixed, min order, expiry, usage limits) |
-| 6 | Checkout + Stripe payments | ⬜ | ⬜ | - | Stripe Checkout Sessions, never trusting client prices |
+| 6 | Checkout + Stripe payments | ✅ | ⬜ | [06-checkout-stripe](./features/06-checkout-stripe.md) | Stripe Checkout Sessions, never trusting client prices |
 | 7 | Stripe webhooks | ⬜ | ⬜ | - | Signature verification, idempotency, event-driven state |
 | 8 | Inventory concurrency | ✅ | ⬜ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Stock reservations, atomic conditional updates, expiry job |
 | 9 | Orders & order history | ✅ | ⬜ | [08-orders-and-inventory](./features/08-orders-and-inventory.md) | Order lifecycle (state machine), price snapshots |
@@ -48,3 +48,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-16 | Phase 2: wishlist (idempotent save/unsave API, heart button on product cards and product page, wishlist page, header link). Shared product card shape moved to catalog.service.ts. |
 | 2026-10-16 | Phase 2: coupons (server-side coupon preview with expiry, usage-limit and minimum-order rules, coupon box and discount lines in the cart, FLASH50 demo coupon). Phase 2 complete. |
 | 2026-10-16 | Phase 3, step 1: orders API (place, list, view, cancel), atomic stock reservation (no overselling), price snapshots, coupon redemption, expiry job that cancels unpaid orders after 30 min. |
+| 2026-10-16 | Phase 3, step 2: Stripe Checkout. Placing an order opens a Stripe payment page (prices from the order snapshot, one-time coupon for the discount, idempotency keys, 30-min page expiry with 32-min stock hold), "pay now" endpoint, order released if Stripe fails. |

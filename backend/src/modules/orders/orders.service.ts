@@ -1,13 +1,14 @@
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
-import { badRequest, conflict, notFound } from '../../lib/http-error.js';
+import { HttpError, badRequest, conflict, notFound } from '../../lib/http-error.js';
 import { getCart } from '../cart/cart.service.js';
 import { calculateDiscount, findCoupon } from '../coupons/coupons.service.js';
+import { createCheckoutSession, getCheckoutUrl } from '../payments/payments.service.js';
 import type { CreateOrderInput } from './orders.schema.js';
 
-// How long stock is held for an unpaid order. 30 minutes is also the shortest time a
-// Stripe Checkout page can stay open, so the two expire together.
-export const RESERVATION_MINUTES = 30;
+// How long stock is held for an unpaid order. The Stripe payment page closes after 30
+// minutes; the 2 extra minutes make sure it always closes BEFORE the stock is given back.
+export const RESERVATION_MINUTES = 32;
 
 // How stock works:
 //   ProductVariant.stock = units AVAILABLE TO SELL right now.
@@ -47,6 +48,35 @@ function toOrderResponse({ items, coupon, reservations, ...order }: OrderRow) {
       lineTotal: item.unitPrice * item.quantity,
     })),
   };
+}
+
+export type OrderResponse = ReturnType<typeof toOrderResponse>;
+
+// ------------------------------------------------------------------ Checkout
+
+// What "Place order" does: create the order (stock held), then open a Stripe payment page for it.
+export async function checkout(userId: string, input: CreateOrderInput) {
+  const order = await createOrder(userId, input);
+  const { email } = await prisma.user.findUniqueOrThrow({ where: { id: userId }, select: { email: true } });
+
+  try {
+    const session = await createCheckoutSession(order, email);
+    await prisma.order.update({ where: { id: order.id }, data: { stripeSessionId: session.id } });
+    return { order, checkoutUrl: session.url! };
+  } catch (err) {
+    // No payment page means the customer can't pay, so don't keep their stock locked.
+    console.error('[checkout] Stripe session failed', err);
+    await releaseOrder(order.id);
+    throw new HttpError(502, 'The payment service is unavailable. Please try again in a moment.');
+  }
+}
+
+// "Pay now" on an unpaid order.
+export async function getPaymentUrl(userId: string, orderId: string) {
+  const order = await prisma.order.findFirst({ where: { id: orderId, userId }, select: { status: true, stripeSessionId: true } });
+  if (!order) throw notFound('Order not found');
+  if (order.status !== 'PENDING' || !order.stripeSessionId) throw badRequest('This order is not waiting for payment');
+  return getCheckoutUrl(order.stripeSessionId);
 }
 
 // ------------------------------------------------------------------ Place an order

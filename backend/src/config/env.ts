@@ -9,6 +9,7 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   CLIENT_URL: z.string().default('http://localhost:5173'),
   JWT_ACCESS_SECRET: z.string().min(16),
+  STRIPE_SECRET_KEY: z.string().regex(/^sk_(test|live)_/, 'must be a Stripe secret key (sk_test_...)'),
 });
 
 const parsed = envSchema.safeParse(process.env);

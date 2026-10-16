@@ -3,7 +3,7 @@
 **Status:** 🚧 Backend done (Phase 3, step 1). Payment (Stripe) and the frontend pages come next.
 
 Placing an order turns the cart into a `PENDING` order, freezes its prices, holds the stock
-for 30 minutes and uses up the coupon. If the order isn't paid in time, a background job
+for 32 minutes and uses up the coupon. If the order isn't paid in time, a background job
 cancels it and gives everything back. The store can never sell more units than it has, even
 when customers order at the same moment.
 
@@ -13,7 +13,7 @@ when customers order at the same moment.
             place order                 payment confirmed (Step 3: webhook)
   (cart) ───────────────▶ PENDING ─────────────────────────────▶ PAID ──▶ SHIPPED ──▶ DELIVERED
                             │                                     │
-          30 min passed /   │                                     └──▶ REFUNDED
+          32 min passed /   │                                     └──▶ REFUNDED
           user cancelled /  ▼
           new order placed  CANCELLED  (stock and coupon use returned)
 ```
@@ -43,7 +43,7 @@ All endpoints need a logged-in user.
    If 0 rows match, someone else got there first: the whole transaction is undone and the user gets a `409`.
 4. Uses up the coupon atomically: `usedCount + 1` only if `usedCount < maxUses`.
 5. Creates the order with a **snapshot** of each item (name, variant, unit price) and a
-   `StockReservation` per item that expires in 30 minutes.
+   `StockReservation` per item that expires in 32 minutes (2 minutes after the Stripe payment page closes).
 
 The cart is **not** emptied. That happens only when payment succeeds, so closing the payment page doesn't lose the cart.
 
