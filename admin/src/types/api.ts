@@ -74,6 +74,17 @@ interface OrderBase {
   total: number;
   stripeSessionId: string | null;
   stripePaymentIntentId: string | null;
+  // Copied from the customer's address book at checkout. null for orders placed before addresses existed.
+  shippingAddress: {
+    fullName: string;
+    phone: string;
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

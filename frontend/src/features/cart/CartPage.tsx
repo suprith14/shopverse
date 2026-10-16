@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
 import { AlertTriangle, Lock, Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +10,7 @@ import { CouponBox } from '@/features/coupons/CouponBox';
 import { useCouponPreview } from '@/features/coupons/coupons.api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
 import { usePlaceOrder } from '@/features/orders/orders.api';
+import { DeliveryAddressPicker } from '@/features/account/DeliveryAddressPicker';
 
 // Same limit as the backend. The backend still enforces it; this only disables the + button.
 const MAX_QUANTITY_PER_ITEM = 10;
@@ -22,6 +24,7 @@ export function CartPage() {
   const coupon = !couponPreview.isError && couponPreview.data?.code === couponCode ? couponPreview.data : undefined;
   const discount = coupon?.discount ?? 0;
   const placeOrder = usePlaceOrder();
+  const [addressId, setAddressId] = useState<string | null>(null);
 
   if (isLoading) return <Spinner />;
   if (isError || !cart) return <ErrorState error={error} />;
@@ -68,7 +71,9 @@ export function CartPage() {
             <span>{formatPrice(cart.subtotal - discount)}</span>
           </div>
           <CouponBox preview={couponPreview} />
-          <p className="text-xs text-slate-500">Shipping is calculated at checkout.</p>
+          <div className="border-t border-slate-200 pt-4">
+            <DeliveryAddressPicker value={addressId} onChange={setAddressId} />
+          </div>
           {cart.hasIssues && (
             <p className="flex gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
               <AlertTriangle className="size-4 shrink-0" /> Some items are unavailable. Fix them before checking out.
@@ -76,8 +81,9 @@ export function CartPage() {
           )}
           {placeOrder.isError && <ErrorState error={placeOrder.error} />}
           {/* Only a coupon the backend accepted is sent. The backend checks it again anyway. */}
-          <Button className="w-full py-3" loading={placeOrder.isPending} disabled={cart.hasIssues || cart.subtotal === 0}
-            onClick={() => placeOrder.mutate({ couponCode: coupon?.code })}>
+          {!addressId && <p className="text-xs text-slate-500">Add a delivery address to continue.</p>}
+          <Button className="w-full py-3" loading={placeOrder.isPending} disabled={cart.hasIssues || cart.subtotal === 0 || !addressId}
+            onClick={() => addressId && placeOrder.mutate({ couponCode: coupon?.code, addressId })}>
             <Lock className="size-4" /> Checkout · {formatPrice(cart.subtotal - discount)}
           </Button>
           <p className="text-center text-xs text-slate-500">You'll pay securely on Stripe. Test card: 4242 4242 4242 4242</p>

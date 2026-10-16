@@ -4,11 +4,13 @@ import { useAuthStore } from '@/features/auth/auth.store';
 import { useLogout } from '@/features/auth/auth.api';
 import { useCart } from '@/features/cart/cart.api';
 import { SearchBox } from '@/features/catalog/components/SearchBox';
+import { useProfile } from '@/features/account/account.api';
 
 export function Header() {
   const { user, status } = useAuthStore();
   const logout = useLogout();
   const { data: cart } = useCart();
+  const { data: profile } = useProfile(); // for the photo next to the name
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
     `text-sm font-medium ${isActive ? 'text-brand-600' : 'text-slate-600 hover:text-slate-900'}`;
@@ -43,10 +45,15 @@ export function Header() {
                   </span>
                 )}
               </Link>
-              <span className="hidden items-center gap-1.5 text-sm text-slate-700 md:flex">
-                <UserIcon className="size-4" /> {user.name}
-                {user.role === 'ADMIN' && <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800">Admin</span>}
-              </span>
+              <Link to="/account" title="My account" className="flex items-center gap-1.5 rounded-lg p-1 text-sm text-slate-700 hover:bg-slate-100">
+                {profile?.avatarUrl ? (
+                  <img src={profile.avatarUrl} alt="" className="size-7 rounded-full object-cover" />
+                ) : (
+                  <UserIcon className="size-5" />
+                )}
+                <span className="hidden md:inline">{user.name}</span>
+                {user.role === 'ADMIN' && <span className="hidden rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800 md:inline">Admin</span>}
+              </Link>
               <button onClick={() => logout.mutate()} className="rounded-lg p-2 text-slate-600 hover:bg-slate-100" aria-label="Log out" title="Log out">
                 <LogOut className="size-4" />
               </button>

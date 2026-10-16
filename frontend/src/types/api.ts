@@ -132,6 +132,32 @@ export interface MyReviewStatus {
   review: Review | null;
 }
 
+export interface Address {
+  id: string;
+  label: string | null;
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string; // ISO code, e.g. "IN"
+  isDefault: boolean;
+}
+
+export interface Profile extends User {
+  phone: string | null;
+  dateOfBirth: string | null; // "1998-04-21"
+  avatarUrl: string | null;
+  defaultAddressId: string | null;
+  createdAt: string;
+  addresses: Address[]; // default first
+}
+
+// The copy of the address stored on an order at checkout.
+export type ShippingAddress = Omit<Address, 'id' | 'label' | 'isDefault'>;
+
 export type OrderStatus = 'PENDING' | 'PAID' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED' | 'REFUNDED';
 
 export interface OrderItem {
@@ -155,6 +181,7 @@ export interface Order {
   couponCode: string | null;
   paymentDeadline: string | null; // only while PENDING
   createdAt: string;
+  shippingAddress: ShippingAddress | null; // null for orders placed before addresses existed
   items: OrderItem[];
 }
 

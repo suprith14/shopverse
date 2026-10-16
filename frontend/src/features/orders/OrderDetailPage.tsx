@@ -5,6 +5,7 @@ import { CheckCircle2, Clock, Loader2, RotateCcw, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ErrorState, Spinner } from '@/components/ui/States';
 import { formatPrice } from '@/lib/format';
+import { AddressLines } from '@/features/account/AddressCard';
 import type { Order } from '@/types/api';
 import { useCouponStore } from '@/features/coupons/coupon.store';
 import { useCancelOrder, useOrder, usePayOrder } from './orders.api';
@@ -79,6 +80,14 @@ export function OrderDetailPage() {
           </div>
         </dl>
       </div>
+
+      {/* The address copied into the order at checkout (not the current address book entry) */}
+      {order.shippingAddress && (
+        <div className="rounded-xl border border-slate-200 bg-white p-4">
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Delivery address</h2>
+          <AddressLines address={order.shippingAddress} />
+        </div>
+      )}
     </div>
   );
 }

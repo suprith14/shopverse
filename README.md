@@ -16,7 +16,7 @@ overselling, webhooks, full-text search, and an admin panel with analytics.
 | **Frontend** (store) | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
 | **Admin** (separate app) | React 19, TypeScript, Vite, Tailwind CSS, React Router, Redux Toolkit + RTK Query, ESLint |
 | **Backend** | Node.js, Express 5, TypeScript, Prisma ORM, PostgreSQL, Zod, JWT |
-| **Integrations** | Stripe (payments), Resend (email) |
+| **Integrations** | Stripe (payments), Resend (email), Cloudinary (profile photos) |
 
 ## Features
 
@@ -31,6 +31,7 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 - ✅ Reviews & ratings (verified buyers only)
 - ✅ Full-text search with relevance ranking, facet counts and suggestions
 - ✅ Admin panel (separate app): products, orders, analytics dashboard
+- ✅ My account: profile photo (Cloudinary), details, address book; address step at checkout
 
 ## Project structure
 

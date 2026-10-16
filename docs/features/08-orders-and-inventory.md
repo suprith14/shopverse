@@ -30,7 +30,7 @@ All endpoints need a logged-in user.
 
 | Endpoint | Body | What it does |
 |---|---|---|
-| `POST /api/orders` | `{ couponCode? }` | Place an order from the current cart |
+| `POST /api/orders` | `{ addressId, couponCode? }` | Place an order from the current cart, shipping to one of my saved addresses (copied into the order, see [16-profile](./16-profile.md)) |
 | `GET /api/orders` | | My orders, newest first |
 | `GET /api/orders/:id` | | One of my orders (another user's order returns 404) |
 | `POST /api/orders/:id/cancel` | | Cancel my unpaid order |

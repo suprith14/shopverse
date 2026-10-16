@@ -39,6 +39,22 @@ export function OrderDetailPage() {
             <p className="font-medium">{order.user.name}</p>
             <a href={`mailto:${order.user.email}`} className="text-sm text-brand-700 hover:underline">{order.user.email}</a>
           </Box>
+          {/* What the warehouse needs to ship. Printed from the order's own copy, so later edits
+              to the customer's address book don't change it. */}
+          <Box title="Ship to">
+            {order.shippingAddress ? (
+              <address className="text-sm not-italic leading-relaxed text-slate-700">
+                <p className="font-medium text-slate-900">{order.shippingAddress.fullName}</p>
+                <p>{order.shippingAddress.line1}</p>
+                {order.shippingAddress.line2 && <p>{order.shippingAddress.line2}</p>}
+                <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.postalCode}</p>
+                <p>{order.shippingAddress.country}</p>
+                <a href={`tel:${order.shippingAddress.phone}`} className="text-brand-700 hover:underline">{order.shippingAddress.phone}</a>
+              </address>
+            ) : (
+              <p className="text-sm text-slate-500">No address (placed before addresses were added, or demo data).</p>
+            )}
+          </Box>
           <Box title="Payment">
             {order.stripePaymentIntentId ? (
               <a href={`https://dashboard.stripe.com/test/payments/${order.stripePaymentIntentId}`} target="_blank" rel="noreferrer"

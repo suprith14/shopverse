@@ -32,7 +32,7 @@ export function useOrder(id: string, waitForPayment = false) {
 // then we send the browser to Stripe. (A full page navigation, Stripe is another website.)
 export function usePlaceOrder() {
   return useMutation({
-    mutationFn: async (input: { couponCode?: string }) =>
+    mutationFn: async (input: { couponCode?: string; addressId: string }) =>
       (await api.post<{ order: Order; checkoutUrl: string }>('/orders', input)).data,
     onSuccess: ({ checkoutUrl }) => {
       window.location.href = checkoutUrl;

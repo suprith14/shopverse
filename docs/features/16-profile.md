@@ -1,7 +1,6 @@
 # Feature 16: User Profile & Address Book
 
-**Status:** 🚧 In progress. Database, profile API and photo upload (steps 1–3) are done. The "My account"
-page, the checkout address step and the admin view come next.
+**Status:** ✅ Done: database, profile API, photo upload, "My account" page, address step at checkout and the admin's "Ship to".
 
 Customers can save a phone number, date of birth, profile photo and up to 10 delivery addresses (one default).
 At checkout they pick an address, which is copied into the order.
@@ -81,6 +80,33 @@ Our server never handles the file.
 **Tested:** a 900×1200 / 218 KB photo was stored as **400×400 / 37 KB**. Tampering with the signed size → *Invalid Signature*. An outside URL →
 *"That is not your uploaded profile photo"*. After remove → the file returns 404 once the CDN cache clears (~20 s).
 
+## Checkout (backend)
+
+`POST /api/orders` now **requires `addressId`**. The server loads the address **filtered by the user**
+(another customer's id → *"Choose one of your saved delivery addresses"*) and copies its fields into
+`Order.shippingAddress`. Only the id travels from the browser, the same rule as prices.
+
+**Tested:** no address → *"Choose a delivery address"*. Another user's address → refused. Own address → the order has the snapshot.
+After editing the address in the book (Bengaluru → Mysuru), the order **still** ships to Bengaluru.
+
+## Store frontend
+
+Files: [`frontend/src/features/account/`](../../frontend/src/features/account)
+
+| File | What it does |
+|---|---|
+| `account.api.ts` | `useProfile` + mutations (each returns the full profile into the cache). `useUploadAvatar` = signature → **plain `fetch` to Cloudinary** (our auth token must never go to another site) → save URL |
+| `AccountPage.tsx` | `/account`: photo (browser pre-checks type and ≤ 5 MB), details (email shown read-only), address book (default badge, make default, edit, delete with "past orders keep their own copy") |
+| `AddressForm.tsx`, `AddressCard.tsx`, `countries.ts` | Shared form (browser `autoComplete` hints), how an address is printed, the country list |
+| `DeliveryAddressPicker.tsx` | Checkout "Deliver to": the default address pre-selected with **Change**, a radio list, or an inline "add new address" form (shown straight away if there are none) |
+| `CartPage.tsx` (cart) | Picker in the order summary. **Checkout is disabled until an address is chosen**, then sends `addressId` |
+| `OrderDetailPage.tsx` (orders) | Shows the order's delivery address (the snapshot) |
+| `Header.tsx` | Profile photo + name link to `/account` |
+
+## Admin
+
+The order page has a **"Ship to"** box printed from `order.shippingAddress`, with a clickable phone number. Old and demo orders show "No address".
+
 ## Concepts to be able to explain
 
 1. Why a `defaultAddressId` on `User` instead of an `isDefault` flag on each address?
@@ -91,3 +117,5 @@ Our server never handles the file.
 6. What is baselining a migration, and when do you need it?
 7. How does a signed direct upload work, and what stops a user uploading a 4000×4000 image or an SVG?
 8. Why can a deleted image still load for a few seconds?
+9. Why does the photo upload to Cloudinary use plain `fetch` instead of our axios client?
+10. Why does checkout send only `addressId`, and what does the backend check?

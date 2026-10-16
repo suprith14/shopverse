@@ -83,7 +83,24 @@ export async function getPaymentUrl(userId: string, orderId: string) {
 
 // ------------------------------------------------------------------ Place an order
 
-export async function createOrder(userId: string, { couponCode }: CreateOrderInput) {
+export async function createOrder(userId: string, { couponCode, addressId }: CreateOrderInput) {
+  // The delivery address must be one of THIS user's saved addresses (filtering by userId too:
+  // another customer's address id is simply "not found").
+  const address = await prisma.address.findFirst({ where: { id: addressId, userId } });
+  if (!address) throw badRequest('Choose one of your saved delivery addresses');
+  // Snapshot: a plain copy stored on the order. Editing or deleting the address later
+  // doesn't change where this order was shipped.
+  const shippingAddress = {
+    fullName: address.fullName,
+    phone: address.phone,
+    line1: address.line1,
+    line2: address.line2,
+    city: address.city,
+    state: address.state,
+    postalCode: address.postalCode,
+    country: address.country,
+  };
+
   // A customer has at most one unpaid order. Placing a new one cancels the old one,
   // which gives its held stock back. (Like going back to the cart from the payment page.)
   const pending = await prisma.order.findMany({ where: { userId, status: 'PENDING' }, select: { id: true } });
@@ -133,6 +150,7 @@ export async function createOrder(userId: string, { couponCode }: CreateOrderInp
           discount,
           total: cart.subtotal - discount,
           couponId: coupon?.id,
+          shippingAddress,
           // Snapshot: copy names and prices into the order. If the product is renamed or
           // repriced tomorrow, this order still shows what the customer actually paid.
           items: {
