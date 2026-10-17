@@ -30,7 +30,7 @@ A product can be saved only once per user.
   or a retried request never fails and never creates duplicates.
 - **Hidden when removed from the store:** products whose `isActive` is false are left out of the list.
 - **Shared product card shape:** `productSummarySelect` / `toProductSummary` in
-  `catalog.service.ts` are used by both the catalog and the wishlist, so a product card has
+  `catalog.service.js` are used by both the catalog and the wishlist, so a product card has
   the same data everywhere.
 
 ## Frontend side
@@ -39,11 +39,11 @@ Files: [`frontend/src/features/wishlist/`](../../frontend/src/features/wishlist)
 
 | File | What it does |
 |---|---|
-| `wishlist.api.ts` | `useWishlist`, `useWishlistIds` (a Set of saved ids) and `useToggleWishlist` |
-| `WishlistButton.tsx` | The heart button. Guests are sent to login, then brought back |
-| `WishlistPage.tsx` | `/wishlist` page (protected), a grid of the usual product cards |
-| `ProductCard.tsx`, `ProductDetailPage.tsx` (catalog) | Show the heart button |
-| `Header.tsx` | Heart icon linking to the wishlist |
+| `wishlist.api.js` | `useWishlist`, `useWishlistIds` (a Set of saved ids) and `useToggleWishlist` |
+| `WishlistButton.jsx` | The heart button. Guests are sent to login, then brought back |
+| `WishlistPage.jsx` | `/wishlist` page (protected), a grid of the usual product cards |
+| `ProductCard.jsx`, `ProductDetailPage.jsx` (catalog) | Show the heart button |
+| `Header.jsx` | Heart icon linking to the wishlist |
 
 **Key techniques:**
 - **Toggle pattern:** one mutation handles both save and unsave (`{ productId, save }`).

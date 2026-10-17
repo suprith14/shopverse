@@ -13,9 +13,9 @@ overselling, webhooks, full-text search, and an admin panel with analytics.
 
 | | |
 |---|---|
-| **Frontend** (store) | React 19, TypeScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
-| **Admin** (separate app) | React 19, TypeScript, Vite, Tailwind CSS, React Router, Redux Toolkit + RTK Query, ESLint |
-| **Backend** | Node.js, Express 5, TypeScript, Prisma ORM, PostgreSQL, Zod, JWT |
+| **Frontend** (store) | React 19, JavaScript, Vite, Tailwind CSS, React Router, TanStack Query, Zustand |
+| **Admin** (separate app) | React 19, JavaScript, Vite, Tailwind CSS, React Router, Redux Toolkit + RTK Query, ESLint |
+| **Backend** | Node.js, Express 5, JavaScript (ES modules), Prisma ORM, PostgreSQL, Zod, JWT |
 | **Integrations** | Stripe (payments), Resend (email), Cloudinary (profile photos) |
 
 ## Features

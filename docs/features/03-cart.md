@@ -22,7 +22,7 @@ All endpoints need a logged-in user (`requireAuth`). Every endpoint returns the 
 Response: `{ cart: { items, itemCount, subtotal, hasIssues } }`. Each item has
 `unitPrice`, `quantity`, `lineTotal`, `stock` and `issue` (`OUT_OF_STOCK`, `NOT_ENOUGH_STOCK` or `null`).
 
-**Rules enforced** (`cart.service.ts`, `cart.schema.ts`):
+**Rules enforced** (`cart.service.js`, `cart.schema.js`):
 - Quantity is a whole number from 1 to 10 (`MAX_QUANTITY_PER_ITEM`).
 - The requested quantity can't exceed the variant's stock. Inactive or unknown products can't be added.
 - The user id comes from the verified access token, never from the request, so users can only touch their own cart.
@@ -45,10 +45,10 @@ Files: [`frontend/src/features/cart/`](../../frontend/src/features/cart)
 
 | File | What it does |
 |---|---|
-| `cart.api.ts` | React Query hooks: `useCart`, `useAddToCart`, `useUpdateCartItem`, `useRemoveCartItem`, `useClearCart` |
-| `CartPage.tsx` | `/cart` page (protected by `RequireAuth`): item rows with +/- buttons, remove, order summary |
-| `ProductDetailPage.tsx` (catalog) | The "Add to cart" button. Guests are sent to login, then brought back |
-| `Header.tsx` | Cart icon with an item-count badge |
+| `cart.api.js` | React Query hooks: `useCart`, `useAddToCart`, `useUpdateCartItem`, `useRemoveCartItem`, `useClearCart` |
+| `CartPage.jsx` | `/cart` page (protected by `RequireAuth`): item rows with +/- buttons, remove, order summary |
+| `ProductDetailPage.jsx` (catalog) | The "Add to cart" button. Guests are sent to login, then brought back |
+| `Header.jsx` | Cart icon with an item-count badge |
 
 **Key techniques:**
 - **Server state in React Query:** the cart is cached under `['cart', userId]`. Including the user id

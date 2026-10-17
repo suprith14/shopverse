@@ -22,15 +22,15 @@ Browser                 Our backend                          Stripe
 
 ## Backend side
 
-Files: [`backend/src/modules/payments/payments.service.ts`](../../backend/src/modules/payments/payments.service.ts),
-[`backend/src/lib/stripe.ts`](../../backend/src/lib/stripe.ts), `checkout` and `getPaymentUrl` in `orders.service.ts`.
+Files: [`backend/src/modules/payments/payments.service.js`](../../backend/src/modules/payments/payments.service.js),
+[`backend/src/lib/stripe.js`](../../backend/src/lib/stripe.js), `checkout` and `getPaymentUrl` in `orders.service.js`.
 
 | Endpoint | What it does |
 |---|---|
 | `POST /api/orders` | Creates the order **and** the Stripe session. Returns `{ order, checkoutUrl }` |
 | `POST /api/orders/:id/pay` | "Pay now" for an unpaid order: returns the same Stripe page while it's still open |
 
-**Config:** `STRIPE_SECRET_KEY` in `backend/.env` (test key `sk_test_...`). It's checked at startup in `config/env.ts`.
+**Config:** `STRIPE_SECRET_KEY` in `backend/.env` (test key `sk_test_...`). It's checked at startup in `config/env.js`.
 
 **Session details** (`createCheckoutSession`):
 - **Line items** are built from the order's price snapshot (`unit_amount` in cents), never from the browser.
@@ -50,7 +50,7 @@ user gets `502 "The payment service is unavailable"`.
 **Tested:** order total $124.20 (2 × $69 − 10%) matched Stripe's `amount_total` (12420) exactly. The
 session is `open`, `metadata.orderId` points to the order, and "pay now" returns the same page.
 
-## Where Stripe sends the customer back (`lib/store-origin.ts`)
+## Where Stripe sends the customer back (`lib/store-origin.js`)
 
 `success_url` / `cancel_url` use the store address the customer **came from** (the request's `Origin` header), but only
 if it's allowed: `CLIENT_URL` always, plus **in development only** `localhost` and private network addresses

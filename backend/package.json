@@ -1,23 +1,22 @@
 {
   "name": "shopverse-backend",
   "version": "0.1.0",
-  "description": "ShopVerse REST API - Express + TypeScript + Prisma + PostgreSQL",
+  "description": "ShopVerse REST API - Express + JavaScript + Prisma + PostgreSQL",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "build": "prisma generate && tsc",
-    "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit",
+    "dev": "node --watch src/server.js",
+    "build": "prisma generate",
+    "start": "node src/server.js",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "db:seed-orders": "tsx prisma/seed-orders.ts",
+    "db:seed-orders": "node prisma/seed-orders.js",
     "db:reset": "prisma migrate reset",
     "db:studio": "prisma studio",
     "db:deploy": "prisma migrate deploy"
   },
   "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -35,20 +34,10 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@types/cookie-parser": "^1.4.10",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.6",
-    "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^26.6.5",
-    "@types/pdfkit": "^0.17.6",
-    "@types/qrcode": "^1.5.6",
-    "prisma": "^6.19.3",
-    "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "prisma": "^6.19.3"
   },
   "allowScripts": {
     "@prisma/client@6.19.3": true,
-    "esbuild@0.28.2": true,
     "prisma@6.19.3": true,
     "@prisma/engines@6.19.3": true
   },

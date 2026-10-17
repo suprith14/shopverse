@@ -22,10 +22,10 @@ Stripe ── POST /api/webhooks/stripe (signed) ──▶ our backend
 
 ## Backend side
 
-Files: [`backend/src/modules/webhooks/stripe-webhook.ts`](../../backend/src/modules/webhooks/stripe-webhook.ts),
-`markOrderPaid` in [`orders.service.ts`](../../backend/src/modules/orders/orders.service.ts).
+Files: [`backend/src/modules/webhooks/stripe-webhook.js`](../../backend/src/modules/webhooks/stripe-webhook.js),
+`markOrderPaid` in [`orders.service.js`](../../backend/src/modules/orders/orders.service.js).
 
-**Route:** `POST /api/webhooks/stripe`. It's registered in `app.ts` **before** `express.json()` with
+**Route:** `POST /api/webhooks/stripe`. It's registered in `app.js` **before** `express.json()` with
 `express.raw()`, because the signature is computed over the exact raw bytes Stripe sent.
 
 **Config:** `STRIPE_WEBHOOK_SECRET` (`whsec_...`) in `backend/.env`. Without it, the endpoint answers 500.

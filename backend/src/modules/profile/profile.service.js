@@ -1,0 +1,144 @@
+import { prisma } from '../../lib/prisma.js';
+import { badRequest, notFound } from '../../lib/http-error.js';
+import { deleteImage, imageUrlPrefix, signImageUpload } from '../../lib/cloudinary.js';
+import { MAX_ADDRESSES } from './profile.schema.js';
+
+// Everything here works on "my" profile: the user id always comes from the access token,
+// never from the URL or body, so one customer can never read or change another's details.
+
+const profileSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  phone: true,
+  dateOfBirth: true,
+  avatarUrl: true,
+  defaultAddressId: true,
+  createdAt: true,
+};
+
+// DATE column -> "1998-04-21" (no time, no time zone shift).
+const toDateString = (d) => (d ? d.toISOString().slice(0, 10) : null);
+
+export async function getProfile(userId) {
+  const [user, addresses] = await Promise.all([
+    prisma.user.findUniqueOrThrow({ where: { id: userId }, select: profileSelect }),
+    prisma.address.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
+  ]);
+  return {
+    ...user,
+    dateOfBirth: toDateString(user.dateOfBirth),
+    // The default address first, then newest first.
+    addresses: addresses
+      .map((a) => ({ ...a, isDefault: a.id === user.defaultAddressId }))
+      .sort((a, b) => Number(b.isDefault) - Number(a.isDefault)),
+  };
+}
+
+export async function updateProfile(userId, input) {
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      name: input.name,
+      phone: input.phone,
+      // "1998-04-21" -> a Date at midnight UTC; the DATE column keeps only the day.
+      dateOfBirth:
+        input.dateOfBirth === undefined ? undefined : input.dateOfBirth && new Date(`${input.dateOfBirth}T00:00:00Z`),
+    },
+  });
+  return getProfile(userId);
+}
+
+// ------------------------------------------------------------------ Profile photo
+
+// Each user has exactly one image id, so a new upload replaces the old file (no leftovers).
+const avatarPublicId = (userId) => `shopverse/avatars/${userId}`;
+
+// Step 1 of an upload: the browser asks for permission and gets signed upload fields.
+export function getAvatarUploadSignature(userId) {
+  return signImageUpload({
+    publicId: avatarPublicId(userId),
+    // 400x400 square, cropped around the face, stored as a small image
+    transformation: 'c_fill,g_face,w_400,h_400,q_auto',
+    allowedFormats: 'jpg,jpeg,png,webp', // no SVG (can contain scripts) or other files
+  });
+}
+
+// Step 2: after uploading to Cloudinary, the browser sends back the image URL.
+// We only accept a URL pointing at THIS user's avatar in OUR Cloudinary account, so nobody
+// can set their photo to some other site's image (e.g. a tracking pixel).
+export async function saveAvatar(userId, url) {
+  const prefix = imageUrlPrefix();
+  const path = url.startsWith(prefix) ? url.slice(prefix.length).replace(/^v\d+\//, '') : null; // drop the version part
+  const expected = avatarPublicId(userId);
+  if (!path || !(path === expected || path.startsWith(`${expected}.`))) {
+    throw badRequest('That is not your uploaded profile photo');
+  }
+  await prisma.user.update({ where: { id: userId }, data: { avatarUrl: url } });
+  return getProfile(userId);
+}
+
+export async function removeAvatar(userId) {
+  await prisma.user.update({ where: { id: userId }, data: { avatarUrl: null } });
+  // Delete the file too (privacy: a removed photo shouldn't stay online). If Cloudinary is
+  // briefly unavailable the profile is still updated; the file is replaced on the next upload anyway.
+  await deleteImage(avatarPublicId(userId)).catch((err) => console.error('[avatar] delete failed', err));
+  return getProfile(userId);
+}
+
+// ------------------------------------------------------------------ Address book
+
+// Finds one of MY addresses. Filtering by userId too means guessing another customer's
+// address id gives "not found", not their address.
+async function findMyAddress(userId, id) {
+  const address = await prisma.address.findFirst({ where: { id, userId } });
+  if (!address) throw notFound('Address not found');
+  return address;
+}
+
+export async function addAddress(userId, { makeDefault, ...fields }) {
+  const count = await prisma.address.count({ where: { userId } });
+  if (count >= MAX_ADDRESSES) throw badRequest(`You can save up to ${MAX_ADDRESSES} addresses`);
+
+  await prisma.$transaction(async (tx) => {
+    const address = await tx.address.create({ data: { ...fields, userId } });
+    // The first address is always the default; later ones only if asked.
+    if (makeDefault || count === 0) {
+      await tx.user.update({ where: { id: userId }, data: { defaultAddressId: address.id } });
+    }
+  });
+  return getProfile(userId);
+}
+
+export async function updateAddress(userId, id, input) {
+  await findMyAddress(userId, id);
+  // Past orders are NOT affected: they keep the copy made at checkout.
+  await prisma.address.update({ where: { id }, data: input });
+  return getProfile(userId);
+}
+
+export async function setDefaultAddress(userId, id) {
+  await findMyAddress(userId, id); // the database can't check ownership of the default slot, so we do
+  await prisma.user.update({ where: { id: userId }, data: { defaultAddressId: id } });
+  return getProfile(userId);
+}
+
+export async function deleteAddress(userId, id) {
+  await findMyAddress(userId, id);
+  await prisma.$transaction(async (tx) => {
+    // If it was the default, the database clears the slot by itself (onDelete: SetNull)...
+    await tx.address.delete({ where: { id } });
+    // ...and we promote the newest remaining address, so there's always a default when any exist.
+    const user = await tx.user.findUniqueOrThrow({ where: { id: userId }, select: { defaultAddressId: true } });
+    if (!user.defaultAddressId) {
+      const next = await tx.address.findFirst({
+        where: { userId },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true },
+      });
+      if (next) await tx.user.update({ where: { id: userId }, data: { defaultAddressId: next.id } });
+    }
+  });
+  return getProfile(userId);
+}

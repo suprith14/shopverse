@@ -21,20 +21,20 @@ a feature end to end:
 
 ```
 backend/src/modules/catalog/        frontend/src/features/catalog/
-  catalog.routes.ts   (URLs)          catalog.api.ts      (calls the API, React Query hooks)
-  catalog.schema.ts   (validation)    CatalogPage.tsx     (page)
-  catalog.controller.ts (HTTP)        components/         (pieces of the page)
-  catalog.service.ts  (logic + DB)
+  catalog.routes.js   (URLs)          catalog.api.js      (calls the API, React Query hooks)
+  catalog.schema.js   (validation)    CatalogPage.jsx     (page)
+  catalog.controller.js (HTTP)        components/         (pieces of the page)
+  catalog.service.js  (logic + DB)
 ```
 
 ## Backend: request lifecycle
 
 ```
 Request
-  → helmet / cors / json / cookie-parser   (global middleware, app.ts)
-  → router                                 (modules/<feature>/<feature>.routes.ts)
-  → requireAuth / requireRole              (middleware/auth.ts, only on protected routes)
-  → validate(schema)                       (middleware/validate.ts → res.locals.body/query/params)
+  → helmet / cors / json / cookie-parser   (global middleware, app.js)
+  → router                                 (modules/<feature>/<feature>.routes.js)
+  → requireAuth / requireRole              (middleware/auth.js, only on protected routes)
+  → validate(schema)                       (middleware/validate.js → res.locals.body/query/params)
   → controller                             (reads validated input, sends response)
   → service                                (business rules + Prisma queries)
   → errorHandler                           (any thrown HttpError → JSON { error: { message } })
@@ -52,11 +52,11 @@ Request
 backend/
 ├── prisma/
 │   ├── schema.prisma   # the whole data model (read this first!)
-│   └── seed.ts         # demo data
+│   └── seed.js         # demo data
 └── src/
-    ├── server.ts       # starts the HTTP server
-    ├── app.ts          # builds the Express app, mounts module routers
-    ├── config/env.ts   # validated environment variables
+    ├── server.js       # starts the HTTP server
+    ├── app.js          # builds the Express app, mounts module routers
+    ├── config/env.js   # validated environment variables
     ├── lib/            # shared helpers (prisma client, HttpError)
     ├── middleware/     # auth, validation, error handling
     └── modules/        # one folder per feature
@@ -68,12 +68,11 @@ backend/
 
 ```
 frontend/src/
-├── main.tsx            # app entry: React Query + Router providers
-├── router.tsx          # all routes
+├── main.jsx            # app entry: React Query + Router providers
+├── router.jsx          # all routes
 ├── lib/
-│   ├── api-client.ts   # axios instance + token handling + silent refresh
-│   └── format.ts       # price formatting, error messages
-├── types/api.ts        # TypeScript types of API responses
+│   ├── api-client.js   # axios instance + token handling + silent refresh
+│   └── format.js       # price formatting, error messages
 ├── components/
 │   ├── layout/         # header, root layout
 │   └── ui/             # reusable buttons, inputs, states, star rating

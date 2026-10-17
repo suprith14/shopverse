@@ -7,10 +7,10 @@ and a link to the order page.
 
 ## Backend side
 
-Files: [`backend/src/lib/email.ts`](../../backend/src/lib/email.ts) (sending) and
-[`backend/src/modules/orders/order-emails.ts`](../../backend/src/modules/orders/order-emails.ts) (content).
+Files: [`backend/src/lib/email.js`](../../backend/src/lib/email.js) (sending) and
+[`backend/src/modules/orders/order-emails.js`](../../backend/src/modules/orders/order-emails.js) (content).
 
-**Provider:** [Resend](https://resend.com). All sending goes through `sendEmail()` in `lib/email.ts`,
+**Provider:** [Resend](https://resend.com). All sending goes through `sendEmail()` in `lib/email.js`,
 so changing provider (SendGrid, Amazon SES) touches one file.
 
 **Config** (`backend/.env`):

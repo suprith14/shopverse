@@ -54,7 +54,7 @@ The 11th address is refused. Deleting the user cascades its addresses.
 
 ## Profile photo (Cloudinary)
 
-Files: [`backend/src/lib/cloudinary.ts`](../../backend/src/lib/cloudinary.ts) and the avatar functions in `profile.service.ts`.
+Files: [`backend/src/lib/cloudinary.js`](../../backend/src/lib/cloudinary.js) and the avatar functions in `profile.service.js`.
 Config: `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` (optional: without them the
 avatar endpoints answer `503`).
 
@@ -95,13 +95,13 @@ Files: [`frontend/src/features/account/`](../../frontend/src/features/account)
 
 | File | What it does |
 |---|---|
-| `account.api.ts` | `useProfile` + mutations (each returns the full profile into the cache). `useUploadAvatar` = signature → **plain `fetch` to Cloudinary** (our auth token must never go to another site) → save URL |
-| `AccountPage.tsx` | `/account`: photo (browser pre-checks type and ≤ 5 MB), details (email shown read-only), address book (default badge, make default, edit, delete with "past orders keep their own copy") |
-| `AddressForm.tsx`, `AddressCard.tsx`, `countries.ts` | Shared form (browser `autoComplete` hints), how an address is printed, the country list |
-| `DeliveryAddressPicker.tsx` | Checkout "Deliver to": the default address pre-selected with **Change**, a radio list, or an inline "add new address" form (shown straight away if there are none) |
-| `CartPage.tsx` (cart) | Picker in the order summary. **Checkout is disabled until an address is chosen**, then sends `addressId` |
-| `OrderDetailPage.tsx` (orders) | Shows the order's delivery address (the snapshot) |
-| `Header.tsx` | Profile photo + name link to `/account` |
+| `account.api.js` | `useProfile` + mutations (each returns the full profile into the cache). `useUploadAvatar` = signature → **plain `fetch` to Cloudinary** (our auth token must never go to another site) → save URL |
+| `AccountPage.jsx` | `/account`: photo (browser pre-checks type and ≤ 5 MB), details (email shown read-only), address book (default badge, make default, edit, delete with "past orders keep their own copy") |
+| `AddressForm.jsx`, `AddressCard.jsx`, `countries.js` | Shared form (browser `autoComplete` hints), how an address is printed, the country list |
+| `DeliveryAddressPicker.jsx` | Checkout "Deliver to": the default address pre-selected with **Change**, a radio list, or an inline "add new address" form (shown straight away if there are none) |
+| `CartPage.jsx` (cart) | Picker in the order summary. **Checkout is disabled until an address is chosen**, then sends `addressId` |
+| `OrderDetailPage.jsx` (orders) | Shows the order's delivery address (the snapshot) |
+| `Header.jsx` | Profile photo + name link to `/account` |
 
 ## Onboarding wizard (after sign-up)
 
@@ -116,7 +116,7 @@ Right after creating an account, a popup walks through **4 steps**, with a "Step
 **Why this design:**
 - **Small skippable steps** instead of one long form, so sign-up never feels like a gate.
 - **Each step saves on Next**, so closing half-way keeps what was entered.
-- **Shown once, only after sign-up** (`onboarding.store.ts`, opened by `RegisterPage`), never on login. Everything stays editable in My account.
+- **Shown once, only after sign-up** (`onboarding.store.js`, opened by `RegisterPage`), never on login. Everything stays editable in My account.
 - **Native `<dialog>` + `showModal()`**: focus stays inside, **Esc** closes it (counts as "skip the rest"), it's announced as a dialog
   (`aria-labelledby`), and there's a backdrop. No modal library needed.
 - It closes automatically if the user logs out or switches account.

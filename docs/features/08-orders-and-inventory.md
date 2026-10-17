@@ -24,7 +24,7 @@ never be both paid and cancelled, even if the payment and the expiry job happen 
 ## Backend side
 
 Files: [`backend/src/modules/orders/`](../../backend/src/modules/orders) and
-[`backend/src/jobs/expire-orders.job.ts`](../../backend/src/jobs/expire-orders.job.ts)
+[`backend/src/jobs/expire-orders.job.js`](../../backend/src/jobs/expire-orders.job.js)
 
 All endpoints need a logged-in user.
 
@@ -35,7 +35,7 @@ All endpoints need a logged-in user.
 | `GET /api/orders/:id` | | One of my orders (another user's order returns 404) |
 | `POST /api/orders/:id/cancel` | | Cancel my unpaid order |
 
-**What `createOrder` does** (`orders.service.ts`), all in **one database transaction**:
+**What `createOrder` does** (`orders.service.js`), all in **one database transaction**:
 1. Cancels the user's previous unpaid order, if any. A customer has at most one.
 2. Re-checks the cart (not empty, no stock issues) and the coupon (the cart only previewed it).
 3. For each item, **takes the stock atomically**:
@@ -82,12 +82,12 @@ Files: [`frontend/src/features/orders/`](../../frontend/src/features/orders)
 
 | File | What it does |
 |---|---|
-| `orders.api.ts` | `useOrders`, `useOrder`, `usePlaceOrder`, `usePayOrder`, `useCancelOrder` |
-| `OrdersPage.tsx` | `/orders` ("My orders"): every order with thumbnails, date, total and status |
-| `OrderDetailPage.tsx` | `/orders/:id`: status banner, items (from the snapshot), totals |
-| `OrderStatusBadge.tsx` | Coloured label for each status |
-| `CartPage.tsx` (cart) | **Checkout** button: places the order and redirects to Stripe |
-| `Header.tsx` | 📦 link to "My orders" |
+| `orders.api.js` | `useOrders`, `useOrder`, `usePlaceOrder`, `usePayOrder`, `useCancelOrder` |
+| `OrdersPage.jsx` | `/orders` ("My orders"): every order with thumbnails, date, total and status |
+| `OrderDetailPage.jsx` | `/orders/:id`: status banner, items (from the snapshot), totals |
+| `OrderStatusBadge.jsx` | Coloured label for each status |
+| `CartPage.jsx` (cart) | **Checkout** button: places the order and redirects to Stripe |
+| `Header.jsx` | 📦 link to "My orders" |
 
 **The order page's banner follows the backend status, never the URL:**
 

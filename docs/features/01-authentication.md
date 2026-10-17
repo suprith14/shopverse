@@ -38,11 +38,11 @@ Files: [`backend/src/modules/auth/`](../../backend/src/modules/auth)
 
 | File | Responsibility |
 |---|---|
-| `auth.schema.ts` | Zod rules: valid email, name 2–60 chars, password ≥ 8 chars. Email is lowercased. |
-| `auth.tokens.ts` | Sign/verify JWTs, generate random refresh tokens, SHA-256 hashing |
-| `auth.service.ts` | Register/login/refresh/logout logic, reuse detection |
-| `auth.controller.ts` | Sets/clears the cookie, shapes JSON responses |
-| `middleware/auth.ts` | `requireAuth` (verifies the Bearer token) and `requireRole('ADMIN')` |
+| `auth.schema.js` | Zod rules: valid email, name 2–60 chars, password ≥ 8 chars. Email is lowercased. |
+| `auth.tokens.js` | Sign/verify JWTs, generate random refresh tokens, SHA-256 hashing |
+| `auth.service.js` | Register/login/refresh/logout logic, reuse detection |
+| `auth.controller.js` | Sets/clears the cookie, shapes JSON responses |
+| `middleware/auth.js` | `requireAuth` (verifies the Bearer token) and `requireRole('ADMIN')` |
 
 **Refresh token reuse detection.** Each refresh token works once. If an already-revoked
 token is presented again, someone may have stolen it. The service then revokes **all** of
@@ -55,16 +55,16 @@ domains), `path=/api/auth` (the cookie isn't sent with unrelated requests).
 ## Frontend side
 
 Files: [`frontend/src/features/auth/`](../../frontend/src/features/auth) and
-[`frontend/src/lib/api-client.ts`](../../frontend/src/lib/api-client.ts)
+[`frontend/src/lib/api-client.js`](../../frontend/src/lib/api-client.js)
 
 | File | Responsibility |
 |---|---|
-| `auth.store.ts` | Zustand store: `user`, `accessToken`, `status` (`loading` / `authenticated` / `guest`) |
-| `auth.api.ts` | `useLogin`, `useRegister`, `useLogout` (React Query mutations that update the store) |
-| `LoginPage.tsx` / `RegisterPage.tsx` | Forms with loading and error states. Login redirects back to the page you came from. |
-| `RequireAuth.tsx` | Route guard for protected pages (cart, orders, admin). Optional `role` prop. |
-| `lib/api-client.ts` | Axios instance. Adds `Authorization: Bearer`, and on a 401 silently refreshes and retries once. |
-| `components/layout/RootLayout.tsx` | On app start, calls refresh once to restore the session from the cookie. |
+| `auth.store.js` | Zustand store: `user`, `accessToken`, `status` (`loading` / `authenticated` / `guest`) |
+| `auth.api.js` | `useLogin`, `useRegister`, `useLogout` (React Query mutations that update the store) |
+| `LoginPage.jsx` / `RegisterPage.jsx` | Forms with loading and error states. Login redirects back to the page you came from. |
+| `RequireAuth.jsx` | Route guard for protected pages (cart, orders, admin). Optional `role` prop. |
+| `lib/api-client.js` | Axios instance. Adds `Authorization: Bearer`, and on a 401 silently refreshes and retries once. |
+| `components/layout/RootLayout.jsx` | On app start, calls refresh once to restore the session from the cookie. |
 
 **Why not localStorage?** Any script running on the page (e.g. via an XSS bug) can read
 localStorage. Keeping the access token in memory and the refresh token in an httpOnly cookie
@@ -82,7 +82,7 @@ refresh cookie is only sent there, and the server needs it to give this device a
 | Rule | Why |
 |---|---|
 | The **current password is required** | A stolen session or an unlocked phone mustn't be enough to lock the owner out |
-| New password: the same rules as sign-up (8–100 characters) and **different from the current one** | One rule set (`password` in `auth.schema.ts`) |
+| New password: the same rules as sign-up (8–100 characters) and **different from the current one** | One rule set (`password` in `auth.schema.js`) |
 | A wrong current password → **400** with a field error, not 401 | The frontend treats 401 as "session expired" and would try to refresh |
 | **All sessions are deleted**, then a new one is issued for this device | If someone else got in, their session ends now. Their 15-minute access token can still work until it expires (the trade-off of stateless JWTs) |
 | A **"Your password was changed"** email, sent after responding | The owner finds out at once if it wasn't them. It never delays or breaks the change |
@@ -97,7 +97,7 @@ toggle, and `autoComplete="new-password"` so password managers can suggest a str
 
 ## Forgot password (6-digit code by email)
 
-Files: [`backend/src/modules/auth/password-reset.ts`](../../backend/src/modules/auth/password-reset.ts), migration
+Files: [`backend/src/modules/auth/password-reset.js`](../../backend/src/modules/auth/password-reset.js), migration
 `add_password_reset_code` (`PasswordResetCode` table), store page `/forgot-password` (link under the login form).
 
 | Endpoint (public) | Body | What it does |
@@ -130,8 +130,8 @@ The real email was delivered, and that test is what revealed the code-in-subject
 
 ## Login rate limiting
 
-Files: [`backend/src/lib/rate-limiter.ts`](../../backend/src/lib/rate-limiter.ts) (the limiter), `enforce()` + `login` /
-`forgotPassword` / `resetPassword` in `auth.controller.ts`, store [`lib/use-retry-countdown.ts`](../../frontend/src/lib/use-retry-countdown.ts) + `LoginPage.tsx`.
+Files: [`backend/src/lib/rate-limiter.js`](../../backend/src/lib/rate-limiter.js) (the limiter), `enforce()` + `login` /
+`forgotPassword` / `resetPassword` in `auth.controller.js`, store [`lib/use-retry-countdown.js`](../../frontend/src/lib/use-retry-countdown.js) + `LoginPage.jsx`.
 
 | Limit | Stops | Counts |
 |---|---|---|

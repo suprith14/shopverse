@@ -26,16 +26,16 @@ Same as the store **except state and data fetching**, so the project shows both 
 | Pages, styling, icons | React Router, Tailwind, lucide | same |
 | Linting | (Phase 7) | **ESLint** |
 
-Created with `npm create vite@latest admin -- --template react-ts`.
+Created with `npm create vite@latest admin -- --template react-ts`, then converted to plain JavaScript (see the change log, 2026-10-17).
 
 ## Structure
 
 ```
 admin/src/
 ├── app/
-│   ├── store.ts        Redux store: { auth, api }
-│   ├── api.ts          RTK Query base: token header, single-flight refresh on 401, admin-only sessions
-│   └── hooks.ts        typed useAppSelector / useAppDispatch
+│   ├── store.js        Redux store: { auth, api }
+│   ├── api.js          RTK Query base: token header, single-flight refresh on 401, admin-only sessions
+│   └── hooks.js        useAppSelector / useAppDispatch (the store hooks used everywhere)
 ├── features/
 │   ├── auth/           authSlice (state + reducers), authApi (login/logout/restore), LoginPage, RequireAdmin
 │   ├── products/       productsApi, ProductsPage (list), ProductEditPage (+ create), ProductForm, VariantsManager
@@ -44,16 +44,16 @@ admin/src/
 │   └── dashboard/      DashboardPage, StatTile, SalesChart, RankedBars, chartTheme
 ├── components/         layout (sidebar layout, 404) + ui (Button, Input, loading/error/empty states)
 ├── lib/                format (money, dates, order numbers, RTK errors), useDebounce
-├── router.tsx          routes; everything except /login is wrapped in <RequireAdmin>
-├── App.tsx             restores the session on load
-└── main.tsx            <Provider store={store}>
+├── router.jsx          routes; everything except /login is wrapped in <RequireAdmin>
+├── App.jsx             restores the session on load
+└── main.jsx            <Provider store={store}>
 ```
 
 ## Redux in this app
 
 - **`authSlice`** holds `{ user, accessToken, status }`. Actions: `sessionStarted`, `sessionEnded`.
   The access token stays in memory only. A reload restores it from the httpOnly refresh cookie.
-- **RTK Query** (`app/api.ts`): endpoints are declared per feature with `api.injectEndpoints`, and each
+- **RTK Query** (`app/api.js`): endpoints are declared per feature with `api.injectEndpoints`, and each
   becomes a hook (`useGetProductsQuery`, `useAdjustStockMutation`, …).
 - **`baseQueryWithReauth`**: on a 401 it refreshes the token **once** (all failing requests wait for the
   same refresh), then retries. A refreshed session that isn't `ADMIN` (e.g. a customer logged into the store
@@ -64,7 +64,7 @@ admin/src/
 ## Login
 
 Only `ADMIN` accounts can use the app. A customer with the right password sees "This account is not
-an admin", and that session is ended immediately. Session restore runs once on load (`App.tsx`).
+an admin", and that session is ended immediately. Session restore runs once on load (`App.jsx`).
 
 ## Products (`/products`, `/products/new`, `/products/:id`)
 
@@ -107,7 +107,7 @@ One period filter (**last 7 / 30 / 90 days**, kept in the URL as `?days=`) above
 | Low stock | List with ⚠ icon + "3 left" / "Out of stock" | Action items, linked to the product page |
 
 **Chart rules applied** (from the data-viz guidelines): the series colour `#2a78d6` was **validated** for lightness,
-chroma and ≥ 3:1 contrast on the white cards. Colours are defined by role in `chartTheme.ts`. Lines are 2 px with
+chroma and ≥ 3:1 contrast on the white cards. Colours are defined by role in `chartTheme.js`. Lines are 2 px with
 no dots until hover. Bars are rounded only at the data end (4 px). Gridlines are faint and horizontal only.
 Changes are shown with an **arrow + words**, never colour alone. There's no dual-axis chart, and there's a table view for exact numbers.
 

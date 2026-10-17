@@ -1,0 +1,114 @@
+import { createBrowserRouter, Link } from 'react-router';
+import { RootLayout } from '@/components/layout/RootLayout';
+import { HomePage } from '@/features/catalog/HomePage';
+import { CatalogPage } from '@/features/catalog/CatalogPage';
+import { ProductDetailPage } from '@/features/catalog/ProductDetailPage';
+import { RequireAuth } from '@/features/auth/RequireAuth';
+import { CartPage } from '@/features/cart/CartPage';
+import { PageTitle } from '@/components/layout/PageTitle';
+import { Spinner } from '@/components/ui/States';
+
+// All routes in one place. Protected pages are wrapped in <RequireAuth>.
+//
+// Code splitting: the pages almost every visitor sees (home, shop, product, cart) are in the
+// main bundle. The rest is downloaded only when first opened (`lazy`), so the first visit is lighter.
+export const router = createBrowserRouter([
+  {
+    element: <RootLayout />,
+    // Shown on a first visit straight to a lazy page (e.g. a bookmarked /orders) while its code loads.
+    hydrateFallbackElement: <Spinner />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: '/shop', element: <CatalogPage /> },
+      { path: '/products/:slug', element: <ProductDetailPage /> },
+      {
+        path: '/cart',
+        element: (
+          <RequireAuth>
+            <CartPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/wishlist',
+        lazy: async () => {
+          const { WishlistPage } = await import('@/features/wishlist/WishlistPage');
+          return {
+            element: (
+              <RequireAuth>
+                <WishlistPage />
+              </RequireAuth>
+            ),
+          };
+        },
+      },
+      {
+        path: '/orders',
+        lazy: async () => {
+          const { OrdersPage } = await import('@/features/orders/OrdersPage');
+          return {
+            element: (
+              <RequireAuth>
+                <OrdersPage />
+              </RequireAuth>
+            ),
+          };
+        },
+      },
+      {
+        path: '/orders/:id',
+        lazy: async () => {
+          const { OrderDetailPage } = await import('@/features/orders/OrderDetailPage');
+          return {
+            element: (
+              <RequireAuth>
+                <OrderDetailPage />
+              </RequireAuth>
+            ),
+          };
+        },
+      },
+      {
+        path: '/account',
+        lazy: async () => {
+          const { AccountPage } = await import('@/features/account/AccountPage');
+          return {
+            element: (
+              <RequireAuth>
+                <AccountPage />
+              </RequireAuth>
+            ),
+          };
+        },
+      },
+      // Public (no RequireAuth): opened by scanning an invoice's QR code.
+      {
+        path: '/verify/:token',
+        lazy: async () => ({ Component: (await import('@/features/invoices/VerifyInvoicePage')).VerifyInvoicePage }),
+      },
+      {
+        path: '/forgot-password',
+        lazy: async () => ({ Component: (await import('@/features/auth/ForgotPasswordPage')).ForgotPasswordPage }),
+      },
+      { path: '/login', lazy: async () => ({ Component: (await import('@/features/auth/LoginPage')).LoginPage }) },
+      {
+        path: '/register',
+        lazy: async () => ({ Component: (await import('@/features/auth/RegisterPage')).RegisterPage }),
+      },
+      { path: '*', element: <NotFound /> },
+    ],
+  },
+]);
+
+function NotFound() {
+  return (
+    <div className="py-24 text-center">
+      <PageTitle title="Page not found" />
+      <h1 className="text-4xl font-bold">404</h1>
+      <p className="mt-2 text-slate-500">This page doesn't exist.</p>
+      <Link to="/" className="mt-6 inline-block text-brand-600 hover:underline">
+        Go home
+      </Link>
+    </div>
+  );
+}

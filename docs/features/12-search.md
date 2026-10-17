@@ -24,7 +24,7 @@ difference and tries to `DROP DEFAULT` on the next `migrate dev`.
 
 ## Backend side
 
-Files: [`backend/src/modules/catalog/search.ts`](../../backend/src/modules/catalog/search.ts), `catalog.service.ts`.
+Files: [`backend/src/modules/catalog/search.js`](../../backend/src/modules/catalog/search.js), `catalog.service.js`.
 
 | Endpoint | What it does |
 |---|---|
@@ -53,12 +53,12 @@ still shows the other brands' counts, so you can switch with one click.
 
 | File | What it does |
 |---|---|
-| `components/SearchBox.tsx` | Header search: **debounced** suggestions dropdown with "Search for …", categories, brands and products; ↑/↓/Enter/Esc keyboard support; ARIA combobox roles |
-| `lib/use-debounce.ts` | `useDebounce(value, 250)`: only passes the value on once typing pauses |
-| `catalog.api.ts` | `useProducts` returns `ProductList` (with facets), new `useSuggestions` (cancels outdated requests with `signal`). `useBrands` removed |
-| `components/FilterSidebar.tsx` | Brand and rating options from the facets, with counts. Empty options are hidden or disabled |
-| `components/CategoryTabs.tsx` | Each tab shows its result count for the current search and filters |
-| `CatalogPage.tsx` | "Best match" sort when searching, partial-match notice, "Clear all filters" keeps the search text |
+| `components/SearchBox.jsx` | Header search: **debounced** suggestions dropdown with "Search for …", categories, brands and products; ↑/↓/Enter/Esc keyboard support; ARIA combobox roles |
+| `lib/use-debounce.js` | `useDebounce(value, 250)`: only passes the value on once typing pauses |
+| `catalog.api.js` | `useProducts` returns `ProductList` (with facets), new `useSuggestions` (cancels outdated requests with `signal`). `useBrands` removed |
+| `components/FilterSidebar.jsx` | Brand and rating options from the facets, with counts. Empty options are hidden or disabled |
+| `components/CategoryTabs.jsx` | Each tab shows its result count for the current search and filters |
+| `CatalogPage.jsx` | "Best match" sort when searching, partial-match notice, "Clear all filters" keeps the search text |
 
 ## Concepts to be able to explain
 

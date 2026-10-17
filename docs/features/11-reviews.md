@@ -38,10 +38,10 @@ Files: [`frontend/src/features/reviews/`](../../frontend/src/features/reviews)
 
 | File | What it does |
 |---|---|
-| `reviews.api.ts` | `useReviews`, `useMyReview`, `useSaveReview`, `useDeleteReview` |
-| `ProductReviews.tsx` | The "Customer reviews" section: average, star bars, list, Newer/Older pages, and the box for the current user |
-| `ReviewForm.tsx` | Clickable star picker (hover preview, keyboard accessible), title, text, Save/Delete |
-| `ProductDetailPage.tsx` (catalog) | Shows `<ProductReviews>` under the product |
+| `reviews.api.js` | `useReviews`, `useMyReview`, `useSaveReview`, `useDeleteReview` |
+| `ProductReviews.jsx` | The "Customer reviews" section: average, star bars, list, Newer/Older pages, and the box for the current user |
+| `ReviewForm.jsx` | Clickable star picker (hover preview, keyboard accessible), title, text, Save/Delete |
+| `ProductDetailPage.jsx` (catalog) | Shows `<ProductReviews>` under the product |
 
 **What the visitor sees:**
 

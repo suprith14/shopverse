@@ -28,12 +28,12 @@ job catches up when it wakes). Neon sleeps too (`connect_timeout=30` handles it)
 
 ## Production code settings (done in Phase 7, step 1)
 
-- **Backend scripts:** `build` = `prisma generate && tsc` (compiles to `dist/`), `start` = `node dist/server.js`,
+- **Backend scripts:** `build` = `prisma generate` (plain JavaScript: no compile step), `start` = `node src/server.js`,
   `db:deploy` = `prisma migrate deploy` (applies migration files only, never creates new ones). `engines.node` = `24.x`.
 - **Refresh cookie** is `SameSite=Lax` everywhere (works because every app uses a same-site `/api` proxy) and `Secure` in production.
 - **`vercel.json`** in `frontend/` and `admin/`: forward `/api/*` to Render, and send every other path to
   `index.html` so React Router can handle URLs like `/orders/123` on refresh.
-- **Admin:** links to the store use `VITE_STORE_URL` (`admin/src/lib/config.ts`).
+- **Admin:** links to the store use `VITE_STORE_URL` (`admin/src/lib/config.js`).
 
 ## How it was set up
 

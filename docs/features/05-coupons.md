@@ -16,7 +16,7 @@ Files: [`backend/src/modules/coupons/`](../../backend/src/modules/coupons)
 Response: `{ preview: { code, description, subtotal, discount, total } }`, or a 400 error with a message
 the customer can read.
 
-**Rules** (`calculateDiscount` in `coupons.service.ts`):
+**Rules** (`calculateDiscount` in `coupons.service.js`):
 
 | Check | Message |
 |---|---|
@@ -48,10 +48,10 @@ Files: [`frontend/src/features/coupons/`](../../frontend/src/features/coupons)
 
 | File | What it does |
 |---|---|
-| `coupon.store.ts` | Zustand store holding only the applied **code**. Cleared when the logged-in user changes |
-| `coupons.api.ts` | `useCouponPreview(code, subtotal)`, the React Query hook for the preview endpoint |
-| `CouponBox.tsx` | The code input, then a green chip (saving) or red chip (reason it doesn't apply) with a remove button |
-| `CartPage.tsx` (cart) | Order summary shows Subtotal, Discount and Total |
+| `coupon.store.js` | Zustand store holding only the applied **code**. Cleared when the logged-in user changes |
+| `coupons.api.js` | `useCouponPreview(code, subtotal)`, the React Query hook for the preview endpoint |
+| `CouponBox.jsx` | The code input, then a green chip (saving) or red chip (reason it doesn't apply) with a remove button |
+| `CartPage.jsx` (cart) | Order summary shows Subtotal, Discount and Total |
 
 **Key techniques:**
 - **Re-checking when the cart changes:** the cart subtotal is part of the query key, so changing a

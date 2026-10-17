@@ -6,7 +6,7 @@ Everything an admin can do is in **one folder**: [`backend/src/modules/admin/`](
 
 ```
 modules/admin/
-├── admin.routes.ts      /api/admin: requireAuth + requireRole('ADMIN') ONCE for everything below
+├── admin.routes.js      /api/admin: requireAuth + requireRole('ADMIN') ONCE for everything below
 ├── products/            /api/admin/products
 ├── orders/              /api/admin/orders
 └── analytics/           /api/admin/analytics
@@ -71,7 +71,7 @@ All take `days` = 7, 30 or 90 (default 30). Only `PAID`, `SHIPPED` and `DELIVERE
 
 Each widget has its own endpoint, so they load in parallel and a slow one doesn't block the others.
 
-**How "active" is tracked** (migration `add_user_activity`, [`lib/activity.ts`](../../backend/src/lib/activity.ts)):
+**How "active" is tracked** (migration `add_user_activity`, [`lib/activity.js`](../../backend/src/lib/activity.js)):
 `User.lastSeenAt` is updated by every logged-in request (`requireAuth`), login and session refresh, but
 **at most once per user every 5 minutes** (an in-memory throttle), and fire-and-forget, so requests never wait for it.
 Indexes on `lastSeenAt` and `createdAt` keep the counts fast.

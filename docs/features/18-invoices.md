@@ -26,8 +26,8 @@ order confirmation email.
 
 ## Backend
 
-Files: [`backend/src/modules/orders/invoice.ts`](../../backend/src/modules/orders/invoice.ts),
-[`backend/src/lib/send-pdf.ts`](../../backend/src/lib/send-pdf.ts), `markOrderPaid` in `orders.service.ts`.
+Files: [`backend/src/modules/orders/invoice.js`](../../backend/src/modules/orders/invoice.js),
+[`backend/src/lib/send-pdf.js`](../../backend/src/lib/send-pdf.js), `markOrderPaid` in `orders.service.js`.
 
 | Endpoint | Who | Notes |
 |---|---|---|
@@ -54,9 +54,9 @@ harmless for webhooks because Stripe retries.
 
 ## Frontend
 
-- **Store** (`OrderDetailPage.tsx`): a "Payment" box on paid orders with the card, invoice number, **Download invoice** and **Stripe receipt**.
-  `lib/download.ts` fetches with the auth token (a plain link can't send it), saves the file, and reads error messages out of Blob responses.
-- **Admin** (`OrderDetailPage.tsx` → Payment box): card, invoice number and the same two actions. `admin/src/lib/download.ts`
+- **Store** (`OrderDetailPage.jsx`): a "Payment" box on paid orders with the card, invoice number, **Download invoice** and **Stripe receipt**.
+  `lib/download.js` fetches with the auth token (a plain link can't send it), saves the file, and reads error messages out of Blob responses.
+- **Admin** (`OrderDetailPage.jsx` → Payment box): card, invoice number and the same two actions. `admin/src/lib/download.js`
   goes through `baseQueryWithReauth`, so token refresh works for downloads too.
 
 ## QR code: verify + view links
@@ -70,7 +70,7 @@ id is used in other places (order URLs, logs). The token is `crypto.randomBytes(
 nothing else, and replaceable without touching the order. Existing invoices were back-filled in the migration with
 `replace(gen_random_uuid()::text, '-', '') || left(…, 16)` (same 48-hex format, one per row, unique index created after the fill).
 
-**Public endpoint** `GET /api/invoices/verify/:token` ([`modules/invoices/invoices.routes.ts`](../../backend/src/modules/invoices/invoices.routes.ts)):
+**Public endpoint** `GET /api/invoices/verify/:token` ([`modules/invoices/invoices.routes.js`](../../backend/src/modules/invoices/invoices.routes.js)):
 - no login (the person checking may be an accountant, an employer or a tax officer)
 - returns **only** number, issue date, total, currency and `PAID`/`REFUNDED`: no name, email, address or items
 - token format-checked (`^[a-f0-9]{48}$`); unknown → 404 *"No ShopVerse invoice matches this code"*

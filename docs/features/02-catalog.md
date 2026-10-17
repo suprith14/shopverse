@@ -16,7 +16,7 @@ Files: [`backend/src/modules/catalog/`](../../backend/src/modules/catalog)
 | `GET /api/catalog/products` | Filtered, sorted, paginated product list |
 | `GET /api/catalog/products/:slug` | One product with category and all variants |
 
-**Query params for `/products`** (validated by `catalog.schema.ts`):
+**Query params for `/products`** (validated by `catalog.schema.js`):
 
 | Param | Example | Meaning |
 |---|---|---|
@@ -30,7 +30,7 @@ Files: [`backend/src/modules/catalog/`](../../backend/src/modules/catalog)
 
 Response: `{ items, page, limit, total, totalPages, sort, matchMode, facets }`.
 
-**How the query is built** (`catalog.service.ts`): each filter adds a condition to a Prisma
+**How the query is built** (`catalog.service.js`): each filter adds a condition to a Prisma
 `where` object only if it was sent. The count query and the page query run in one
 transaction, so `total` matches the items returned.
 
@@ -51,14 +51,14 @@ Files: [`frontend/src/features/catalog/`](../../frontend/src/features/catalog)
 
 | File | Responsibility |
 |---|---|
-| `catalog.api.ts` | React Query hooks: `useCategories`, `useBrands`, `useProducts`, `useProduct` |
-| `HomePage.tsx` | Hero, category cards with product counts, featured (top-rated) products |
-| `CatalogPage.tsx` | Category tabs + filter sidebar + sort + product grid + pagination |
-| `ProductDetailPage.tsx` | Image gallery, variant picker (sold-out variants disabled), stock messages, details table |
-| `components/CategoryTabs.tsx` | "All / Sneakers / Electronics / Books / Home Decor", built from the API |
-| `components/FilterSidebar.tsx` | Brand, price range, minimum rating, clear all |
-| `components/ProductCard.tsx` | Image, brand, name, rating, price, "Sold out" badge |
-| `components/Pagination.tsx` | Previous / page numbers / next |
+| `catalog.api.js` | React Query hooks: `useCategories`, `useBrands`, `useProducts`, `useProduct` |
+| `HomePage.jsx` | Hero, category cards with product counts, featured (top-rated) products |
+| `CatalogPage.jsx` | Category tabs + filter sidebar + sort + product grid + pagination |
+| `ProductDetailPage.jsx` | Image gallery, variant picker (sold-out variants disabled), stock messages, details table |
+| `components/CategoryTabs.jsx` | "All / Sneakers / Electronics / Books / Home Decor", built from the API |
+| `components/FilterSidebar.jsx` | Brand, price range, minimum rating, clear all |
+| `components/ProductCard.jsx` | Image, brand, name, rating, price, "Sold out" badge |
+| `components/Pagination.jsx` | Previous / page numbers / next |
 
 **The URL is the source of truth for filters.** `/shop?category=books&sort=price_asc&page=2`
 holds all filter state. Changing a filter updates the URL, and the URL drives the API query.
