@@ -81,3 +81,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-17 | Loader v2: category icon swaps in sync with the rotating word, the logo outline draws itself (SVG stroke-dashoffset), a "Slow connection?" hint fades in after 6 s (CSS animation-delay), and the admin app gets the same loader (shield logo; orders/products/analytics/customers). |
 | 2026-10-17 | Store loader: removed the sneakers icon and word. Now 3 turns (gadgets / books / home decor) on a 3.3 s cycle. |
 | 2026-10-17 | Loader CSS moved out of index.html into `src/splash.css` (store and admin), linked with `<link rel="stylesheet">` in `<head>`. Vite bundles it into the main CSS file, which still loads before the JavaScript. The markup stays in index.html. |
+| 2026-10-17 | Tests step 1: Vitest in the backend (`npm test`), unit tests for coupon discounts and the login rate limiter (17 tests, fake env vars and fake timers). See features/19-testing.md. |
