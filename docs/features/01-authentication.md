@@ -74,6 +74,27 @@ means neither is readable by injected scripts.
 (a shared promise) and all 3 retry with the new token. Without this, the second refresh
 would use an already-rotated token and trigger reuse detection.
 
+## Change password (My account)
+
+`POST /api/auth/change-password` `{ currentPassword, newPassword }` (login required). It's under `/api/auth` because the
+refresh cookie is only sent there, and the server needs it to give this device a fresh session.
+
+| Rule | Why |
+|---|---|
+| The **current password is required** | A stolen session or an unlocked phone mustn't be enough to lock the owner out |
+| New password: the same rules as sign-up (8–100 characters) and **different from the current one** | One rule set (`password` in `auth.schema.ts`) |
+| A wrong current password → **400** with a field error, not 401 | The frontend treats 401 as "session expired" and would try to refresh |
+| **All sessions are deleted**, then a new one is issued for this device | If someone else got in, their session ends now. Their 15-minute access token can still work until it expires (the trade-off of stateless JWTs) |
+| A **"Your password was changed"** email, sent after responding | The owner finds out at once if it wasn't them. It never delays or breaks the change |
+
+**Bug found while testing:** at first the old sessions were *revoked* (marked used) instead of deleted. When another device then
+refreshed, the **reuse detection** treated it as a stolen token and signed out *every* session, including the one just
+issued. Deleting them makes old devices simply get "invalid refresh token" (log in again), and keeps the theft alarm for
+real reuse of a rotated token. Tested with two cookie jars ("devices").
+
+**Frontend:** the "Password" section in My account has current, new and confirm fields (mismatch caught in the browser), a show-passwords
+toggle, and `autoComplete="new-password"` so password managers can suggest a strong one. A toast confirms the change.
+
 ## Real-world concepts demonstrated
 
 - Password hashing with bcrypt (salted, deliberately slow)

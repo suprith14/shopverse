@@ -31,6 +31,17 @@ export function useRegister() {
   });
 }
 
+// Change password. The server signs out every other device and returns a fresh session for
+// this one (new access token here, new refresh cookie set by the response).
+export function useChangePassword() {
+  const setSession = useAuthStore((s) => s.setSession);
+  return useMutation({
+    mutationFn: async (input: { currentPassword: string; newPassword: string }) =>
+      (await api.post<AuthResponse>('/auth/change-password', input)).data,
+    onSuccess: (data) => setSession(data.user, data.accessToken),
+  });
+}
+
 export function useLogout() {
   const clearSession = useAuthStore((s) => s.clearSession);
   return useMutation({

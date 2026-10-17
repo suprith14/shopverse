@@ -5,6 +5,7 @@ import type { AuthUser } from '../../middleware/auth.js';
 import { REFRESH_TOKEN_TTL_MS } from './auth.tokens.js';
 import * as authService from './auth.service.js';
 import { recordActivity } from '../../lib/activity.js';
+import { sendPasswordChangedEmail } from './auth-emails.js';
 
 const REFRESH_COOKIE = 'refreshToken';
 
@@ -52,6 +53,14 @@ export async function refresh(req: Request, res: Response) {
 export async function logout(req: Request, res: Response) {
   await authService.logout(req.cookies?.[REFRESH_COOKIE]);
   res.clearCookie(REFRESH_COOKIE, { ...cookieOptions, maxAge: undefined }).status(204).end();
+}
+
+// Every session is ended by the change; this device gets a fresh refresh cookie + access token.
+export async function changePassword(_req: Request, res: Response) {
+  const { refreshToken, ...result } = await authService.changePassword((res.locals.user as AuthUser).id, res.locals.body);
+  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
+  // After responding: the notification email must never delay or break the change itself.
+  sendPasswordChangedEmail(result.user).catch((err) => console.error('[email] password-changed notice failed', err));
 }
 
 export async function me(_req: Request, res: Response) {

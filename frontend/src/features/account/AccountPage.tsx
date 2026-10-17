@@ -1,5 +1,5 @@
 import { useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from 'react';
-import { Camera, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
+import { Camera, KeyRound, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
@@ -9,6 +9,7 @@ import { AddressForm } from './AddressForm';
 import { AddressLines } from './AddressCard';
 import { PageTitle } from '@/components/layout/PageTitle';
 import { notify } from '@/lib/notify';
+import { useChangePassword } from '@/features/auth/auth.api';
 import {
   useAddAddress,
   useDeleteAddress,
@@ -33,6 +34,7 @@ export function AccountPage() {
       {/* key: re-create the form with fresh values after a save */}
       <DetailsSection key={`${profile.name}|${profile.phone}|${profile.dateOfBirth}`} profile={profile} />
       <AddressBook profile={profile} />
+      <PasswordSection />
     </div>
   );
 }
@@ -135,6 +137,56 @@ function DetailsSection({ profile }: { profile: Profile }) {
 }
 
 // ------------------------------------------------------------------ Address book
+
+// ------------------------------------------------------------------ Password
+
+function PasswordSection() {
+  const change = useChangePassword();
+  const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirm: '' });
+  const [show, setShow] = useState(false);
+  // Checked in the browser for instant feedback; the server checks the real rules.
+  const mismatch = form.confirm.length > 0 && form.confirm !== form.newPassword;
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (mismatch) return;
+    change.mutate(
+      { currentPassword: form.currentPassword, newPassword: form.newPassword },
+      {
+        onSuccess: () => {
+          setForm({ currentPassword: '', newPassword: '', confirm: '' });
+          notify.success('Password changed. You were signed out on your other devices.');
+        },
+      },
+    );
+  };
+
+  return (
+    <Section title="Password" icon={KeyRound}>
+      <form onSubmit={submit} className="space-y-3">
+        {change.isError && <ErrorState error={change.error} />}
+        <Input label="Current password" name="currentPassword" type={show ? 'text' : 'password'} required
+          autoComplete="current-password" value={form.currentPassword}
+          onChange={(e) => setForm({ ...form, currentPassword: e.target.value })} />
+        <div className="grid gap-3 sm:grid-cols-2">
+          {/* autoComplete="new-password" lets the browser's password manager suggest a strong one */}
+          <Input label="New password" name="newPassword" type={show ? 'text' : 'password'} required minLength={8}
+            autoComplete="new-password" value={form.newPassword}
+            onChange={(e) => setForm({ ...form, newPassword: e.target.value })} />
+          <Input label="Confirm new password" name="confirm" type={show ? 'text' : 'password'} required
+            autoComplete="new-password" value={form.confirm}
+            onChange={(e) => setForm({ ...form, confirm: e.target.value })} />
+        </div>
+        {mismatch && <p className="text-sm text-red-600">The two new passwords don't match.</p>}
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
+          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> Show passwords
+        </label>
+        <p className="text-xs text-slate-500">At least 8 characters. Changing it signs you out on all your other devices.</p>
+        <Button type="submit" loading={change.isPending} disabled={mismatch}>Change password</Button>
+      </form>
+    </Section>
+  );
+}
 
 function AddressBook({ profile }: { profile: Profile }) {
   const [adding, setAdding] = useState(false);

@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
 import type { User } from '@prisma/client';
 import { prisma } from '../../lib/prisma.js';
-import { conflict, notFound, unauthorized } from '../../lib/http-error.js';
-import type { LoginInput, RegisterInput } from './auth.schema.js';
+import { badRequest, conflict, notFound, unauthorized } from '../../lib/http-error.js';
+import type { ChangePasswordInput, LoginInput, RegisterInput } from './auth.schema.js';
 import {
   REFRESH_TOKEN_TTL_MS,
   generateRefreshToken,
@@ -79,6 +79,34 @@ export async function logout(rawToken: string | undefined) {
     where: { tokenHash: hashToken(rawToken), revokedAt: null },
     data: { revokedAt: new Date() },
   });
+}
+
+// Change password from My account.
+//  - The CURRENT password is required: a stolen session or an unlocked phone must not be
+//    enough to lock the real owner out.
+//  - Every session is signed out (all refresh tokens revoked), then a fresh session is
+//    issued for THIS device only. If the change happened because someone else got in,
+//    their session ends now. (Their short-lived access token can still work for up to its
+//    15 minutes: the trade-off of stateless JWTs.)
+export async function changePassword(userId: string, { currentPassword, newPassword }: ChangePasswordInput) {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw notFound('User not found');
+  // 400, not 401: a 401 means "session expired" to the frontend, which would try to refresh it.
+  if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
+    throw badRequest('Validation failed', [{ field: 'currentPassword', message: 'Your current password is incorrect' }]);
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: userId }, data: { passwordHash } }),
+    // DELETE the old sessions rather than marking them revoked. A revoked token that gets used
+    // again trips the theft alarm in refresh() ("reuse detected: sign out everywhere"), which
+    // would also kill the fresh session issued below the moment an old device came online.
+    // Deleted tokens are simply unknown: that device gets "please log in" and nothing else happens.
+    prisma.refreshToken.deleteMany({ where: { userId } }),
+  ]);
+
+  return { user: toPublicUser(user), ...(await issueTokens(user)) };
 }
 
 export async function getMe(userId: string) {
