@@ -42,6 +42,24 @@ export function useChangePassword() {
   });
 }
 
+// Forgot password, step 1: email me a code. The server answers the same way whether or not
+// the account exists, so the page can't (and doesn't) say "no such account".
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: async (input: { email: string }) => (await api.post<{ message: string }>('/auth/forgot-password', input)).data,
+  });
+}
+
+// Step 2: code + new password. Success logs you straight in on this device.
+export function useResetPassword() {
+  const setSession = useAuthStore((s) => s.setSession);
+  return useMutation({
+    mutationFn: async (input: { email: string; code: string; newPassword: string }) =>
+      (await api.post<AuthResponse>('/auth/reset-password', input)).data,
+    onSuccess: (data) => setSession(data.user, data.accessToken),
+  });
+}
+
 export function useLogout() {
   const clearSession = useAuthStore((s) => s.clearSession);
   return useMutation({

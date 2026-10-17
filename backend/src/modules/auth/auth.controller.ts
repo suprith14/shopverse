@@ -1,6 +1,7 @@
 import type { Request, Response, CookieOptions } from 'express';
 import { isProd } from '../../config/env.js';
-import { unauthorized } from '../../lib/http-error.js';
+import { HttpError, tooManyRequests, unauthorized } from '../../lib/http-error.js';
+import { limiters, type RateLimiter } from '../../lib/rate-limiter.js';
 import type { AuthUser } from '../../middleware/auth.js';
 import { REFRESH_TOKEN_TTL_MS } from './auth.tokens.js';
 import * as authService from './auth.service.js';
@@ -30,10 +31,37 @@ export async function register(_req: Request, res: Response) {
   res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).status(201).json(result);
 }
 
-export async function login(_req: Request, res: Response) {
-  const { refreshToken, ...result } = await authService.login(res.locals.body);
-  recordActivity(result.user.id);
-  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
+// Refuses the request with 429 + Retry-After if ANY of the given limits is reached.
+function enforce(res: Response, checks: [RateLimiter, string][]) {
+  const waitMs = Math.max(0, ...checks.map(([limiter, key]) => limiter.retryAfterMs(key)));
+  if (waitMs > 0) {
+    // Logged so blocks are visible, and so you can check in production that req.ip is the
+    // visitor's real IP, not a proxy's (see TRUST_PROXY_HOPS). Keys never contain passwords or codes.
+    console.warn(`[rate-limit] blocked ip=${res.req.ip} keys=${checks.map(([, key]) => key).join(',')}`);
+    res.set('Retry-After', String(Math.ceil(waitMs / 1000))); // standard header, in seconds
+    throw tooManyRequests(waitMs);
+  }
+}
+
+export async function login(req: Request, res: Response) {
+  // Unknown emails are counted too, so "never gets locked" can't reveal an email isn't registered.
+  const accountKey = `login:${res.locals.body.email}`;
+  const ipKey = `login:${req.ip}`;
+  enforce(res, [[limiters.loginPerAccount, accountKey], [limiters.loginPerIp, ipKey]]);
+
+  try {
+    const { refreshToken, ...result } = await authService.login(res.locals.body);
+    limiters.loginPerAccount.reset(accountKey); // correct password: this account starts fresh
+    recordActivity(result.user.id);
+    res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
+  } catch (err) {
+    // Only WRONG credentials count (not e.g. a database hiccup).
+    if (err instanceof HttpError && err.status === 401) {
+      limiters.loginPerAccount.record(accountKey);
+      limiters.loginPerIp.record(ipKey);
+    }
+    throw err;
+  }
 }
 
 export async function refresh(req: Request, res: Response) {
@@ -68,14 +96,23 @@ export async function changePassword(_req: Request, res: Response) {
 // The work (database + sending the email) runs in the background AFTER replying: otherwise
 // real accounts would answer more slowly than unknown ones (a timing leak), and an email
 // failure would only ever show up for real accounts.
-export function forgotPassword(_req: Request, res: Response) {
+export function forgotPassword(req: Request, res: Response) {
+  // Limit "send me a code" per IP: stops one machine flooding many inboxes through our form.
+  enforce(res, [[limiters.resetRequestsPerIp, `reset-request:${req.ip}`]]);
+  limiters.resetRequestsPerIp.record(`reset-request:${req.ip}`);
   res.json({ message: 'If an account exists for that email, we sent a 6-digit code. It works for 15 minutes.' });
   requestReset(res.locals.body.email).catch((err) => console.error('[password-reset] could not send code', err));
 }
 
-export async function resetPassword(_req: Request, res: Response) {
+export async function resetPassword(req: Request, res: Response) {
   const { email, code, newPassword } = res.locals.body;
-  const user = await resetWithCode(email, code, newPassword);
+  // Each code allows only 5 tries, but one machine could try codes for MANY accounts: cap wrong codes per IP.
+  const ipKey = `reset-fail:${req.ip}`;
+  enforce(res, [[limiters.resetFailuresPerIp, ipKey]]);
+  const user = await resetWithCode(email, code, newPassword).catch((err) => {
+    if (err instanceof HttpError && err.status === 400) limiters.resetFailuresPerIp.record(ipKey);
+    throw err;
+  });
   const { refreshToken, ...result } = await authService.startSessionAfterReset(user);
   res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
   sendPasswordChangedEmail(result.user).catch((err) => console.error('[email] password-changed notice failed', err));

@@ -21,6 +21,8 @@ import { handleStripeWebhook } from './modules/webhooks/stripe-webhook.js';
 export function createApp() {
   const app = express();
 
+  // Real visitor IP behind proxies (see TRUST_PROXY_HOPS in config/env.ts). Used by per-IP rate limits.
+  app.set('trust proxy', env.TRUST_PROXY_HOPS);
   app.use(helmet()); // sets secure HTTP headers
   app.use(cors({ origin: env.CLIENT_URL, credentials: true })); // credentials: allow the refresh cookie
   // Stripe webhooks need the raw body to verify the signature, so this route is registered

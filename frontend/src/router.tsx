@@ -52,6 +52,7 @@ export const router = createBrowserRouter([
       },
       // Public (no RequireAuth): opened by scanning an invoice's QR code.
       { path: '/verify/:token', lazy: async () => ({ Component: (await import('@/features/invoices/VerifyInvoicePage')).VerifyInvoicePage }) },
+      { path: '/forgot-password', lazy: async () => ({ Component: (await import('@/features/auth/ForgotPasswordPage')).ForgotPasswordPage }) },
       { path: '/login', lazy: async () => ({ Component: (await import('@/features/auth/LoginPage')).LoginPage }) },
       { path: '/register', lazy: async () => ({ Component: (await import('@/features/auth/RegisterPage')).RegisterPage }) },
       { path: '*', element: <NotFound /> },

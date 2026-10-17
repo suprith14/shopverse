@@ -15,3 +15,9 @@ export const unauthorized = (message = 'Not authenticated') => new HttpError(401
 export const forbidden = (message = 'Not allowed') => new HttpError(403, message);
 export const notFound = (message = 'Not found') => new HttpError(404, message);
 export const conflict = (message: string) => new HttpError(409, message);
+
+// 429 Too Many Requests. The caller also sets the standard Retry-After header (seconds).
+export const tooManyRequests = (retryAfterMs: number) => {
+  const minutes = Math.ceil(retryAfterMs / 60_000);
+  return new HttpError(429, `Too many attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`);
+};

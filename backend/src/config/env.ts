@@ -9,6 +9,11 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1),
   CLIENT_URL: z.string().default('http://localhost:5173'),
   JWT_ACCESS_SECRET: z.string().min(16),
+  // How many proxies stand in front of this server. Express then reads the visitor's real IP from
+  // the X-Forwarded-For header (needed for per-IP rate limits). Must be EXACT: too many and a client
+  // can fake its IP by sending that header; too few and every visitor looks like the proxy.
+  // Laptop: 0. Render behind Vercel's rewrite: 2 (Vercel + Render's load balancer).
+  TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
   STRIPE_SECRET_KEY: z.string().regex(/^sk_(test|live)_/, 'must be a Stripe secret key (sk_test_...)'),
   // Proves webhook requests really come from Stripe. Optional so the rest of the app runs
   // without it, but payments can't be confirmed until it's set.
