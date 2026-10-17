@@ -14,6 +14,9 @@ const envSchema = z.object({
   // can fake its IP by sending that header; too few and every visitor looks like the proxy.
   // Laptop: 0. Render behind Vercel's rewrite: 2 (Vercel + Render's load balancer).
   TRUST_PROXY_HOPS: z.coerce.number().int().min(0).max(5).default(0),
+  // bcrypt work factor: each +1 doubles the time to hash (and to crack) a password. 12 takes ~0.3-2 s.
+  // Tests set 4 (a few ms): they only check the login logic, and slow hashing would make them minutes long.
+  BCRYPT_ROUNDS: z.coerce.number().int().min(4).max(15).default(12),
   STRIPE_SECRET_KEY: z.string().regex(/^sk_(test|live)_/, 'must be a Stripe secret key (sk_test_...)'),
   // Proves webhook requests really come from Stripe. Optional so the rest of the app runs
   // without it, but payments can't be confirmed until it's set.

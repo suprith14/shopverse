@@ -97,7 +97,7 @@ export async function resetWithCode(email, code, newPassword) {
     throw INVALID();
   }
 
-  const passwordHash = await bcrypt.hash(newPassword, 12);
+  const passwordHash = await bcrypt.hash(newPassword, env.BCRYPT_ROUNDS);
   await prisma.$transaction([
     prisma.user.update({ where: { id: user.id }, data: { passwordHash } }),
     prisma.passwordResetCode.update({ where: { id: reset.id }, data: { usedAt: new Date() } }), // one-time

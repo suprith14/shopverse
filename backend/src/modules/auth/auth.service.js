@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { env } from '../../config/env.js';
 import { prisma } from '../../lib/prisma.js';
 import { badRequest, conflict, notFound, unauthorized } from '../../lib/http-error.js';
 import { REFRESH_TOKEN_TTL_MS, generateRefreshToken, hashToken, signAccessToken } from './auth.tokens.js';
@@ -24,8 +25,8 @@ export async function register(input) {
   const existing = await prisma.user.findUnique({ where: { email: input.email } });
   if (existing) throw conflict('An account with this email already exists');
 
-  // bcrypt is deliberately slow (cost 12) to make brute-forcing leaked hashes expensive.
-  const passwordHash = await bcrypt.hash(input.password, 12);
+  // bcrypt is deliberately slow (cost 12 by default, BCRYPT_ROUNDS) to make brute-forcing leaked hashes expensive.
+  const passwordHash = await bcrypt.hash(input.password, env.BCRYPT_ROUNDS);
   const user = await prisma.user.create({
     data: { name: input.name, email: input.email, passwordHash },
   });
@@ -91,7 +92,7 @@ export async function changePassword(userId, { currentPassword, newPassword }) {
     ]);
   }
 
-  const passwordHash = await bcrypt.hash(newPassword, 12);
+  const passwordHash = await bcrypt.hash(newPassword, env.BCRYPT_ROUNDS);
   await prisma.$transaction([
     prisma.user.update({ where: { id: userId }, data: { passwordHash } }),
     // DELETE the old sessions rather than marking them revoked. A revoked token that gets used

@@ -82,3 +82,5 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-17 | Store loader: removed the sneakers icon and word. Now 3 turns (gadgets / books / home decor) on a 3.3 s cycle. |
 | 2026-10-17 | Loader CSS moved out of index.html into `src/splash.css` (store and admin), linked with `<link rel="stylesheet">` in `<head>`. Vite bundles it into the main CSS file, which still loads before the JavaScript. The markup stays in index.html. |
 | 2026-10-17 | Tests step 1: Vitest in the backend (`npm test`), unit tests for coupon discounts and the login rate limiter (17 tests, fake env vars and fake timers). See features/19-testing.md. |
+| 2026-10-17 | Tests step 2: API tests with Supertest (auth, rate limiting, token rotation, admin access, IDOR, cart rules) against a separate Neon `test` branch (`TEST_DATABASE_URL`). Global setup refuses to run on the dev database, migrates, then empties the tables. |
+| 2026-10-17 | Tests step 2 passing: 41 tests (17 unit + 24 API) on the Neon `test` branch. New env var `BCRYPT_ROUNDS` (default 12; tests use 4, which cut the API run from 4.5 to 2.5 min). |
