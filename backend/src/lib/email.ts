@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { env } from '../config/env.js';
+import { env, isProd } from '../config/env.js';
 
 // One place that sends every email in the app. Features call sendEmail() and don't care
 // which provider is behind it, so switching from Resend to SendGrid/SES touches only this file.
@@ -26,7 +26,9 @@ export async function sendEmail(message: EmailMessage) {
   }
 
   if (!resend) {
-    console.log(`[email] (not sent, no RESEND_API_KEY) to=${to} subject="${subject}"\n${message.text}`);
+    // On a laptop, printing the email is handy (e.g. to read a reset code). Never in production:
+    // emails can contain one-time codes, and logs are read by people and tools that must not see them.
+    console.log(`[email] (not sent, no RESEND_API_KEY) to=${to} subject="${subject}"${isProd ? '' : `\n${message.text}`}`);
     return;
   }
 

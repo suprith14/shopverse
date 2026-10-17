@@ -109,6 +109,12 @@ export async function changePassword(userId: string, { currentPassword, newPassw
   return { user: toPublicUser(user), ...(await issueTokens(user)) };
 }
 
+// After a successful reset: log the user straight in on this device (they just proved they
+// own the email address), with a brand-new session.
+export async function startSessionAfterReset(user: User) {
+  return { user: toPublicUser(user), ...(await issueTokens(user)) };
+}
+
 export async function getMe(userId: string) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw notFound('User not found');

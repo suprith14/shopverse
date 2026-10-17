@@ -6,6 +6,7 @@ import { REFRESH_TOKEN_TTL_MS } from './auth.tokens.js';
 import * as authService from './auth.service.js';
 import { recordActivity } from '../../lib/activity.js';
 import { sendPasswordChangedEmail } from './auth-emails.js';
+import { requestReset, resetWithCode } from './password-reset.js';
 
 const REFRESH_COOKIE = 'refreshToken';
 
@@ -60,6 +61,23 @@ export async function changePassword(_req: Request, res: Response) {
   const { refreshToken, ...result } = await authService.changePassword((res.locals.user as AuthUser).id, res.locals.body);
   res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
   // After responding: the notification email must never delay or break the change itself.
+  sendPasswordChangedEmail(result.user).catch((err) => console.error('[email] password-changed notice failed', err));
+}
+
+// Always the same reply, at the same speed, whether or not the email has an account.
+// The work (database + sending the email) runs in the background AFTER replying: otherwise
+// real accounts would answer more slowly than unknown ones (a timing leak), and an email
+// failure would only ever show up for real accounts.
+export function forgotPassword(_req: Request, res: Response) {
+  res.json({ message: 'If an account exists for that email, we sent a 6-digit code. It works for 15 minutes.' });
+  requestReset(res.locals.body.email).catch((err) => console.error('[password-reset] could not send code', err));
+}
+
+export async function resetPassword(_req: Request, res: Response) {
+  const { email, code, newPassword } = res.locals.body;
+  const user = await resetWithCode(email, code, newPassword);
+  const { refreshToken, ...result } = await authService.startSessionAfterReset(user);
+  res.cookie(REFRESH_COOKIE, refreshToken, cookieOptions).json(result);
   sendPasswordChangedEmail(result.user).catch((err) => console.error('[email] password-changed notice failed', err));
 }
 

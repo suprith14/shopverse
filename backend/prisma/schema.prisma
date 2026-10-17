@@ -62,14 +62,32 @@ model User {
   defaultAddress   Address?  @relation("DefaultAddress", fields: [defaultAddressId], references: [id], onDelete: SetNull)
   addresses        Address[] @relation("UserAddresses")
 
-  refreshTokens RefreshToken[]
-  cartItems     CartItem[]
-  wishlist      WishlistItem[]
-  orders        Order[]
-  reviews       Review[]
+  refreshTokens      RefreshToken[]
+  passwordResetCodes PasswordResetCode[]
+  cartItems          CartItem[]
+  wishlist           WishlistItem[]
+  orders             Order[]
+  reviews            Review[]
 
   @@index([lastSeenAt]) // "who was active in the last 15 minutes?" without reading every user
   @@index([createdAt]) // "who signed up this month?"
+}
+
+// "Forgot password" one-time codes (6 digits, emailed).
+// Only an HMAC of the code is stored (keyed with a server secret): with just 1,000,000 possible
+// codes, a plain hash from a leaked database could be cracked in seconds; without the secret it can't.
+// One active code per user (a new request deletes the old one), 15-minute expiry, max 5 tries.
+model PasswordResetCode {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String
+  attempts  Int       @default(0) // wrong guesses so far; burned at 5
+  expiresAt DateTime
+  usedAt    DateTime? // set when used (or burned), so it can never work twice
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 // A delivery address in a customer's address book (a user can have several).
