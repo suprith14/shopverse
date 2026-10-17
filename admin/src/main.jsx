@@ -13,3 +13,13 @@ createRoot(document.getElementById('root')).render(
     </Provider>
   </StrictMode>,
 );
+
+// The app has rendered: fade out the start-up loader from index.html, then remove it.
+// requestAnimationFrame waits for the first frame to be painted, so there's no blank flash.
+requestAnimationFrame(() => {
+  const splash = document.getElementById('splash');
+  if (!splash) return;
+  splash.classList.add('splash-hide'); // CSS fades it out over 0.3 s
+  splash.addEventListener('transitionend', () => splash.remove(), { once: true });
+  setTimeout(() => splash.remove(), 600); // in case the transition doesn't run (e.g. reduced motion)
+});

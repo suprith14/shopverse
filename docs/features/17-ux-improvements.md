@@ -15,7 +15,7 @@
 | 9 | Phones: filters pushed products down | "Filters (N)" toggle below `lg`, sidebar always visible on desktop | Products first. The count shows hidden active filters |
 | 10 | No sense of checkout progress | `CheckoutSteps`: Cart & delivery → Payment → Confirmation on the cart and order pages | Matches the real flow (Stripe is step 2). Known progress reduces abandonment |
 | 11 | Phone users saw a **disabled Checkout** with no explanation (no saved address; the form was below the fold) | The button stays enabled and reads **"Add delivery address to continue"**. Tapping it scrolls to the address form, focuses its first field and shows a toast | A dead button doesn't say why, and tooltips don't exist on touch screens. The tap explains the problem and leads to the fix |
-| 12 | Blank white page while the app's JavaScript downloads (seconds on slow phones) | A branded **start-up loader** (hopping bag + sliding bar) written in plain HTML/CSS inside `index.html`. `main.jsx` fades it out right after React's first paint | Only HTML/CSS can show before the JavaScript arrives (a React spinner would appear too late). No minimum display time. Static under `prefers-reduced-motion`. ~1 kB |
+| 12 | Blank white page while the app's JavaScript downloads (seconds on slow phones) | A branded **start-up loader** written in plain HTML/CSS inside `index.html`: a hopping category icon that changes with the word ("Getting **gadgets** / books / home decor ready"), the bag logo drawing itself, a sliding bar, and a "Slow connection? Almost there…" hint that appears only after 6 s. `main.jsx` fades it out right after React's first paint. The admin app has the same loader (shield logo; orders / products / analytics / customers) | Only HTML/CSS can show before the JavaScript arrives (a React spinner would appear too late). Everything shares one 3.3 s cycle, so icon and word never drift apart. The 6 s hint uses CSS `animation-delay` with no timer code, so fast visits never see it. No fake progress and no minimum display time. Calm and static under `prefers-reduced-motion`. ~3 kB gzipped |
 | — | Bundle over 500 kB after adding toasts | `lazy` routes for wishlist, orders, order detail, account, login and register | Main bundle **519 → 427 kB**. Rarely used pages load on demand |
 
 ## Concepts to be able to explain
@@ -26,3 +26,4 @@
 4. What does `<ScrollRestoration />` do that `window.scrollTo(0, 0)` doesn't?
 5. Which pages did we keep in the main bundle, and why?
 6. Why does the same component rendered twice need `useId()`?
+7. Why must the start-up loader be HTML/CSS and not a React component? How does `stroke-dashoffset` "draw" a line?
