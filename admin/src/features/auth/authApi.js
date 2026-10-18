@@ -1,4 +1,4 @@
-import { api } from '@/app/api';
+import { api, cmsApi } from '@/app/api';
 import { sessionEnded, sessionStarted } from './authSlice';
 
 // Auth endpoints, added to the shared api. Each one becomes a hook:
@@ -29,6 +29,7 @@ export const authApi = api.injectEndpoints({
         await queryFulfilled.catch(() => undefined);
         dispatch(sessionEnded());
         dispatch(api.util.resetApiState()); // forget every cached admin response
+        dispatch(cmsApi.util.resetApiState()); // and the CMS's
       },
     }),
 

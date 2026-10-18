@@ -17,6 +17,7 @@ export default defineConfig({
     // sees one origin and the refresh-token cookie works without CORS setup.
     proxy: {
       '/api': 'http://localhost:4000',
+      '/cms': 'http://localhost:4100', // the CMS (cms/)
     },
   },
 });

@@ -1,6 +1,6 @@
 # Feature 20: Headless CMS
 
-**Status:** 🚧 In progress. Step 1 (the CMS API) done.
+**Status:** 🚧 In progress. Steps 1 (the CMS API) and 2 (admin editor) done.
 
 A separate service, `cms/`, that stores the store's text (brand, home page, footer, notices) and serves it as
 JSON. "Headless": it has no pages of its own. The store shows the content, and the admin app edits it.
@@ -8,7 +8,7 @@ JSON. "Headless": it has no pages of its own. The store shows the content, and t
 | Step | What | Status |
 |---|---|---|
 | 1 | `cms/`: Express + Prisma API with its own database | ✅ |
-| 2 | "Content" editor page in the admin app | ⏳ |
+| 2 | "Content" editor page in the admin app | ✅ |
 | 3 | The store reads its text from the CMS (falls back to `site.js`) | ⏳ |
 | 4 | Tests + going live (Render service, Neon database, Vercel rewrites) | ⏳ |
 
@@ -47,6 +47,11 @@ admin app ──/api/auth/login──► backend/ (port 4000) ──► shop dat
 - `cms/src/middleware/auth.js`: checks the shop's admin token with the shared `JWT_ACCESS_SECRET`. The CMS has no users of its own.
 - `cms/prisma/schema.prisma`: one table, `ContentEntry` (`type`, `data` JSON, `updatedAt`, `updatedBy`).
 
+- `admin/src/app/api.js`: a second RTK Query slice, `cmsApi` (base URL `/cms`). Both slices share one `withReauth` wrapper, so an expired token is refreshed through the shop API and the CMS request is retried.
+- `admin/src/features/content/ContentPage.jsx`: one card per content type, each saved on its own, with Discard, "Saved", "Last saved ..." and per-field errors from the CMS.
+- `admin/src/features/content/ContentField.jsx`: draws one input from a field description (text, multi-line or number), with a character counter, help text and "Use default".
+- `admin/vite.config.js`: forwards `/cms` to `localhost:4100`.
+
 ## Why these choices
 
 | Choice | Alternatives | Why |
@@ -56,6 +61,8 @@ admin app ──/api/auth/login──► backend/ (port 4000) ──► shop dat
 | Fields described in code (`content-types.js`) | Content types created in a UI (like Contentful) | Changes go through git and code review, and the store's code must change anyway to show a new field |
 | One JSON row per type | One table column per field | Adding a field needs no migration. Zod gives back the safety a column type would |
 | Defaults for every field | Empty until someone edits | A brand-new or emptied CMS still serves a working store |
+| The admin form is drawn from the CMS's field descriptions | A hand-written form per content type | A new field in `content-types.js` appears in the editor with no admin change; one source of truth for labels and limits |
+| A separate `cmsApi` slice | Adding CMS endpoints to the shop `api` slice | A different service gets its own base URL, cache and tags; logging out clears both |
 | Public `Cache-Control` | No caching | The store asks on every page load; with caching the CDN answers most of those, and the CMS stays fast and cheap |
 
 ## Concepts to be able to explain
