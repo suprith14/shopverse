@@ -1,0 +1,23 @@
+// ShopVerse CMS database. Separate from the shop's database: the CMS owns content, the shop owns
+// users, products and orders. The two never share tables.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// One row per content type ("brand", "home", "footer", "notices"), see src/content/content-types.js.
+// `data` holds that type's fields as JSON, e.g. { "heroTitle": "...", "featuredCount": 8 }.
+// No row yet = the type's defaults are used, so a brand-new CMS already serves sensible content.
+model ContentEntry {
+  type      String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
+  // Id of the admin who saved it. Just the id: the users live in the SHOP's database,
+  // and this CMS only ever sees them through their login token.
+  updatedBy String?
+}
