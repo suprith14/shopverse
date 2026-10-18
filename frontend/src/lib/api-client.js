@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { useAuthStore } from '@/features/auth/auth.store';
 import { track } from './network-status';
+import { reportServerError } from './server-error';
 
 // A single axios instance used by every feature's *.api.ts file.
 export const api = axios.create({
@@ -48,6 +49,9 @@ api.interceptors.response.use(
     const original = error.config;
     original?._done?.();
     const isAuthCall = original?.url?.startsWith('/auth/');
+
+    // The server failed (5xx): one popup for the whole page, see lib/server-error.js
+    if (error.response?.status >= 500) reportServerError();
 
     if (error.response?.status === 401 && !original._retried && !isAuthCall) {
       original._retried = true;

@@ -11,6 +11,7 @@ export function Spinner({ label = 'Loading...' }) {
 }
 
 export function ErrorState({ message }) {
+  if (!message) return null; // e.g. a server error: the popup shows it instead
   return (
     <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
       <AlertCircle className="size-4 shrink-0" /> {message}

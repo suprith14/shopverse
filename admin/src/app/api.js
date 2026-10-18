@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { sessionEnded, sessionStarted } from '@/features/auth/authSlice';
+import { isServerError, reportServerError } from '@/lib/server-error';
 
 // RTK Query: describes every backend call once, then gives components ready-made hooks
 // (useGetProductsQuery, useUpdateOrderStatusMutation...) with loading/error state and caching.
@@ -51,6 +52,8 @@ const withReauth = (baseQuery) => async (args, api, extra) => {
 
     if (await refreshing) result = await baseQuery(args, api, extra); // retry with the new token
   }
+  // The server failed (5xx): one popup for the whole app, see lib/server-error.js
+  if (isServerError(result.error)) reportServerError();
   return result;
 };
 

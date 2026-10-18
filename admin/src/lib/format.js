@@ -1,3 +1,5 @@
+import { isServerError } from './server-error';
+
 const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
 // 12999 (cents) -> "$129.99"
@@ -33,8 +35,10 @@ export const orderNumber = (id) => `#${id.slice(-8).toUpperCase()}`;
 
 // RTK Query errors come in two shapes: an HTTP error from the backend (with our
 // { error: { message } } body), or a network/JS error. Turn either into readable text.
+// Server failures (5xx) return null: the server-error popup explains those instead.
 export function getErrorMessage(error) {
   if (!error) return 'Something went wrong';
+  if (isServerError(error)) return null;
   if ('status' in error) {
     if (error.status === 'FETCH_ERROR') return 'Cannot reach the server. Is the backend running?';
     const body = error.data;

@@ -4,6 +4,7 @@ import { Toaster } from 'sonner';
 import { refreshSession } from '@/lib/api-client';
 import { Header } from './Header';
 import { SlowServerBanner } from './SlowServerBanner';
+import { ServerErrorDialog } from './ServerErrorDialog';
 import { OnboardingDialog } from '@/features/onboarding/OnboardingDialog';
 import { useSiteContent } from '@/content/use-site-content';
 
@@ -32,6 +33,8 @@ export function RootLayout() {
       <Toaster position="bottom-center" richColors closeButton duration={4000} />
       {/* The "set up your profile" wizard after sign-up (renders nothing until opened) */}
       <OnboardingDialog />
+      {/* "Something went wrong, retry" popup for server errors (5xx) */}
+      <ServerErrorDialog />
     </div>
   );
 }
