@@ -56,6 +56,13 @@ model User {
   // Powers "active now / active today" on the admin dashboard.
   lastSeenAt DateTime?
 
+  // Set by an admin: the customer can't log in, check out or reset their password until unblocked.
+  blockedAt     DateTime?
+  blockedReason String? // shown to admins only, never to the customer
+  // Set when an admin deleted a customer who has orders: the account is anonymised (no name, email,
+  // phone or addresses left) but the orders stay, because invoices must be kept for accounting.
+  deletedAt     DateTime?
+
   // ONE slot for the default address, so "two default addresses" is impossible by design.
   // Deleting that address clears the slot (SetNull). The backend checks the address belongs to this user.
   defaultAddressId String?   @unique

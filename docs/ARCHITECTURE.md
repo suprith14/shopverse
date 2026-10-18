@@ -35,7 +35,8 @@ Vercel, API on Render). See [DEPLOYMENT.md](DEPLOYMENT.md).
 | An API endpoint (URL) | `backend/src/modules/<feature>/<feature>.routes.js` |
 | What a request may contain (validation) | `backend/src/modules/<feature>/<feature>.schema.js` |
 | Business rules (stock, coupons, prices...) | `backend/src/modules/<feature>/<feature>.service.js` |
-| Admin-only API | `backend/src/modules/admin/` (products, orders, analytics) |
+| Admin-only API | `backend/src/modules/admin/` (products, orders, customers, analytics) |
+| Who may log in / shop (blocked, deleted) | `backend/src/lib/account-status.js` |
 | Email text | `backend/src/modules/auth/auth-emails.js`, `backend/src/modules/orders/order-emails.js` |
 | Invoice PDF layout | `backend/src/modules/orders/invoice.js` |
 | Login rate limits | `backend/src/lib/rate-limiter.js` (the `limiters` at the bottom) |

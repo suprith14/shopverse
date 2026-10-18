@@ -125,7 +125,7 @@ export async function getCustomerStats(days) {
   const now = Date.now();
   const start = new Date(now - days * DAY_MS);
   const previousStart = new Date(now - 2 * days * DAY_MS);
-  const customer = { role: 'CUSTOMER' };
+  const customer = { role: 'CUSTOMER', deletedAt: null }; // deleted (anonymised) accounts don't count
 
   const [total, newCurrent, newPrevious, activeNow, activeToday, signedIn] = await prisma.$transaction([
     prisma.user.count({ where: customer }),

@@ -1,7 +1,8 @@
 import bcrypt from 'bcryptjs';
 import { env } from '../../config/env.js';
 import { prisma } from '../../lib/prisma.js';
-import { badRequest, conflict, notFound, unauthorized } from '../../lib/http-error.js';
+import { badRequest, conflict, forbidden, notFound, unauthorized } from '../../lib/http-error.js';
+import { ACCOUNT_SUSPENDED } from '../../lib/account-status.js';
 import { REFRESH_TOKEN_TTL_MS, generateRefreshToken, hashToken, signAccessToken } from './auth.tokens.js';
 
 // Never send passwordHash to the client.
@@ -40,6 +41,8 @@ export async function login(input) {
   // discover which emails are registered.
   const valid = user && (await bcrypt.compare(input.password, user.passwordHash));
   if (!user || !valid) throw unauthorized('Invalid email or password');
+  // Checked AFTER the password, so only someone who knows it learns that the account is blocked.
+  if (user.blockedAt) throw forbidden(ACCOUNT_SUSPENDED);
 
   return { user: toPublicUser(user), ...(await issueTokens(user)) };
 }
@@ -62,6 +65,8 @@ export async function refresh(rawToken) {
     throw unauthorized('Refresh token reused, all sessions revoked');
   }
   if (stored.expiresAt < new Date()) throw unauthorized('Refresh token expired');
+  // Blocking deletes the sessions, so this is only a safety net.
+  if (stored.user.blockedAt || stored.user.deletedAt) throw unauthorized('Account suspended');
 
   await prisma.refreshToken.update({ where: { id: stored.id }, data: { revokedAt: new Date() } });
   return { user: toPublicUser(stored.user), ...(await issueTokens(stored.user)) };

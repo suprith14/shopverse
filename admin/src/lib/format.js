@@ -16,6 +16,18 @@ export const formatDateTime = (iso) =>
     minute: '2-digit',
   });
 
+// "just now", "12 min ago", "3 h ago", "2 days ago", then the date
+export function formatTimeAgo(iso) {
+  const minutes = Math.floor((Date.now() - new Date(iso).getTime()) / 60_000);
+  if (minutes < 1) return 'just now';
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
+  return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 // "cmvaj3k50000jgqj4rhxb9nej" -> "#RHXB9NEJ" (the short number customers see)
 export const orderNumber = (id) => `#${id.slice(-8).toUpperCase()}`;
 

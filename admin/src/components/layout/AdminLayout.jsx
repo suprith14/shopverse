@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router';
-import { ExternalLink, FileText, LayoutDashboard, LogOut, Package, ShieldCheck, ShoppingBag } from 'lucide-react';
+import { ExternalLink, FileText, LayoutDashboard, LogOut, Package, ShieldCheck, ShoppingBag, Users } from 'lucide-react';
 import { useAppSelector } from '@/app/hooks';
 import { useLogoutMutation } from '@/features/auth/authApi';
 import { STORE_URL } from '@/lib/config';
@@ -8,6 +8,7 @@ const nav = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/products', label: 'Products', icon: Package },
   { to: '/orders', label: 'Orders', icon: ShoppingBag },
+  { to: '/customers', label: 'Customers', icon: Users },
   { to: '/content', label: 'Content', icon: FileText },
 ];
 

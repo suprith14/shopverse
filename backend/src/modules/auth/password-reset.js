@@ -3,7 +3,8 @@ import bcrypt from 'bcryptjs';
 import { prisma } from '../../lib/prisma.js';
 import { env } from '../../config/env.js';
 import { sendEmail } from '../../lib/email.js';
-import { badRequest } from '../../lib/http-error.js';
+import { badRequest, forbidden } from '../../lib/http-error.js';
+import { ACCOUNT_SUSPENDED } from '../../lib/account-status.js';
 
 // "Forgot password" with a 6-digit code sent by email.
 //
@@ -96,6 +97,10 @@ export async function resetWithCode(email, code, newPassword) {
     }
     throw INVALID();
   }
+
+  // A blocked customer could otherwise get back in by resetting the password (which also logs in).
+  // Checked after the code, so only the owner of the email address learns the account is blocked.
+  if (user.blockedAt) throw forbidden(ACCOUNT_SUSPENDED);
 
   const passwordHash = await bcrypt.hash(newPassword, env.BCRYPT_ROUNDS);
   await prisma.$transaction([

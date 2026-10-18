@@ -5,6 +5,7 @@ import { getCart } from '../cart/cart.service.js';
 import { calculateDiscount, findCoupon } from '../coupons/coupons.service.js';
 import { createCheckoutSession, getCheckoutUrl } from '../payments/payments.service.js';
 import { storeOrigin } from '../../lib/store-origin.js';
+import { assertCanShop } from '../../lib/account-status.js';
 import { sendOrderConfirmationEmail } from './order-emails.js';
 import {
   formatInvoiceNumber,
@@ -80,6 +81,7 @@ export async function checkout(userId, input, requestOrigin) {
 
 // "Pay now" on an unpaid order.
 export async function getPaymentUrl(userId, orderId) {
+  await assertCanShop(userId);
   const order = await prisma.order.findFirst({
     where: { id: orderId, userId },
     select: { status: true, stripeSessionId: true },
@@ -92,6 +94,7 @@ export async function getPaymentUrl(userId, orderId) {
 // ------------------------------------------------------------------ Place an order
 
 export async function createOrder(userId, { couponCode, addressId }) {
+  await assertCanShop(userId); // a blocked customer may still hold a valid access token for a few minutes
   // The delivery address must be one of THIS user's saved addresses (filtering by userId too:
   // another customer's address id is simply "not found").
   const address = await prisma.address.findFirst({ where: { id: addressId, userId } });
