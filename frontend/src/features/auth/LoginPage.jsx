@@ -6,9 +6,10 @@ import { ErrorState } from '@/components/ui/States';
 import { useLogin } from './auth.api';
 import { useRetryCountdown } from '@/lib/use-retry-countdown';
 import { PageTitle } from '@/components/layout/PageTitle';
-import { site } from '@/content/site';
+import { useSiteContent } from '@/content/use-site-content';
 
 export function LoginPage() {
+  const { brand } = useSiteContent();
   const navigate = useNavigate();
   const location = useLocation();
   // If the user was redirected here from a protected page, send them back after login.
@@ -26,7 +27,7 @@ export function LoginPage() {
     <div className="mx-auto max-w-sm py-12">
       <PageTitle title="Log in" />
       <h1 className="text-2xl font-bold">Welcome back</h1>
-      <p className="mt-1 text-sm text-slate-500">Log in to your {site.name} account.</p>
+      <p className="mt-1 text-sm text-slate-500">Log in to your {brand.name} account.</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         {/* While rate-limited, a live countdown replaces the generic error message */}

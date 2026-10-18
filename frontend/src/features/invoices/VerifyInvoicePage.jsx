@@ -6,12 +6,13 @@ import { PageTitle } from '@/components/layout/PageTitle';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { api } from '@/lib/api-client';
 import { formatPrice } from '@/lib/format';
-import { site } from '@/content/site';
+import { useSiteContent } from '@/content/use-site-content';
 
 // /verify/:token, opened by scanning the QR code on an invoice. PUBLIC: no login, because the
 // person checking may not be the customer (an accountant, an employer, a tax officer).
 // It shows only what's needed to match the paper copy, never personal details.
 export function VerifyInvoicePage() {
+  const { brand } = useSiteContent();
   const { token = '' } = useParams();
   const { data, isLoading, error } = useQuery({
     queryKey: ['verify-invoice', token],
@@ -41,7 +42,7 @@ export function VerifyInvoicePage() {
               <RotateCcw className="mx-auto size-12 text-amber-600" aria-hidden />
             )}
             <h1 className="mt-3 text-xl font-bold">
-              {data.status === 'PAID' ? `Genuine ${site.name} invoice` : 'Genuine invoice, since refunded'}
+              {data.status === 'PAID' ? `Genuine ${brand.name} invoice` : 'Genuine invoice, since refunded'}
             </h1>
             <p className="mt-1 text-sm text-slate-500">Compare these details with the copy you have.</p>
             <dl className="mt-5 divide-y divide-slate-100 rounded-lg border border-slate-200 text-left text-sm">
@@ -69,7 +70,7 @@ export function VerifyInvoicePage() {
             <h1 className="mt-3 text-xl font-bold">{notFound ? 'Invoice not found' : 'Could not check right now'}</h1>
             <p className="mt-2 text-sm text-slate-600">
               {notFound
-                ? `No ${site.name} invoice matches this code. The document may have been altered, or the link copied incorrectly.`
+                ? `No ${brand.name} invoice matches this code. The document may have been altered, or the link copied incorrectly.`
                 : 'Please try again in a moment.'}
             </p>
           </>

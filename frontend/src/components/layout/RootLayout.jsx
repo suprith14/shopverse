@@ -5,9 +5,10 @@ import { refreshSession } from '@/lib/api-client';
 import { Header } from './Header';
 import { SlowServerBanner } from './SlowServerBanner';
 import { OnboardingDialog } from '@/features/onboarding/OnboardingDialog';
-import { site } from '@/content/site';
+import { useSiteContent } from '@/content/use-site-content';
 
 export function RootLayout() {
+  const { footer } = useSiteContent();
   // On first load, try to restore the session from the refresh cookie.
   // Success -> logged in; failure -> guest. Until then, auth status is "loading".
   useEffect(() => {
@@ -22,7 +23,7 @@ export function RootLayout() {
         <Outlet />
       </main>
       <footer className="border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-500">
-        {site.footer}
+        {footer.text}
       </footer>
       {/* New page -> start at the top. Back button -> return to where you were. */}
       <ScrollRestoration />

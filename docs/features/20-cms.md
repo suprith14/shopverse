@@ -1,6 +1,6 @@
 # Feature 20: Headless CMS
 
-**Status:** 🚧 In progress. Steps 1 (the CMS API) and 2 (admin editor) done.
+**Status:** 🚧 In progress. Steps 1-3 done (CMS API, admin editor, store reads the CMS). Step 4 (tests + live) next.
 
 A separate service, `cms/`, that stores the store's text (brand, home page, footer, notices) and serves it as
 JSON. "Headless": it has no pages of its own. The store shows the content, and the admin app edits it.
@@ -9,7 +9,7 @@ JSON. "Headless": it has no pages of its own. The store shows the content, and t
 |---|---|---|
 | 1 | `cms/`: Express + Prisma API with its own database | ✅ |
 | 2 | "Content" editor page in the admin app | ✅ |
-| 3 | The store reads its text from the CMS (falls back to `site.js`) | ⏳ |
+| 3 | The store reads its text from the CMS (falls back to `site.js`) | ✅ |
 | 4 | Tests + going live (Render service, Neon database, Vercel rewrites) | ⏳ |
 
 ## How it fits
@@ -52,6 +52,10 @@ admin app ──/api/auth/login──► backend/ (port 4000) ──► shop dat
 - `admin/src/features/content/ContentField.jsx`: draws one input from a field description (text, multi-line or number), with a character counter, help text and "Use default".
 - `admin/vite.config.js`: forwards `/cms` to `localhost:4100`.
 
+- `frontend/src/content/use-site-content.js`: `useSiteContent()`. Shows the browser's saved copy (or `site.js`) instantly, fetches `/cms/content` in the background, swaps it in, saves a copy. CMS down: the page keeps the copy. Uses `fetch`, not the shop's axios client, so a slow CMS doesn't show the "waking up the server" banner.
+- `frontend/src/content/site.js`: `siteDefaults`, the fallback text, in the same shape as the CMS response. **Keep it in sync with `cms/src/content/content-types.js`.**
+- `frontend/vite.config.js`: forwards `/cms` to `localhost:4100`. `%SITE_NAME%` in index.html still comes from `site.js` at build time, so a brand renamed in the CMS shows once the app has loaded, not in the start-up loader.
+
 ## Why these choices
 
 | Choice | Alternatives | Why |
@@ -63,6 +67,7 @@ admin app ──/api/auth/login──► backend/ (port 4000) ──► shop dat
 | Defaults for every field | Empty until someone edits | A brand-new or emptied CMS still serves a working store |
 | The admin form is drawn from the CMS's field descriptions | A hand-written form per content type | A new field in `content-types.js` appears in the editor with no admin change; one source of truth for labels and limits |
 | A separate `cmsApi` slice | Adding CMS endpoints to the shop `api` slice | A different service gets its own base URL, cache and tags; logging out clears both |
+| Store shows a saved copy first, then the CMS | Wait for the CMS before showing the page | The CMS sleeps on free hosting (up to a minute to wake). Visitors must never wait for text |
 | Public `Cache-Control` | No caching | The store asks on every page load; with caching the CDN answers most of those, and the CMS stays fast and cheap |
 
 ## Concepts to be able to explain

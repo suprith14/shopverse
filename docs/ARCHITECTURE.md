@@ -22,7 +22,8 @@ Vercel, API on Render). See [DEPLOYMENT.md](DEPLOYMENT.md).
 
 | I want to change... | Go to |
 |---|---|
-| **Store text**: brand name, home page hero, headings, footer, notices | `frontend/src/content/site.js` |
+| **Store text**: brand name, home page hero, headings, footer, notices | Admin app → **Content** (stored in the CMS, `cms/`). Fallback copy: `frontend/src/content/site.js` |
+| Which text fields exist (labels, limits, defaults) | `cms/src/content/content-types.js` |
 | Start-up loader (store / admin) | `frontend/index.html` + `src/splash.css` (same in `admin/`) |
 | Colours, fonts | `frontend/src/index.css` (Tailwind theme, `brand-*` colours) |
 | Header / footer layout | `frontend/src/components/layout/Header.jsx`, `RootLayout.jsx` |
@@ -110,7 +111,7 @@ backend/
 ```
 ├── main.jsx            # entry: providers, removes the start-up loader
 ├── router.jsx          # every URL → page
-├── content/site.js     # ✏️ the store's text (brand, home page, footer, notices)
+├── content/            # store text: useSiteContent() (from the CMS) + site.js (fallback)
 ├── lib/                # api-client (axios + silent token refresh), format, notify, small hooks
 ├── components/
 │   ├── layout/         # header, root layout, page title, slow-server banner

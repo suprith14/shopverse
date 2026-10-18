@@ -1,37 +1,33 @@
-// ✏️ The store's text, in one place.
+// The store's text: FALLBACK copy.
 //
-// Change the words here and every page that uses them updates. You don't need to touch any
-// components. What's here: the brand name, the home page, the footer and site-wide notices.
-// What's NOT here: small UI labels ("Add to cart", "Log out") and error messages. Those stay next
-// to the code that uses them, so the code still reads clearly.
+// The real text now lives in the CMS (cms/) and is edited in the admin app (Content page).
+// This file is what the store shows when it has nothing better: on a visitor's very first visit
+// before the CMS answers, or when the CMS is down or asleep. Components never import this
+// directly: they call useSiteContent() (./use-site-content.js), which merges CMS text on top.
 //
-// The brand name is also used by index.html (tab title and start-up loader): vite.config.js
-// fills in every %SITE_NAME% there from `site.name` below.
+// Same shape and same defaults as cms/src/content/content-types.js. Keep the two in sync.
+// The brand name is also written into index.html at build time (see vite.config.js).
 
-const name = 'ShopVerse';
-
-export const site = {
-  name,
-  // Browser tab title on pages without their own title (the home page). Also used by Google.
-  defaultTitle: `${name}: sneakers, electronics, books & home decor`,
-
-  // Home page
-  hero: {
-    eyebrow: 'New season',
-    title: 'Everything you love, in one place.',
-    text: 'Sneakers, gadgets, books and home decor. Smart search, verified reviews and secure checkout.',
-    cta: { label: 'Start shopping', to: '/shop' },
+export const siteDefaults = {
+  brand: {
+    name: 'ShopVerse',
+    defaultTitle: 'ShopVerse: sneakers, electronics, books & home decor',
   },
   home: {
+    heroEyebrow: 'New season',
+    heroTitle: 'Everything you love, in one place.',
+    heroText: 'Sneakers, gadgets, books and home decor. Smart search, verified reviews and secure checkout.',
+    heroCtaLabel: 'Start shopping',
     categoriesHeading: 'Shop by category',
     featuredHeading: 'Featured products',
     viewAllLabel: 'View all',
-    featuredCount: 8, // how many top-rated products to show
+    featuredCount: 8,
   },
-
-  footer: `${name}, a portfolio project. Payments run in Stripe test mode.`,
-
-  // Shown at the top of the page when a request has taken more than 4 seconds
-  slowServerNotice:
-    'Waking up the server. This demo runs on free hosting that sleeps when idle, so the first load can take up to a minute.',
+  footer: {
+    text: 'ShopVerse, a portfolio project. Payments run in Stripe test mode.',
+  },
+  notices: {
+    slowServer:
+      'Waking up the server. This demo runs on free hosting that sleeps when idle, so the first load can take up to a minute.',
+  },
 };

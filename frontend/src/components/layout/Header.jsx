@@ -6,12 +6,13 @@ import { useLogout } from '@/features/auth/auth.api';
 import { useCart } from '@/features/cart/cart.api';
 import { SearchBox } from '@/features/catalog/components/SearchBox';
 import { useProfile } from '@/features/account/account.api';
-import { site } from '@/content/site';
+import { useSiteContent } from '@/content/use-site-content';
 
 // Wide screens: logo · Shop · search · orders · wishlist · cart · account · log out (one row).
 // Phones (< md): logo · cart · account · ☰ menu, and the search bar gets its own full-width row,
 // because on mobile search is how most shoppers find things.
 export function Header() {
+  const { brand } = useSiteContent();
   const { user, status } = useAuthStore();
   const logout = useLogout();
   const { data: cart } = useCart();
@@ -37,7 +38,7 @@ export function Header() {
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 md:gap-6">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold">
-          <ShoppingBag className="size-6 text-brand-600" /> {site.name}
+          <ShoppingBag className="size-6 text-brand-600" /> {brand.name}
         </Link>
 
         <nav className="hidden gap-5 md:flex">
