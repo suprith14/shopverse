@@ -27,13 +27,26 @@ export default async function setup({ config }) {
     throw new Error('TEST_DATABASE_URL points at the same database as DATABASE_URL. Refusing: tests delete data.');
   }
 
-  // 2. Bring the test database's tables up to date. `migrate deploy` only APPLIES migrations;
+  // 2. Wake the database. Neon suspends it after 5 idle minutes, and the first connection
+  //    after that sometimes fails (P1001). Retry a few times before giving up.
+  const prisma = new PrismaClient({ datasourceUrl: url });
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      break;
+    } catch (err) {
+      if (attempt === 4) throw err;
+      console.warn(`[test db] not reachable yet (attempt ${attempt}/4), retrying in 5 s...`);
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+  }
+
+  // 3. Bring the test database's tables up to date. `migrate deploy` only APPLIES migrations;
   //    it never resets anything (unlike `migrate dev` / `migrate reset`).
   execSync('npx prisma migrate deploy', { env: { ...process.env, DATABASE_URL: url }, stdio: 'inherit' });
 
-  // 3. Start from empty tables, so leftovers from a previous run can't change the results.
+  // 4. Start from empty tables, so leftovers from a previous run can't change the results.
   //    Everything except Prisma's migration history and the invoice counter row (reset to 0).
-  const prisma = new PrismaClient({ datasourceUrl: url });
   const tables = await prisma.$queryRaw`
     SELECT tablename FROM pg_tables
     WHERE schemaname = 'public' AND tablename NOT IN ('_prisma_migrations', 'InvoiceCounter')`;

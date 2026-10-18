@@ -5,6 +5,7 @@ import { refreshSession } from '@/lib/api-client';
 import { Header } from './Header';
 import { SlowServerBanner } from './SlowServerBanner';
 import { OnboardingDialog } from '@/features/onboarding/OnboardingDialog';
+import { site } from '@/content/site';
 
 export function RootLayout() {
   // On first load, try to restore the session from the refresh cookie.
@@ -21,7 +22,7 @@ export function RootLayout() {
         <Outlet />
       </main>
       <footer className="border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-500">
-        ShopVerse, a portfolio project. Payments run in Stripe test mode.
+        {site.footer}
       </footer>
       {/* New page -> start at the top. Back button -> return to where you were. */}
       <ScrollRestoration />

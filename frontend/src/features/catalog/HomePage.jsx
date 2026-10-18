@@ -5,6 +5,7 @@ import { Skeleton, ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { useCategories, useProducts } from './catalog.api';
 import { ProductCard } from './components/ProductCard';
 import { PageTitle } from '@/components/layout/PageTitle';
+import { site } from '@/content/site';
 
 const categoryIcons = {
   sneakers: Footprints,
@@ -21,23 +22,19 @@ export function HomePage() {
     <div className="space-y-14">
       <PageTitle />
       <section className="rounded-3xl bg-gradient-to-br from-slate-900 via-brand-700 to-brand-500 px-8 py-16 text-white md:px-14">
-        <p className="text-sm font-medium uppercase tracking-widest text-brand-100">New season</p>
-        <h1 className="mt-3 max-w-xl text-4xl font-bold leading-tight md:text-5xl">
-          Everything you love, in one place.
-        </h1>
-        <p className="mt-4 max-w-lg text-brand-100">
-          Sneakers, gadgets, books and home decor. Smart search, verified reviews and secure checkout.
-        </p>
+        <p className="text-sm font-medium uppercase tracking-widest text-brand-100">{site.hero.eyebrow}</p>
+        <h1 className="mt-3 max-w-xl text-4xl font-bold leading-tight md:text-5xl">{site.hero.title}</h1>
+        <p className="mt-4 max-w-lg text-brand-100">{site.hero.text}</p>
         <Link
-          to="/shop"
+          to={site.hero.cta.to}
           className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-slate-900 hover:bg-brand-50"
         >
-          Start shopping <ArrowRight className="size-4" />
+          {site.hero.cta.label} <ArrowRight className="size-4" />
         </Link>
       </section>
 
       <section>
-        <h2 className="mb-4 text-xl font-bold">Shop by category</h2>
+        <h2 className="mb-4 text-xl font-bold">{site.home.categoriesHeading}</h2>
         {categories.isLoading && (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {Array.from({ length: 4 }, (_, i) => (
@@ -66,14 +63,14 @@ export function HomePage() {
 
       <section>
         <div className="mb-4 flex items-end justify-between">
-          <h2 className="text-xl font-bold">Featured products</h2>
+          <h2 className="text-xl font-bold">{site.home.featuredHeading}</h2>
           <Link to="/shop" className="text-sm font-medium text-brand-600 hover:underline">
-            View all
+            {site.home.viewAllLabel}
           </Link>
         </div>
         {topRated.isLoading && <ProductGridSkeleton />}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {topRated.data?.items.slice(0, 8).map((p) => (
+          {topRated.data?.items.slice(0, site.home.featuredCount).map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
         </div>

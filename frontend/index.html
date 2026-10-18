@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ShopVerse</title>
+    <title>%SITE_NAME%</title>
     <!--
       Start-up loader. Plain HTML + CSS on purpose: it shows the instant this small file arrives,
       while the app's JavaScript is still downloading. (A React spinner could only appear AFTER
@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="/src/splash.css" />
   </head>
   <body>
-    <div id="splash" role="status" aria-live="polite" aria-label="Loading ShopVerse">
+    <div id="splash" role="status" aria-live="polite" aria-label="Loading %SITE_NAME%">
       <!-- 1. Category icons (one visible at a time, in sync with the word below) -->
       <div class="splash-icons" aria-hidden="true">
         <!-- gadgets -->
@@ -44,12 +44,12 @@
           <path pathLength="100" d="M3 6h18" />
           <path pathLength="100" d="M16 10a4 4 0 0 1-8 0" />
         </svg>
-        ShopVerse
+        %SITE_NAME%
       </div>
 
       <div class="splash-bar" aria-hidden="true"></div>
 
-      <!-- Visual only: screen readers already hear "Loading ShopVerse" from role="status" above -->
+      <!-- Visual only: screen readers already hear "Loading %SITE_NAME%" from role="status" above -->
       <p class="splash-text" aria-hidden="true">
         Getting
         <span class="splash-words"><span>gadgets</span><span>books</span><span>home decor</span><span>gadgets</span></span>
