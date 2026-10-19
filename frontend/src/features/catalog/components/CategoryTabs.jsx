@@ -23,7 +23,7 @@ export function CategoryTabs({ active, facets, onChange }) {
             aria-selected={selected}
             onClick={() => onChange(tab.slug)}
             className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition ${
-              selected ? 'bg-slate-900 text-white' : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100'
+              selected ? 'bg-slate-900 text-slate-50' : 'bg-surface text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100'
             } ${tab.count === 0 && !selected ? 'opacity-50' : ''}`}
           >
             {tab.name}

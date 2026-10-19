@@ -78,7 +78,7 @@ export function CatalogPage() {
         onClick={() => setShowFilters((s) => !s)}
         aria-expanded={showFilters}
         aria-controls="filters"
-        className="flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium lg:hidden"
+        className="flex items-center gap-2 rounded-lg border border-slate-300 bg-surface px-4 py-2 text-sm font-medium lg:hidden"
       >
         <SlidersHorizontal className="size-4" /> {showFilters ? 'Hide filters' : 'Filters'}
         {activeFilters > 0 && (
@@ -104,7 +104,7 @@ export function CatalogPage() {
             <select
               value={filters.sort ?? data?.sort ?? 'newest'}
               onChange={(e) => update({ sort: e.target.value })}
-              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm"
+              className="rounded-lg border border-slate-300 bg-surface px-3 py-2 text-sm"
               aria-label="Sort products"
             >
               {filters.q && <option value="relevance">Best match</option>}

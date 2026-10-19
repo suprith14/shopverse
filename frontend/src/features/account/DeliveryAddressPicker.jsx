@@ -58,7 +58,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium">Deliver to</p>
-          <button onClick={() => setShowAll(true)} className="text-sm text-brand-600 hover:underline">
+          <button onClick={() => setShowAll(true)} className="text-sm text-brand-600 dark:text-brand-300 hover:underline">
             Change
           </button>
         </div>
@@ -102,7 +102,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
       {profile.addresses.length < 10 && (
         <button
           onClick={() => setAdding(true)}
-          className="flex items-center gap-1 text-sm text-brand-600 hover:underline"
+          className="flex items-center gap-1 text-sm text-brand-600 dark:text-brand-300 hover:underline"
         >
           <Plus className="size-4" /> Add a new address
         </button>

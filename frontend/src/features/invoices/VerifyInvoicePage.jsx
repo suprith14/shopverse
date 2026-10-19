@@ -25,7 +25,7 @@ export function VerifyInvoicePage() {
   return (
     <div className="mx-auto max-w-md py-10">
       <PageTitle title="Verify invoice" />
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+      <div className="rounded-2xl border border-slate-200 bg-surface p-6 text-center shadow-sm">
         {isLoading && (
           <div className="space-y-3" role="status" aria-label="Checking invoice">
             <Skeleton className="mx-auto size-12 rounded-full" />

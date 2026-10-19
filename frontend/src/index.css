@@ -1,12 +1,84 @@
 @import 'tailwindcss';
 
+/* dark: utilities apply inside <html class="dark"> (set by the theme switch, see lib/theme.js),
+   not only from the device setting, so a visitor can choose. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand-50: #eef2ff;
   --color-brand-100: #e0e7ff;
+  --color-brand-300: #a5b4fc;
   --color-brand-500: #6366f1;
   --color-brand-600: #4f46e5;
   --color-brand-700: #4338ca;
+  /* Cards, panels, the header: white in light mode, dark in dark mode (see .dark below).
+     Used instead of bg-white, because "white" must stay white for text on buttons. */
+  --color-surface: #ffffff;
+  /* Always dark, in BOTH themes: overlays on photos, image badges, dialog backdrops. */
+  --color-night: #0f172a;
   --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* ------------------------------------------------------------------ Dark theme
+   Design tokens: instead of adding dark: classes to every component, the colours THEMSELVES get
+   dark-mode values here. Tailwind 4 utilities read CSS variables (bg-slate-100 is
+   var(--color-slate-100)), so redefining a variable restyles every element that uses it.
+
+   - slate (all neutral greys) flips: light backgrounds become dark, dark text becomes light.
+     So "bg-slate-50 text-slate-900" means "page background, main text" in both themes.
+   - surface becomes the card colour.
+   - status tints (red/green/amber/blue 50-200 backgrounds, 600-900 text) get dark versions.
+   - brand 50/100 tints become deep indigo; brand TEXT gets dark:text-brand-300 where it's used
+     (brand-600 can't flip: it's also the background of white-text buttons). */
+.dark {
+  color-scheme: dark; /* native controls, scrollbars and form fields go dark too */
+
+  --color-surface: #0f172a;
+
+  --color-slate-50: #020617;
+  --color-slate-100: #1e293b;
+  --color-slate-200: #334155;
+  --color-slate-300: #475569;
+  --color-slate-400: #64748b;
+  --color-slate-500: #94a3b8;
+  --color-slate-600: #b4c0d0;
+  --color-slate-700: #cbd5e1;
+  --color-slate-800: #e2e8f0;
+  --color-slate-900: #f1f5f9;
+  --color-slate-950: #f8fafc;
+
+  --color-brand-50: #1e1b4b;
+  --color-brand-100: #312e81;
+
+  --color-red-50: #450a0a;
+  --color-red-100: #7f1d1d;
+  --color-red-200: #991b1b;
+  --color-red-600: #f87171;
+  --color-red-700: #fca5a5;
+  --color-red-800: #fecaca;
+  --color-red-900: #fee2e2;
+
+  --color-green-50: #052e16;
+  --color-green-100: #14532d;
+  --color-green-200: #166534;
+  --color-green-600: #4ade80;
+  --color-green-700: #86efac;
+  --color-green-800: #bbf7d0;
+  --color-green-900: #dcfce7;
+
+  --color-amber-50: #451a03;
+  --color-amber-100: #78350f;
+  --color-amber-200: #92400e;
+  --color-amber-600: #fbbf24;
+  --color-amber-700: #fcd34d;
+  --color-amber-800: #fde68a;
+  --color-amber-900: #fef3c7;
+
+  --color-blue-50: #172554;
+  --color-blue-100: #1e3a8a;
+  --color-blue-200: #1e40af;
+  --color-blue-800: #bfdbfe;
+  --color-blue-900: #dbeafe;
 }
 
 body {

@@ -19,7 +19,7 @@ export function CheckoutSteps({ current, done = false }) {
                 complete
                   ? 'bg-brand-600 text-white'
                   : active
-                    ? 'border-2 border-brand-600 text-brand-700'
+                    ? 'border-2 border-brand-600 text-brand-700 dark:text-brand-300'
                     : 'border border-slate-300 text-slate-400'
               }`}
             >

@@ -38,7 +38,7 @@ export function ServerErrorDialog() {
       onClose={dismissServerError}
       aria-labelledby="server-error-title"
       aria-describedby="server-error-text"
-      className="m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl p-0 shadow-xl backdrop:bg-slate-900/50"
+      className="bg-surface text-slate-900 m-auto w-[calc(100%-2rem)] max-w-sm rounded-2xl p-0 shadow-xl backdrop:bg-night/60"
     >
       <div className="p-6 text-center">
         <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-red-50">

@@ -23,7 +23,7 @@ export function WishlistPage() {
         <>
           <EmptyState title="Nothing saved yet" hint="Tap the heart on any product to save it for later." />
           <div className="text-center">
-            <Link to="/shop" className="text-brand-600 hover:underline">
+            <Link to="/shop" className="text-brand-600 dark:text-brand-300 hover:underline">
               Browse the shop
             </Link>
           </div>

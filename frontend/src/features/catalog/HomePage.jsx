@@ -31,13 +31,13 @@ export function HomePage() {
           <HeroCarousel slides={banner.slides} intervalSeconds={banner.intervalSeconds} />
         </>
       ) : (
-        <section className="rounded-3xl bg-gradient-to-br from-slate-900 via-brand-700 to-brand-500 px-8 py-16 text-white md:px-14">
-          <p className="text-sm font-medium uppercase tracking-widest text-brand-100">{home.heroEyebrow}</p>
+        <section className="rounded-3xl bg-gradient-to-br from-night via-brand-700 to-brand-500 px-8 py-16 text-white md:px-14">
+          <p className="text-sm font-medium uppercase tracking-widest text-white/80">{home.heroEyebrow}</p>
           <h1 className="mt-3 max-w-xl text-4xl font-bold leading-tight md:text-5xl">{home.heroTitle}</h1>
-          <p className="mt-4 max-w-lg text-brand-100">{home.heroText}</p>
+          <p className="mt-4 max-w-lg text-white/80">{home.heroText}</p>
           <Link
             to="/shop"
-            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-slate-900 hover:bg-brand-50"
+            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-night hover:bg-white/85"
           >
             {home.heroCtaLabel} <ArrowRight className="size-4" />
           </Link>
@@ -61,9 +61,9 @@ export function HomePage() {
               <Link
                 key={c.id}
                 to={`/shop?category=${c.slug}`}
-                className="group rounded-2xl border border-slate-200 bg-white p-6 transition hover:border-brand-500 hover:shadow-md"
+                className="group rounded-2xl border border-slate-200 bg-surface p-6 transition hover:border-brand-500 hover:shadow-md"
               >
-                <Icon className="size-8 text-brand-600" />
+                <Icon className="size-8 text-brand-600 dark:text-brand-300" />
                 <h3 className="mt-4 font-semibold">{c.name}</h3>
                 <p className="text-sm text-slate-500">{c._count.products} products</p>
               </Link>
@@ -75,7 +75,7 @@ export function HomePage() {
       <section>
         <div className="mb-4 flex items-end justify-between">
           <h2 className="text-xl font-bold">{home.featuredHeading}</h2>
-          <Link to="/shop" className="text-sm font-medium text-brand-600 hover:underline">
+          <Link to="/shop" className="text-sm font-medium text-brand-600 dark:text-brand-300 hover:underline">
             {home.viewAllLabel}
           </Link>
         </div>

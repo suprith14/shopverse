@@ -12,7 +12,7 @@ export function ProductGridSkeleton({ count = 8, className = 'grid grid-cols-2 g
   return (
     <div className={className} role="status" aria-label="Loading products">
       {Array.from({ length: count }, (_, i) => (
-        <div key={i} className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div key={i} className="overflow-hidden rounded-xl border border-slate-200 bg-surface">
           <Skeleton className="aspect-square rounded-none" />
           <div className="space-y-2 p-4">
             <Skeleton className="h-3 w-1/3" />
@@ -52,7 +52,7 @@ export function ProductDetailSkeleton() {
 export function ListSkeleton({ rows = 3 }) {
   return (
     <div
-      className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white"
+      className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-surface"
       role="status"
       aria-label="Loading"
     >

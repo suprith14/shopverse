@@ -23,7 +23,7 @@ export function ErrorState({ error }) {
 
 export function EmptyState({ title, hint }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white py-16 text-center">
+    <div className="rounded-xl border border-dashed border-slate-300 bg-surface py-16 text-center">
       <p className="font-medium text-slate-700">{title}</p>
       {hint && <p className="mt-1 text-sm text-slate-500">{hint}</p>}
     </div>

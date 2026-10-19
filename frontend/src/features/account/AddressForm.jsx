@@ -97,7 +97,7 @@ export function AddressForm({ address, defaultName, defaultPhone, saving, error,
             value={form.country}
             onChange={(e) => set({ country: e.target.value })}
             autoComplete="country"
-            className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm"
+            className="w-full rounded-lg border border-slate-300 bg-surface px-3 py-2.5 text-sm"
           >
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>

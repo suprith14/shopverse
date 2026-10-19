@@ -76,7 +76,7 @@ function ProductView({ product }) {
             </div>
           </div>
 
-          <p className="text-3xl font-semibold text-brand-700">{formatPrice(variant?.price ?? product.basePrice)}</p>
+          <p className="text-3xl font-semibold text-brand-700 dark:text-brand-300">{formatPrice(variant?.price ?? product.basePrice)}</p>
           <p className="leading-relaxed text-slate-600">{product.description}</p>
 
           <div>
@@ -89,8 +89,8 @@ function ProductView({ product }) {
                   disabled={v.stock === 0}
                   className={`rounded-lg border px-3 py-2 text-sm transition disabled:cursor-not-allowed disabled:opacity-40 disabled:line-through ${
                     v.id === variantId
-                      ? 'border-brand-600 bg-brand-50 text-brand-700'
-                      : 'border-slate-300 bg-white hover:border-slate-400'
+                      ? 'border-brand-600 bg-brand-50 text-brand-700 dark:text-brand-300'
+                      : 'border-slate-300 bg-surface hover:border-slate-400'
                   }`}
                 >
                   {v.name}
@@ -157,7 +157,7 @@ function AddToCart({ variant, productName }) {
         {/* Quantity stepper: buttons instead of a number box, which are easier to tap on phones
              and can't produce "0", "-3" or "1.5". Limited by stock and the per-item cap. */}
         <div
-          className="flex items-center rounded-lg border border-slate-300 bg-white"
+          className="flex items-center rounded-lg border border-slate-300 bg-surface"
           role="group"
           aria-label="Quantity"
         >
@@ -197,7 +197,7 @@ function Attributes({ attributes }) {
   if (flat.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white">
+    <div className="rounded-xl border border-slate-200 bg-surface">
       <h2 className="border-b border-slate-200 px-4 py-3 text-sm font-semibold">Details</h2>
       <dl className="divide-y divide-slate-100 text-sm">
         {flat.map(([key, value]) => (

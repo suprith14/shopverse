@@ -2,7 +2,7 @@ import { Loader2 } from 'lucide-react';
 
 const variants = {
   primary: 'bg-brand-600 text-white hover:bg-brand-700 disabled:bg-brand-500/60',
-  secondary: 'border border-slate-300 bg-white text-slate-800 hover:bg-slate-50',
+  secondary: 'border border-slate-300 bg-surface text-slate-800 hover:bg-slate-50',
   ghost: 'text-slate-700 hover:bg-slate-100',
 };
 

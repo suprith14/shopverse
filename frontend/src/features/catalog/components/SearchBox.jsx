@@ -116,7 +116,7 @@ export function SearchBox({ className = '' }) {
           aria-controls={listId}
           aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
           autoComplete="off"
-          className="w-full rounded-full border border-slate-300 bg-slate-50 py-2 pl-9 pr-9 text-sm outline-none focus:border-brand-500 focus:bg-white"
+          className="w-full rounded-full border border-slate-300 bg-slate-50 py-2 pl-9 pr-9 text-sm outline-none focus:border-brand-500 focus:bg-surface"
         />
 
         {isFetching && (
@@ -128,7 +128,7 @@ export function SearchBox({ className = '' }) {
         <ul
           id={listId}
           role="listbox"
-          className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-lg"
+          className="absolute inset-x-0 top-full z-30 mt-2 overflow-hidden rounded-xl border border-slate-200 bg-surface py-1 shadow-lg"
         >
           {rows.map((row, i) => (
             <li

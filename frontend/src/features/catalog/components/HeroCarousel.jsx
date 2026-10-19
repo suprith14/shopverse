@@ -61,7 +61,7 @@ export function HeroCarousel({ slides, intervalSeconds }) {
     <section
       aria-roledescription="carousel"
       aria-label="Featured"
-      className="relative h-[420px] overflow-hidden rounded-3xl bg-slate-900 text-white md:h-[480px]"
+      className="relative h-[420px] overflow-hidden rounded-3xl bg-night text-white md:h-[480px]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setFocused(true)}
@@ -93,17 +93,17 @@ export function HeroCarousel({ slides, intervalSeconds }) {
               className="absolute inset-0 size-full object-cover"
             />
             {/* Dark fade from the left, so white text is readable on any photo */}
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/50 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-night/85 via-night/50 to-transparent" />
             <div className="relative flex h-full max-w-xl flex-col justify-center px-8 pb-10 md:px-14">
               {slide.eyebrow && (
-                <p className="text-sm font-medium uppercase tracking-widest text-brand-100">{slide.eyebrow}</p>
+                <p className="text-sm font-medium uppercase tracking-widest text-white/80">{slide.eyebrow}</p>
               )}
               <h2 className="mt-3 text-3xl font-bold leading-tight md:text-5xl">{slide.title}</h2>
-              {slide.text && <p className="mt-4 text-slate-200">{slide.text}</p>}
+              {slide.text && <p className="mt-4 text-white/85">{slide.text}</p>}
               {slide.buttonLabel && slide.buttonLink && (
                 <Link
                   to={slide.buttonLink}
-                  className="mt-8 inline-flex w-fit items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-slate-900 hover:bg-brand-50"
+                  className="mt-8 inline-flex w-fit items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-night hover:bg-white/85"
                 >
                   {slide.buttonLabel} <ArrowRight className="size-4" />
                 </Link>

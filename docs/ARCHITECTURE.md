@@ -26,7 +26,7 @@ Vercel, API on Render). See [DEPLOYMENT.md](DEPLOYMENT.md).
 | Which text fields exist (labels, limits, defaults) | `cms/src/content/content-types.js` |
 | Home page banner slides (images) | Admin app → **Content → Home page banner**; shown by `frontend/src/features/catalog/components/HeroCarousel.jsx` |
 | Start-up loader (store / admin) | `frontend/index.html` + `src/splash.css` (same in `admin/`) |
-| Colours, fonts | `frontend/src/index.css` (Tailwind theme, `brand-*` colours) |
+| Colours, fonts, dark mode | `frontend/src/index.css` (Tailwind theme; the `.dark` block redefines colours for dark mode). Switch: `src/lib/theme.js` + `components/layout/ThemeToggle.jsx` |
 | Header / footer layout | `frontend/src/components/layout/Header.jsx`, `RootLayout.jsx` |
 | A store page | `frontend/src/features/<feature>/<Name>Page.jsx`; URL → page list in `frontend/src/router.jsx` |
 | Buttons, inputs, skeletons, empty/error states | `frontend/src/components/ui/` |

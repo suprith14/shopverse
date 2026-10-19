@@ -149,6 +149,28 @@
   to { opacity: 1; }
 }
 
+/* Dark theme (the "dark" class is set on <html> by the inline script in index.html) */
+.dark #splash {
+  background: #020617; /* the dark page background, see index.css */
+}
+.dark .splash-icons,
+.dark .splash-brand svg,
+.dark .splash-words {
+  color: #a5b4fc;
+}
+.dark .splash-brand {
+  color: #f1f5f9;
+}
+.dark .splash-text {
+  color: #94a3b8;
+}
+.dark .splash-bar {
+  background: #1e1b4b;
+}
+.dark .splash-bar::after {
+  background: #818cf8;
+}
+
 /* People who turned animations off on their device: a calm, still loader
    (one icon, the bag already drawn, a full bar). The slow-connection hint still appears. */
 @media (prefers-reduced-motion: reduce) {

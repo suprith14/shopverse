@@ -61,7 +61,7 @@ export function LoginPage() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
         <div className="-mt-2 text-right">
-          <Link to="/forgot-password" className="text-sm text-brand-600 hover:underline">
+          <Link to="/forgot-password" className="text-sm text-brand-600 dark:text-brand-300 hover:underline">
             Forgot password?
           </Link>
         </div>
@@ -70,7 +70,7 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <div className="mt-4 rounded-lg bg-brand-50 p-3 text-xs text-brand-700">
+      <div className="mt-4 rounded-lg bg-brand-50 p-3 text-xs text-brand-700 dark:text-brand-300">
         Demo account: <b>demo@shopverse.dev</b> / <b>Demo@12345</b>
         <button
           type="button"
@@ -83,7 +83,7 @@ export function LoginPage() {
 
       <p className="mt-6 text-center text-sm text-slate-600">
         New here?{' '}
-        <Link to="/register" className="font-medium text-brand-600 hover:underline">
+        <Link to="/register" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
           Create an account
         </Link>
       </p>

@@ -7,6 +7,7 @@ import { useCart } from '@/features/cart/cart.api';
 import { SearchBox } from '@/features/catalog/components/SearchBox';
 import { useProfile } from '@/features/account/account.api';
 import { useSiteContent } from '@/content/use-site-content';
+import { ThemeToggle } from './ThemeToggle';
 
 // Wide screens: logo · Shop · search · orders · wishlist · cart · account · log out (one row).
 // Phones (< md): logo · cart · account · ☰ menu, and the search bar gets its own full-width row,
@@ -31,14 +32,14 @@ export function Header() {
 
   const loggedIn = status === 'authenticated' && !!user;
   const navClass = ({ isActive }) =>
-    `text-sm font-medium ${isActive ? 'text-brand-600' : 'text-slate-600 hover:text-slate-900'}`;
+    `text-sm font-medium ${isActive ? 'text-brand-600 dark:text-brand-300' : 'text-slate-600 hover:text-slate-900'}`;
   const iconLink = 'rounded-lg p-2 text-slate-600 hover:bg-slate-100';
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-20 border-b border-slate-200 bg-surface/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center gap-4 px-4 md:gap-6">
         <Link to="/" className="flex items-center gap-2 text-lg font-bold">
-          <ShoppingBag className="size-6 text-brand-600" /> {brand.name}
+          <ShoppingBag className="size-6 text-brand-600 dark:text-brand-300" /> {brand.name}
         </Link>
 
         <nav className="hidden gap-5 md:flex">
@@ -50,6 +51,7 @@ export function Header() {
         <SearchBox className="ml-auto hidden max-w-sm flex-1 md:block" />
 
         <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-3">
+          <ThemeToggle />
           {loggedIn && (
             <>
               <Link to="/orders" className={`${iconLink} hidden md:block`} aria-label="My orders" title="My orders">
@@ -103,7 +105,7 @@ export function Header() {
           {status === 'guest' && (
             <Link
               to="/login"
-              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+              className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-slate-50 hover:bg-slate-700"
             >
               Log in
             </Link>
@@ -128,7 +130,7 @@ export function Header() {
       </div>
 
       {menuOpen && (
-        <nav id="mobile-menu" className="border-t border-slate-200 bg-white px-4 py-2 md:hidden">
+        <nav id="mobile-menu" className="border-t border-slate-200 bg-surface px-4 py-2 md:hidden">
           <MobileLink to="/shop">Shop</MobileLink>
           {loggedIn ? (
             <>
@@ -162,7 +164,7 @@ function MobileLink({ to, icon: Icon, children }) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-lg px-2 py-3 text-sm font-medium ${isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-700 hover:bg-slate-50'}`
+        `flex items-center gap-3 rounded-lg px-2 py-3 text-sm font-medium ${isActive ? 'bg-brand-50 text-brand-700 dark:text-brand-300' : 'text-slate-700 hover:bg-slate-50'}`
       }
     >
       {Icon && <Icon className="size-4" />} {children}

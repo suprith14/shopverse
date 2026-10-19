@@ -106,7 +106,7 @@ function NotFound() {
       <PageTitle title="Page not found" />
       <h1 className="text-4xl font-bold">404</h1>
       <p className="mt-2 text-slate-500">This page doesn't exist.</p>
-      <Link to="/" className="mt-6 inline-block text-brand-600 hover:underline">
+      <Link to="/" className="mt-6 inline-block text-brand-600 dark:text-brand-300 hover:underline">
         Go home
       </Link>
     </div>

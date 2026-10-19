@@ -26,7 +26,7 @@ export function ForgotPasswordPage() {
       )}
       <p className="mt-6 text-center text-sm text-slate-600">
         Remembered it?{' '}
-        <Link to="/login" className="font-medium text-brand-600 hover:underline">
+        <Link to="/login" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
           Back to log in
         </Link>
       </p>
@@ -85,7 +85,7 @@ function CodeStep({ email, onChangeEmail }) {
   return (
     <form onSubmit={submit} className="mt-6 space-y-4">
       {/* Worded so it doesn't confirm whether the account exists */}
-      <div className="flex gap-3 rounded-lg bg-brand-50 p-3 text-sm text-brand-800">
+      <div className="flex gap-3 rounded-lg bg-brand-50 p-3 text-sm text-brand-800 dark:text-brand-300">
         <MailCheck className="size-5 shrink-0" />
         <p>
           If <b>{email}</b> has an account, a 6-digit code is on its way. It works for 15 minutes. Check your spam
@@ -144,7 +144,7 @@ function CodeStep({ email, onChangeEmail }) {
               { onSuccess: () => notify.success('If the account exists, a new code is on its way.') },
             )
           }
-          className="text-brand-600 hover:underline disabled:opacity-50"
+          className="text-brand-600 dark:text-brand-300 hover:underline disabled:opacity-50"
         >
           Send a new code
         </button>

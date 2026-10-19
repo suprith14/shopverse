@@ -55,7 +55,7 @@ export function OrderDetailPage() {
       )}
       <StatusBanner order={order} payment={payment} />
 
-      <div className="rounded-xl border border-slate-200 bg-white">
+      <div className="rounded-xl border border-slate-200 bg-surface">
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div>
             <h1 className="font-semibold">Order #{order.id.slice(-8).toUpperCase()}</h1>
@@ -107,7 +107,7 @@ export function OrderDetailPage() {
 
       {/* The address copied into the order at checkout (not the current address book entry) */}
       {order.shippingAddress && (
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
+        <div className="rounded-xl border border-slate-200 bg-surface p-4">
           <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Delivery address</h2>
           <AddressLines address={order.shippingAddress} />
         </div>
@@ -230,7 +230,7 @@ function PaymentDetails({ order }) {
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-4">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-surface p-4">
       <div>
         <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Payment</h2>
         <p className="mt-1 text-sm text-slate-700">
@@ -246,7 +246,7 @@ function PaymentDetails({ order }) {
             href={order.receiptUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm text-brand-700 hover:bg-brand-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm text-brand-700 dark:text-brand-300 hover:bg-brand-50"
           >
             <ExternalLink className="size-4" /> Stripe receipt
           </a>

@@ -26,13 +26,13 @@ export function OrdersPage() {
         <>
           <EmptyState title="No orders yet" hint="When you buy something, it shows up here." />
           <div className="text-center">
-            <Link to="/shop" className="text-brand-600 hover:underline">
+            <Link to="/shop" className="text-brand-600 dark:text-brand-300 hover:underline">
               Start shopping
             </Link>
           </div>
         </>
       ) : (
-        <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+        <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-surface">
           {orders.map((order) => (
             <li key={order.id}>
               <Link to={`/orders/${order.id}`} className="flex items-center gap-4 p-4 hover:bg-slate-50">
@@ -40,7 +40,7 @@ export function OrdersPage() {
                   {order.items.slice(0, 3).map((item) => (
                     <div
                       key={item.id}
-                      className="size-12 overflow-hidden rounded-lg border-2 border-white bg-slate-100"
+                      className="size-12 overflow-hidden rounded-lg border-2 border-surface bg-slate-100"
                     >
                       {item.image && <img src={item.image} alt="" className="size-full object-cover" />}
                     </div>

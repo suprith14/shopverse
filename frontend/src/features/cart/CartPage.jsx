@@ -40,7 +40,7 @@ export function CartPage() {
         <h1 className="text-2xl font-bold">Your cart</h1>
         <EmptyState title="Your cart is empty" hint="Find something you like in the shop." />
         <div className="text-center">
-          <Link to="/shop" className="text-brand-600 hover:underline">
+          <Link to="/shop" className="text-brand-600 dark:text-brand-300 hover:underline">
             Continue shopping
           </Link>
         </div>
@@ -62,14 +62,14 @@ export function CartPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
-        <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+        <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-surface">
           {cart.items.map((item) => (
             <CartRow key={item.variantId} item={item} />
           ))}
         </ul>
 
         {/* Order summary */}
-        <aside className="h-fit space-y-4 rounded-xl border border-slate-200 bg-white p-5">
+        <aside className="h-fit space-y-4 rounded-xl border border-slate-200 bg-surface p-5">
           <h2 className="font-semibold">Order summary</h2>
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Subtotal</span>
@@ -119,7 +119,7 @@ export function CartPage() {
           <p className="text-center text-xs text-slate-500">
             You'll pay securely on Stripe. Test card: 4242 4242 4242 4242
           </p>
-          <Link to="/shop" className="block text-center text-sm text-brand-600 hover:underline">
+          <Link to="/shop" className="block text-center text-sm text-brand-600 dark:text-brand-300 hover:underline">
             Continue shopping
           </Link>
         </aside>

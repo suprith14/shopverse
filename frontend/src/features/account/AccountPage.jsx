@@ -40,7 +40,7 @@ export function AccountPage() {
 
 function Section({ title, icon: Icon, children }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-5">
+    <section className="rounded-xl border border-slate-200 bg-surface p-5">
       <h2 className="mb-4 flex items-center gap-2 font-semibold">
         <Icon className="size-4 text-slate-500" /> {title}
       </h2>

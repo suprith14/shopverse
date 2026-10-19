@@ -13,6 +13,16 @@
       Everything runs on one 3.3 s cycle split into three 1.1 s turns:
         turn 1: phone + "gadgets"   turn 2: book + "books"   turn 3: lamp + "home decor"
     -->
+    <!-- Theme BEFORE anything is painted, so dark-mode visitors never see a white flash.
+         Same rules as src/lib/theme.js: a saved choice, otherwise the device setting. -->
+    <script>
+      try {
+        var theme = localStorage.getItem('shopverse:theme');
+        if (theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
     <link rel="stylesheet" href="/src/splash.css" />
   </head>
   <body>

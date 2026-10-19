@@ -43,7 +43,7 @@ export function OnboardingDialog() {
       ref={dialogRef}
       onClose={finish}
       aria-labelledby="onboarding-title"
-      className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl p-0 shadow-xl backdrop:bg-slate-900/50"
+      className="bg-surface text-slate-900 m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl p-0 shadow-xl backdrop:bg-night/60"
     >
       {open && profile && (
         <div className="p-6">
@@ -104,7 +104,7 @@ function StepFooter({ onBack, onSkip, children }) {
 function StepIntro({ icon: Icon, title, text }) {
   return (
     <div className="mb-4 flex gap-3">
-      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600">
+      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-brand-50 text-brand-600 dark:text-brand-300">
         <Icon className="size-5" />
       </span>
       <div>
@@ -264,7 +264,7 @@ function AddressStep({ onBack }) {
         title="One more thing: your delivery address"
         text="Add an address in My account and you can check out in one tap. You can also add it at checkout."
       />
-      <div className="rounded-lg bg-brand-50 p-4 text-sm text-brand-800">
+      <div className="rounded-lg bg-brand-50 p-4 text-sm text-brand-800 dark:text-brand-300">
         Find it any time under <b>My account → Delivery addresses</b> (your photo or name at the top right).
       </div>
       <StepFooter onBack={onBack}>

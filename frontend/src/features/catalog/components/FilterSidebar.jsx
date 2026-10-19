@@ -20,7 +20,7 @@ export function FilterSidebar({ filters, facets, onChange, onReset }) {
   const brands = (facets?.brands ?? []).filter((b) => b.count > 0 || b.value === filters.brand);
 
   return (
-    <aside className="space-y-6 rounded-xl border border-slate-200 bg-white p-5">
+    <aside className="space-y-6 rounded-xl border border-slate-200 bg-surface p-5">
       <section>
         <h3 className="mb-2 text-sm font-semibold">Brand</h3>
         <div className="max-h-56 space-y-1.5 overflow-y-auto text-sm">
