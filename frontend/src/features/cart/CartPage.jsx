@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { AlertTriangle, Lock, Minus, Plus, Trash2 } from 'lucide-react';
@@ -19,6 +20,7 @@ import { PageTitle } from '@/components/layout/PageTitle';
 const MAX_QUANTITY_PER_ITEM = 10;
 
 export function CartPage() {
+  const { t } = useTranslation();
   const { data: cart, isLoading, isError, error } = useCart();
   const clearCart = useClearCart();
   const couponCode = useCouponStore((s) => s.code);
@@ -36,12 +38,12 @@ export function CartPage() {
   if (cart.items.length === 0) {
     return (
       <div className="space-y-4">
-        <PageTitle title="Your cart" />
-        <h1 className="text-2xl font-bold">Your cart</h1>
-        <EmptyState title="Your cart is empty" hint="Find something you like in the shop." />
+        <PageTitle title={t('cart.title')} />
+        <h1 className="text-2xl font-bold">{t('cart.title')}</h1>
+        <EmptyState title={t('cart.empty')} hint={t('cart.emptyHint')} />
         <div className="text-center">
           <Link to="/shop" className="text-brand-600 dark:text-brand-300 hover:underline">
-            Continue shopping
+            {t('cart.continueShopping')}
           </Link>
         </div>
       </div>
@@ -50,14 +52,15 @@ export function CartPage() {
 
   return (
     <div className="space-y-6">
-      <PageTitle title="Your cart" />
+      <PageTitle title={t('cart.title')} />
       <CheckoutSteps current={1} />
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-bold">
-          Your cart <span className="text-base font-normal text-slate-500">({cart.itemCount} items)</span>
+          {t('cart.title')}{' '}
+          <span className="text-base font-normal text-slate-500">{t('cart.itemCount', { count: cart.itemCount })}</span>
         </h1>
         <button onClick={() => clearCart.mutate(undefined)} className="text-sm text-slate-500 hover:text-red-600">
-          Clear cart
+          {t('cart.clear')}
         </button>
       </div>
 
@@ -70,19 +73,19 @@ export function CartPage() {
 
         {/* Order summary */}
         <aside className="h-fit space-y-4 rounded-xl border border-slate-200 bg-surface p-5">
-          <h2 className="font-semibold">Order summary</h2>
+          <h2 className="font-semibold">{t('cart.summary')}</h2>
           <div className="flex justify-between text-sm">
-            <span className="text-slate-600">Subtotal</span>
+            <span className="text-slate-600">{t('cart.subtotal')}</span>
             <span className="font-medium">{formatPrice(cart.subtotal)}</span>
           </div>
           {discount > 0 && (
             <div className="flex justify-between text-sm text-green-700">
-              <span>Discount ({coupon?.code})</span>
+              <span>{t('cart.discount', { code: coupon?.code })}</span>
               <span className="font-medium">−{formatPrice(discount)}</span>
             </div>
           )}
           <div className="flex justify-between border-t border-slate-200 pt-3 font-semibold">
-            <span>Total</span>
+            <span>{t('cart.total')}</span>
             <span>{formatPrice(cart.subtotal - discount)}</span>
           </div>
           <CouponBox preview={couponPreview} />
@@ -91,7 +94,7 @@ export function CartPage() {
           </div>
           {cart.hasIssues && (
             <p className="flex gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
-              <AlertTriangle className="size-4 shrink-0" /> Some items are unavailable. Fix them before checking out.
+              <AlertTriangle className="size-4 shrink-0" /> {t('cart.hasIssues')}
             </p>
           )}
           {placeOrder.isError && <ErrorState error={placeOrder.error} />}
@@ -107,20 +110,22 @@ export function CartPage() {
                 addressSection.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                 // Put the cursor in the first field of the address form, so typing can start right away.
                 addressSection.current?.querySelector('input')?.focus({ preventScroll: true });
-                notify.error(new Error('Please add a delivery address first.'));
+                notify.error(new Error(t('cart.addAddressFirst')));
                 return;
               }
               placeOrder.mutate({ couponCode: coupon?.code, addressId });
             }}
           >
             <Lock className="size-4" />
-            {addressId ? `Checkout · ${formatPrice(cart.subtotal - discount)}` : 'Add delivery address to continue'}
+            {addressId
+              ? t('cart.checkout', { total: formatPrice(cart.subtotal - discount) })
+              : t('cart.addAddressToContinue')}
           </Button>
           <p className="text-center text-xs text-slate-500">
-            You'll pay securely on Stripe. Test card: 4242 4242 4242 4242
+            {t('cart.stripeNote')}
           </p>
           <Link to="/shop" className="block text-center text-sm text-brand-600 dark:text-brand-300 hover:underline">
-            Continue shopping
+            {t('cart.continueShopping')}
           </Link>
         </aside>
       </div>
@@ -129,6 +134,7 @@ export function CartPage() {
 }
 
 function CartRow({ item }) {
+  const { t } = useTranslation();
   const update = useUpdateCartItem();
   const remove = useRemoveCartItem();
   const addBack = useAddToCart(); // for "Undo" after removing
@@ -148,7 +154,7 @@ function CartRow({ item }) {
               {item.productName}
             </Link>
             <p className="text-sm text-slate-500">
-              {item.variantName} · {formatPrice(item.unitPrice)} each
+              {item.variantName} · {t('cart.each', { price: formatPrice(item.unitPrice) })}
             </p>
           </div>
           <p className="font-semibold">{formatPrice(item.lineTotal)}</p>
@@ -157,11 +163,11 @@ function CartRow({ item }) {
         {item.issue && (
           <p className="text-sm text-amber-700">
             {item.issue === 'OUT_OF_STOCK'
-              ? 'Out of stock. Remove it to continue.'
-              : `Only ${item.stock} left. Lower the quantity.`}
+              ? t('cart.outOfStock')
+              : t('cart.notEnough', { count: item.stock })}
           </p>
         )}
-        {update.isError && <p className="text-sm text-red-600">Couldn't update quantity. Please try again.</p>}
+        {update.isError && <p className="text-sm text-red-600">{t('cart.updateFailed')}</p>}
 
         <div className="mt-auto flex items-center justify-between">
           <div className="flex items-center rounded-lg border border-slate-300">
@@ -169,7 +175,7 @@ function CartRow({ item }) {
               onClick={() => setQuantity(item.quantity - 1)}
               disabled={item.quantity <= 1}
               className="p-2 hover:bg-slate-50 disabled:opacity-30"
-              aria-label="Decrease quantity"
+              aria-label={t('product.decrease')}
             >
               <Minus className="size-4" />
             </button>
@@ -178,7 +184,7 @@ function CartRow({ item }) {
               onClick={() => setQuantity(item.quantity + 1)}
               disabled={item.quantity >= maxAllowed}
               className="p-2 hover:bg-slate-50 disabled:opacity-30"
-              aria-label="Increase quantity"
+              aria-label={t('product.increase')}
             >
               <Plus className="size-4" />
             </button>
@@ -190,8 +196,8 @@ function CartRow({ item }) {
                 {
                   // "Undo" instead of an "Are you sure?" dialog: no interruption, and a mistake is one click to fix.
                   onSuccess: () =>
-                    notify.success(`Removed ${item.productName}`, {
-                      label: 'Undo',
+                    notify.success(t('cart.removed', { name: item.productName }), {
+                      label: t('cart.undo'),
                       onClick: () =>
                         addBack.mutate(
                           { variantId: item.variantId, quantity: item.quantity },
@@ -204,7 +210,7 @@ function CartRow({ item }) {
             }
             className="flex items-center gap-1 text-sm text-slate-500 hover:text-red-600"
           >
-            <Trash2 className="size-4" /> Remove
+            <Trash2 className="size-4" /> {t('cart.remove')}
           </button>
         </div>
       </div>

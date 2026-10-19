@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
@@ -5,7 +6,8 @@ import { CheckCircle2, Clock, Download, ExternalLink, Loader2, RotateCcw, XCircl
 import { Button } from '@/components/ui/Button';
 import { ErrorState } from '@/components/ui/States';
 import { ListSkeleton } from '@/components/ui/Skeleton';
-import { formatPrice } from '@/lib/format';
+import { formatDateTime, formatPrice } from '@/lib/format';
+import { currentLocale } from '@/i18n';
 import { downloadFile } from '@/lib/download';
 import { notify } from '@/lib/notify';
 import { AddressLines } from '@/features/account/AddressCard';
@@ -19,6 +21,7 @@ import { PageTitle } from '@/components/layout/PageTitle';
 // (?payment=cancelled). The URL alone proves nothing: the page shows whatever the
 // backend says, and the backend only says PAID after Stripe's webhook.
 export function OrderDetailPage() {
+  const { t } = useTranslation();
   const { id = '' } = useParams();
   const [params] = useSearchParams();
   const payment = params.get('payment'); // 'success' | 'cancelled' | null
@@ -41,10 +44,10 @@ export function OrderDetailPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <PageTitle title={`Order #${order.id.slice(-8).toUpperCase()}`} />
+      <PageTitle title={t('orders.order', { number: order.id.slice(-8).toUpperCase() })} />
       <nav className="text-sm text-slate-500">
         <Link to="/orders" className="hover:underline">
-          My orders
+          {t('nav.myOrders')}
         </Link>{' '}
         / #{order.id.slice(-8).toUpperCase()}
       </nav>
@@ -58,8 +61,8 @@ export function OrderDetailPage() {
       <div className="rounded-xl border border-slate-200 bg-surface">
         <div className="flex items-center justify-between border-b border-slate-200 p-4">
           <div>
-            <h1 className="font-semibold">Order #{order.id.slice(-8).toUpperCase()}</h1>
-            <p className="text-sm text-slate-500">Placed {new Date(order.createdAt).toLocaleString()}</p>
+            <h1 className="font-semibold">{t('orders.order', { number: order.id.slice(-8).toUpperCase() })}</h1>
+            <p className="text-sm text-slate-500">{t('orders.placed', { date: formatDateTime(order.createdAt) })}</p>
           </div>
           <OrderStatusBadge status={order.status} />
         </div>
@@ -87,17 +90,17 @@ export function OrderDetailPage() {
 
         <dl className="space-y-2 border-t border-slate-200 p-4 text-sm">
           <div className="flex justify-between">
-            <dt className="text-slate-600">Subtotal</dt>
+            <dt className="text-slate-600">{t('cart.subtotal')}</dt>
             <dd>{formatPrice(order.subtotal)}</dd>
           </div>
           {order.discount > 0 && (
             <div className="flex justify-between text-green-700">
-              <dt>Discount{order.couponCode && ` (${order.couponCode})`}</dt>
+              <dt>{order.couponCode ? t('cart.discount', { code: order.couponCode }) : t('cart.discountPlain')}</dt>
               <dd>−{formatPrice(order.discount)}</dd>
             </div>
           )}
           <div className="flex justify-between border-t border-slate-200 pt-2 text-base font-semibold">
-            <dt>Total</dt>
+            <dt>{t('cart.total')}</dt>
             <dd>{formatPrice(order.total)}</dd>
           </div>
         </dl>
@@ -108,7 +111,7 @@ export function OrderDetailPage() {
       {/* The address copied into the order at checkout (not the current address book entry) */}
       {order.shippingAddress && (
         <div className="rounded-xl border border-slate-200 bg-surface p-4">
-          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">Delivery address</h2>
+          <h2 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{t('orders.deliveryAddress')}</h2>
           <AddressLines address={order.shippingAddress} />
         </div>
       )}
@@ -117,6 +120,7 @@ export function OrderDetailPage() {
 }
 
 function StatusBanner({ order, payment }) {
+  const { t } = useTranslation();
   const pay = usePayOrder();
   const cancel = useCancelOrder();
 
@@ -128,9 +132,9 @@ function StatusBanner({ order, payment }) {
         <Banner
           tone="green"
           icon={<CheckCircle2 className="size-6" />}
-          title="Payment received. Thank you for your order!"
+          title={t('orders.paidTitle')}
         >
-          We've received your payment and your order is confirmed.
+          {t('orders.paidText')}
         </Banner>
       );
 
@@ -138,8 +142,8 @@ function StatusBanner({ order, payment }) {
       // Just back from Stripe: the webhook is probably a second away. Keep checking.
       if (payment === 'success') {
         return (
-          <Banner tone="blue" icon={<Loader2 className="size-6 animate-spin" />} title="Confirming your payment...">
-            This usually takes a few seconds. This page updates by itself.
+          <Banner tone="blue" icon={<Loader2 className="size-6 animate-spin" />} title={t('orders.confirmingTitle')}>
+            {t('orders.confirmingText')}
           </Banner>
         );
       }
@@ -147,13 +151,17 @@ function StatusBanner({ order, payment }) {
         <Banner
           tone="amber"
           icon={<Clock className="size-6" />}
-          title={payment === 'cancelled' ? 'Payment not completed' : 'Awaiting payment'}
+          title={payment === 'cancelled' ? t('orders.notCompleted') : t('orders.status.PENDING')}
         >
           <p>
-            Your items are reserved
-            {order.paymentDeadline &&
-              ` until ${new Date(order.paymentDeadline).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
-            . After that the order is cancelled automatically.
+            {order.paymentDeadline
+              ? t('orders.reservedUntil', {
+                  time: new Date(order.paymentDeadline).toLocaleTimeString(currentLocale(), {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  }),
+                })
+              : t('orders.reserved')}
           </p>
           {(pay.isError || cancel.isError) && (
             <div className="mt-3">
@@ -162,10 +170,10 @@ function StatusBanner({ order, payment }) {
           )}
           <div className="mt-3 flex gap-2">
             <Button onClick={() => pay.mutate(order.id)} loading={pay.isPending}>
-              Pay now
+              {t('orders.payNow')}
             </Button>
             <Button variant="secondary" onClick={() => cancel.mutate(order.id)} loading={cancel.isPending}>
-              Cancel order
+              {t('orders.cancelOrder')}
             </Button>
           </div>
         </Banner>
@@ -173,18 +181,18 @@ function StatusBanner({ order, payment }) {
 
     case 'CANCELLED':
       return (
-        <Banner tone="slate" icon={<XCircle className="size-6" />} title="Order cancelled">
-          This order wasn't paid, so it was cancelled and the items were released.{' '}
+        <Banner tone="slate" icon={<XCircle className="size-6" />} title={t('orders.cancelledTitle')}>
+          {t('orders.cancelledText')}{' '}
           <Link to="/cart" className="font-medium underline">
-            Back to cart
+            {t('orders.backToCart')}
           </Link>
         </Banner>
       );
 
     case 'REFUNDED':
       return (
-        <Banner tone="purple" icon={<RotateCcw className="size-6" />} title="Payment refunded">
-          Your payment arrived after this order had expired, so it was refunded in full to your card.
+        <Banner tone="purple" icon={<RotateCcw className="size-6" />} title={t('orders.refundedTitle')}>
+          {t('orders.refundedText')}
         </Banner>
       );
   }
@@ -212,11 +220,12 @@ function Banner({ tone, icon, title, children }) {
 
 // Invoice download + card used + Stripe's receipt. Only shown once the order is paid.
 function PaymentDetails({ order }) {
+  const { t } = useTranslation();
   const [downloading, setDownloading] = useState(false);
   const card =
     order.cardBrand && order.cardLast4
       ? `${order.cardBrand.charAt(0).toUpperCase()}${order.cardBrand.slice(1)} •••• ${order.cardLast4}`
-      : 'Card via Stripe';
+      : t('orders.cardViaStripe');
 
   const download = async () => {
     setDownloading(true);
@@ -232,14 +241,14 @@ function PaymentDetails({ order }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-surface p-4">
       <div>
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">Payment</h2>
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-slate-500">{t('orders.payment')}</h2>
         <p className="mt-1 text-sm text-slate-700">
-          {card} · Invoice <span className="font-mono">{order.invoiceLabel}</span>
+          {card} · {t('orders.invoice')} <span className="font-mono">{order.invoiceLabel}</span>
         </p>
       </div>
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" loading={downloading} onClick={download}>
-          <Download className="size-4" /> Download invoice
+          <Download className="size-4" /> {t('orders.downloadInvoice')}
         </Button>
         {order.receiptUrl && (
           <a
@@ -248,7 +257,7 @@ function PaymentDetails({ order }) {
             rel="noreferrer"
             className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2.5 text-sm text-brand-700 dark:text-brand-300 hover:bg-brand-50"
           >
-            <ExternalLink className="size-4" /> Stripe receipt
+            <ExternalLink className="size-4" /> {t('orders.stripeReceipt')}
           </a>
         )}
       </div>

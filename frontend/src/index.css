@@ -80,6 +80,12 @@
   --color-blue-200: #1e40af;
   --color-blue-800: #bfdbfe;
   --color-blue-900: #dbeafe;
+
+  --color-purple-50: #2e1065;
+  --color-purple-100: #3b0764;
+  --color-purple-200: #581c87;
+  --color-purple-800: #e9d5ff;
+  --color-purple-900: #f3e8ff;
 }
 
 body {

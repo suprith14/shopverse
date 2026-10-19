@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -7,6 +8,7 @@ import { useCouponStore } from './coupon.store';
 // The "Have a coupon?" box in the cart's order summary.
 // The preview itself is loaded by the cart page (it also needs the numbers for the total).
 export function CouponBox({ preview }) {
+  const { t } = useTranslation();
   const { code, apply, remove } = useCouponStore();
   const [input, setInput] = useState('');
 
@@ -22,12 +24,12 @@ export function CouponBox({ preview }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Coupon code"
-          aria-label="Coupon code"
+          placeholder={t('coupon.placeholder')}
+          aria-label={t('coupon.placeholder')}
           className="min-w-0 flex-1 rounded-lg border border-slate-300 px-3 py-2 text-sm uppercase outline-none focus:border-brand-500"
         />
         <Button type="submit" variant="secondary">
-          Apply
+          {t('coupon.apply')}
         </Button>
       </form>
     );
@@ -47,7 +49,7 @@ export function CouponBox({ preview }) {
             remove();
             setInput('');
           }}
-          aria-label="Remove coupon"
+          aria-label={t('coupon.remove')}
           className="rounded p-0.5 hover:bg-black/5"
         >
           <X className="size-4" />
@@ -56,7 +58,7 @@ export function CouponBox({ preview }) {
       {preview.isError && <p className="mt-1 text-red-700">{getErrorMessage(preview.error)}</p>}
       {preview.data?.code === code && !preview.isError && (
         <p className="mt-1 text-green-700">
-          {preview.data.description}: you save {formatPrice(preview.data.discount)}
+          {t('coupon.youSave', { description: preview.data.description, amount: formatPrice(preview.data.discount) })}
         </p>
       )}
     </div>

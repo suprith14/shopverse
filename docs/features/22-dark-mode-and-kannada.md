@@ -1,11 +1,11 @@
 # Feature 22: Dark Mode + Kannada (store)
 
-**Status:** 🚧 Step 1 (dark mode) done. Step 2 (Kannada UI text) in progress: batch 2a done. Step 3 (Kannada CMS text) next.
+**Status:** 🚧 Step 1 (dark mode) done. Step 2 (Kannada UI text) in progress: batches 2a and 2b done. Step 3 (Kannada CMS text) next.
 
 | Step | What | Status |
 |---|---|---|
 | 1 | Dark mode: System / Light / Dark switch in the header | ✅ |
-| 2 | Kannada for the store's own text: **2a** header, home, shop, product page ✅ · **2b** cart, checkout, orders ⏳ · **2c** login, account, onboarding, review form, invoices ⏳ | 🚧 |
+| 2 | Kannada for the store's own text: **2a** header, home, shop, product page ✅ · **2b** cart, checkout, addresses, orders, wishlist ✅ · **2c** login, account, onboarding, review form, invoices ⏳ | 🚧 |
 | 3 | Kannada for CMS text (home page, banner, footer): English + Kannada per field, edited in admin | ⏳ |
 
 ## Dark mode
@@ -51,6 +51,7 @@ same key; components call `t('product.addToCart')`. Missing Kannada keys fall ba
 - A link inside a sentence: `<Trans>` with `<0>…</0>` in the text, so each language puts the link where its grammar needs it.
 - Category names come from the database, so they're translated by slug (`category.home-decor`), with the database name as fallback.
 - Dates follow the language (`formatDate`, `formatDateTime` in `lib/format.js`); prices stay `$` in every language.
+- Country names come from the browser (`Intl.DisplayNames`), which already knows them in Kannada (ಭಾರತ, ಜರ್ಮನಿ).
 - Font: **Noto Sans Kannada** from Google Fonts. Its stylesheet is split by character range, so the font only downloads when Kannada text is on the page.
 
 **Not translated (by design):** product names and descriptions, product details, and messages written by the API

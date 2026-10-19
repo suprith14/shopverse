@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { EmptyState, ErrorState } from '@/components/ui/States';
 import { ProductGridSkeleton } from '@/components/ui/Skeleton';
@@ -6,6 +7,7 @@ import { useWishlist } from './wishlist.api';
 import { PageTitle } from '@/components/layout/PageTitle';
 
 export function WishlistPage() {
+  const { t } = useTranslation();
   const { data: items, isLoading, isError, error } = useWishlist();
 
   if (isLoading)
@@ -14,17 +16,18 @@ export function WishlistPage() {
 
   return (
     <div className="space-y-6">
-      <PageTitle title="Wishlist" />
+      <PageTitle title={t('nav.wishlist')} />
       <h1 className="text-2xl font-bold">
-        Your wishlist <span className="text-base font-normal text-slate-500">({items.length} saved)</span>
+        {t('wishlistPage.title')}{' '}
+        <span className="text-base font-normal text-slate-500">{t('wishlistPage.savedCount', { count: items.length })}</span>
       </h1>
 
       {items.length === 0 ? (
         <>
-          <EmptyState title="Nothing saved yet" hint="Tap the heart on any product to save it for later." />
+          <EmptyState title={t('wishlistPage.empty')} hint={t('wishlistPage.emptyHint')} />
           <div className="text-center">
             <Link to="/shop" className="text-brand-600 dark:text-brand-300 hover:underline">
-              Browse the shop
+              {t('wishlistPage.browse')}
             </Link>
           </div>
         </>

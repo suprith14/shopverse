@@ -1,17 +1,17 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { ChevronRight } from 'lucide-react';
 import { EmptyState, ErrorState } from '@/components/ui/States';
 import { ListSkeleton } from '@/components/ui/Skeleton';
-import { formatPrice } from '@/lib/format';
+import { formatDate, formatPrice } from '@/lib/format';
 import { useOrders } from './orders.api';
 import { OrderStatusBadge } from './OrderStatusBadge';
 import { PageTitle } from '@/components/layout/PageTitle';
 
-const formatDate = (iso) =>
-  new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
 
 // "My orders": every order, newest first.
 export function OrdersPage() {
+  const { t } = useTranslation();
   const { data: orders, isLoading, isError, error } = useOrders();
 
   if (isLoading) return <ListSkeleton rows={4} />;
@@ -19,15 +19,15 @@ export function OrdersPage() {
 
   return (
     <div className="space-y-6">
-      <PageTitle title="My orders" />
-      <h1 className="text-2xl font-bold">My orders</h1>
+      <PageTitle title={t('nav.myOrders')} />
+      <h1 className="text-2xl font-bold">{t('nav.myOrders')}</h1>
 
       {orders.length === 0 ? (
         <>
-          <EmptyState title="No orders yet" hint="When you buy something, it shows up here." />
+          <EmptyState title={t('orders.none')} hint={t('orders.noneHint')} />
           <div className="text-center">
             <Link to="/shop" className="text-brand-600 dark:text-brand-300 hover:underline">
-              Start shopping
+              {t('orders.startShopping')}
             </Link>
           </div>
         </>

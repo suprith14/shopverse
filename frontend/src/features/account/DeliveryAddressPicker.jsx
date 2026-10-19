@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Plus } from 'lucide-react';
 import { Spinner } from '@/components/ui/States';
@@ -8,6 +9,7 @@ import { useAddAddress, useProfile } from './account.api';
 // "Deliver to" at checkout: pick a saved address (the default is pre-selected) or add one.
 // Only the chosen address id goes to the backend, which copies the address into the order.
 export function DeliveryAddressPicker({ value, onChange }) {
+  const { t } = useTranslation();
   const { data: profile, isLoading } = useProfile();
   const add = useAddAddress();
   const [adding, setAdding] = useState(false);
@@ -19,7 +21,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
     if (!value || !profile.addresses.some((a) => a.id === value)) onChange(profile.defaultAddressId);
   }, [profile, value, onChange]);
 
-  if (isLoading || !profile) return <Spinner label="Loading addresses..." />;
+  if (isLoading || !profile) return <Spinner label={t('address.loading')} />;
 
   const selected = profile.addresses.find((a) => a.id === value);
   const noAddresses = profile.addresses.length === 0;
@@ -28,11 +30,11 @@ export function DeliveryAddressPicker({ value, onChange }) {
   if (noAddresses || adding) {
     return (
       <div className="space-y-2">
-        <p className="text-sm font-medium">{noAddresses ? 'Where should we deliver?' : 'New address'}</p>
+        <p className="text-sm font-medium">{noAddresses ? t('address.whereToDeliver') : t('address.new')}</p>
         <AddressForm
           defaultName={profile.name}
           defaultPhone={profile.phone}
-          submitLabel="Use this address"
+          submitLabel={t('address.useThis')}
           saving={add.isPending}
           error={add.error}
           onSubmit={(input) =>
@@ -57,9 +59,9 @@ export function DeliveryAddressPicker({ value, onChange }) {
     return (
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium">Deliver to</p>
+          <p className="text-sm font-medium">{t('address.deliverTo')}</p>
           <button onClick={() => setShowAll(true)} className="text-sm text-brand-600 dark:text-brand-300 hover:underline">
-            Change
+            {t('address.change')}
           </button>
         </div>
         <div className="rounded-lg border border-slate-200 p-3">
@@ -71,7 +73,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
 
   return (
     <fieldset className="space-y-2">
-      <legend className="mb-1 text-sm font-medium">Deliver to</legend>
+      <legend className="mb-1 text-sm font-medium">{t('address.deliverTo')}</legend>
       {profile.addresses.map((a) => (
         <label
           key={a.id}
@@ -92,7 +94,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
               <p className="mb-0.5 text-xs font-semibold uppercase tracking-wide text-slate-500">
                 {a.label}
                 {a.label && a.isDefault && ' · '}
-                {a.isDefault && 'Default'}
+                {a.isDefault && t('address.default')}
               </p>
             )}
             <AddressLines address={a} />
@@ -104,7 +106,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
           onClick={() => setAdding(true)}
           className="flex items-center gap-1 text-sm text-brand-600 dark:text-brand-300 hover:underline"
         >
-          <Plus className="size-4" /> Add a new address
+          <Plus className="size-4" /> {t('address.addNew')}
         </button>
       )}
     </fieldset>
