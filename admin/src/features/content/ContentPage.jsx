@@ -120,5 +120,10 @@ function cmsErrorMessage(error) {
   if (error?.status === 'FETCH_ERROR' || status === 502 || status === 504) {
     return 'Cannot reach the CMS or the shop API (it checks your login). Are both running? cms: port 4100, backend: port 4000';
   }
+  // A web page came back instead of JSON: /cms/* isn't forwarded to the CMS, so the site answered
+  // with its own index.html (live: the /cms rewrite in vercel.json is missing or not deployed yet).
+  if (error?.status === 'PARSING_ERROR' && status < 500) {
+    return 'The CMS address answered with a web page instead of data: /cms is not forwarded to the CMS (check the /cms rewrite in vercel.json is deployed).';
+  }
   return getErrorMessage(error);
 }

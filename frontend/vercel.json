@@ -6,6 +6,10 @@
       "destination": "https://shopverse-api-u9c6.onrender.com/api/:path*"
     },
     {
+      "source": "/cms/:path*",
+      "destination": "https://shopverse-cms.onrender.com/cms/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

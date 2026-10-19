@@ -10,7 +10,7 @@ JSON. "Headless": it has no pages of its own. The store shows the content, and t
 | 1 | `cms/`: Express + Prisma API with its own database | ✅ |
 | 2 | "Content" editor page in the admin app | ✅ |
 | 3 | The store reads its text from the CMS (falls back to `site.js`) | ✅ |
-| 4 | Tests + going live (Render service, Neon database, Vercel rewrites) | ⏳ |
+| 4 | Going live (Render service, Neon database, Vercel rewrites) | ✅ live at shopverse-cms.onrender.com; "defaults in sync" test still to add |
 
 ## How it fits
 

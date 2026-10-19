@@ -1,16 +1,16 @@
 # Deployment
 
 **Live:** [store](https://shopverse-eta-ecru.vercel.app) · [admin](https://shopverse-admin-lemon.vercel.app) ·
-[API health](https://shopverse-api-u9c6.onrender.com/api/health)
+[API health](https://shopverse-api-u9c6.onrender.com/api/health) · [CMS health](https://shopverse-cms.onrender.com/cms/health)
 
-ShopVerse runs on free tiers: **Neon** (database), **Render** (backend API) and **Vercel** (store + admin).
+ShopVerse runs on free tiers: **Neon** (databases), **Render** (shop API + CMS) and **Vercel** (store + admin).
 
 ```
-Browser ──▶ Vercel: store  (frontend/) ──┐  /api/* forwarded (rewrite)
+Browser ──▶ Vercel: store  (frontend/) ──┐  /api/* and /cms/* forwarded (rewrites)
 Browser ──▶ Vercel: admin  (admin/)    ──┤
-                                         ▼
-Stripe webhooks ──────────────▶ Render: API (backend/) ──▶ Neon: production branch
-                                         └──▶ Resend (email)
+                                         ├─/api─▶ Render: API (backend/) ──▶ Neon: production branch, database neondb
+Stripe webhooks ─────────────────────────┘        └──▶ Resend (email)
+                                         └─/cms─▶ Render: CMS (cms/)     ──▶ Neon: production branch, database cms
 ```
 
 ## Why these choices
@@ -20,6 +20,7 @@ Stripe webhooks ──────────────▶ Render: API (backe
 | Database | Neon, **separate production branch** | Already used in development. Keeps live data apart from test data |
 | API | Render web service | A long-running Node server (Express + the every-minute expiry job). Vercel's free tier is built for short functions |
 | Store, admin | Vercel (2 projects, same repo) | After `vite build` they're static files. Fast CDN, redeploys on every push |
+| CMS | Second Render web service, own `cms` database | Separate deploys and data (see docs/features/20-cms.md). Shares the login: same `JWT_ACCESS_SECRET` as the API |
 | `/api` | Vercel **rewrite** to Render | The browser only sees the Vercel domain, so the httpOnly refresh cookie is a first-party cookie. Calling Render directly would make it a third-party cookie, which browsers increasingly block |
 
 **Free-tier trade-offs:** Render sleeps after 15 minutes idle (the first request then takes ~30–50 s; the expiry
@@ -46,6 +47,9 @@ job catches up when it wakes). Neon sleeps too (`connect_timeout=30` handles it)
 | 5 | Vercel | Project `shopverse`, root `frontend`, Vite preset, no env vars |
 | 6 | Vercel | Project `shopverse-admin`, root `admin`, `VITE_STORE_URL` = store URL |
 | 7 | all | Live test: 4242 purchase → PAID by the webhook → email. The admin sees it in "Paid · to ship". A customer token gets 403 on admin APIs |
+| 8 | Neon | Production branch → Databases → new database `cms` (empty; the CMS creates its table on first start) |
+| 9 | Render | Web service `shopverse-cms`, root `cms`, Ohio, build `npm ci --include=dev && npm run build`, start `npm run db:deploy && npm start`, health check `/cms/health` |
+| 10 | code | `/cms/:path*` rewrite to `https://shopverse-cms.onrender.com/cms/:path*` in both `vercel.json` files |
 
 ## Environment variables (Render)
 
@@ -62,6 +66,14 @@ job catches up when it wakes). Neon sleeps too (`connect_timeout=30` handles it)
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Profile photo uploads (optional: without them the avatar endpoints answer 503) |
 
 `PORT` is set by Render.
+
+## Environment variables (Render: `shopverse-cms`)
+
+| Key | Notes |
+|---|---|
+| `NODE_ENV` | `production` |
+| `DATABASE_URL` | Neon **production branch**, database **`cms`** (must end in `/cms`, or the CMS refuses to start), direct host, `&connect_timeout=30` |
+| `JWT_ACCESS_SECRET` | **Exactly** the value on `shopverse-api`. Different = every admin save is 401 |
 
 `VITE_` variables on Vercel are **build-time**: they're written into the public JavaScript, so never put
 secrets in them, and redeploy after changing one.
