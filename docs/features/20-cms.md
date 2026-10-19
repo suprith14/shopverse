@@ -39,6 +39,10 @@ admin app ──/api/auth/login──► backend/ (port 4000) ──► shop dat
 
 `cms/` refuses to migrate (`scripts/check-db.js`) or start (`src/config/env.js`) unless `DATABASE_URL` points at a database named **`cms`**. A shop database on the same Neon server has a similar URL, and `prisma migrate dev` would offer to reset it.
 
+## When the database is asleep
+
+Neon suspends the CMS database after 5 idle minutes, and the first connection after that can fail (P1001). `cms/src/lib/prisma.js` retries any query that couldn't **connect** up to 3 times (after 1 s, 2 s, 4 s: exponential backoff). That's safe because a query whose connection failed never ran. If it still fails, the API answers **503** with `Retry-After: 10` (temporarily unavailable), not 500.
+
 ## Files
 
 - `cms/src/content/content-types.js`: **the one place content is described.** Each field has a label, limits, a default and help text. The validation, the defaults and the admin form are all built from it.

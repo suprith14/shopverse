@@ -113,10 +113,12 @@ function ContentTypeForm({ contentType }) {
   );
 }
 
-// "Cannot reach the server" is the usual message, but here it's the CMS that's down, not the shop API.
+// On this page, "no answer" (or 502/504 from the dev proxy, which means it got no answer) usually
+// means a server isn't running. It can be the CMS, or the shop API that refreshes the login.
 function cmsErrorMessage(error) {
-  if (error?.status === 'FETCH_ERROR' || error?.status === 502 || error?.status === 504) {
-    return 'Cannot reach the CMS. Is it running? (cd cms && npm run dev)';
+  const status = typeof error?.status === 'number' ? error.status : error?.originalStatus;
+  if (error?.status === 'FETCH_ERROR' || status === 502 || status === 504) {
+    return 'Cannot reach the CMS or the shop API (it checks your login). Are both running? cms: port 4100, backend: port 4000';
   }
   return getErrorMessage(error);
 }

@@ -37,20 +37,26 @@ const withReauth = (baseQuery) => async (args, api, extra) => {
   const url = typeof args === 'string' ? args : args.url;
 
   if (result.error?.status === 401 && !url.startsWith('/auth/')) {
+    // Resolves to 'ok', 'ended' (really logged out) or the refresh's error (the shop API is down).
     refreshing ??= (async () => {
       const refresh = await rawBaseQuery({ url: '/auth/refresh', method: 'POST' }, api, extra);
       const data = refresh.data;
       if (data && data.user.role === 'ADMIN') {
         api.dispatch(sessionStarted(data));
-        return true;
+        return 'ok';
       }
+      // The shop API is down or unreachable (5xx / no answer): the session may be perfectly fine,
+      // so DON'T log the admin out. Report the server error instead (popup + retry).
+      if (isServerError(refresh.error) || refresh.error?.status === 'FETCH_ERROR') return refresh.error;
       api.dispatch(sessionEnded());
-      return false;
+      return 'ended';
     })().finally(() => {
       refreshing = null;
     });
 
-    if (await refreshing) result = await baseQuery(args, api, extra); // retry with the new token
+    const outcome = await refreshing;
+    if (outcome === 'ok') result = await baseQuery(args, api, extra); // retry with the new token
+    else if (outcome !== 'ended') result = { error: outcome }; // show WHY: the server, not the login
   }
   // The server failed (5xx): one popup for the whole app, see lib/server-error.js
   if (isServerError(result.error)) reportServerError();
