@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { MailCheck } from 'lucide-react';
@@ -12,22 +13,23 @@ import { useForgotPassword, useResetPassword } from './auth.api';
 //   1. enter your email   -> we email a 6-digit code (if the account exists)
 //   2. code + new password -> password changed, you're logged in
 export function ForgotPasswordPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [step, setStep] = useState('email');
 
   return (
     <div className="mx-auto max-w-sm py-12">
-      <PageTitle title="Reset password" />
-      <h1 className="text-2xl font-bold">Reset your password</h1>
+      <PageTitle title={t('auth.resetTitle')} />
+      <h1 className="text-2xl font-bold">{t('auth.resetHeading')}</h1>
       {step === 'email' ? (
         <EmailStep email={email} setEmail={setEmail} onSent={() => setStep('code')} />
       ) : (
         <CodeStep email={email} onChangeEmail={() => setStep('email')} />
       )}
       <p className="mt-6 text-center text-sm text-slate-600">
-        Remembered it?{' '}
+        {t('auth.remembered')}{' '}
         <Link to="/login" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
-          Back to log in
+          {t('auth.backToLogin')}
         </Link>
       </p>
     </div>
@@ -35,6 +37,7 @@ export function ForgotPasswordPage() {
 }
 
 function EmailStep({ email, setEmail, onSent }) {
+  const { t } = useTranslation();
   const forgot = useForgotPassword();
   const submit = (e) => {
     e.preventDefault();
@@ -42,10 +45,10 @@ function EmailStep({ email, setEmail, onSent }) {
   };
   return (
     <form onSubmit={submit} className="mt-6 space-y-4">
-      <p className="text-sm text-slate-500">Enter your account's email and we'll send you a 6-digit code.</p>
+      <p className="text-sm text-slate-500">{t('auth.enterEmail')}</p>
       {forgot.isError && <ErrorState error={forgot.error} />}
       <Input
-        label="Email"
+        label={t('auth.email')}
         name="email"
         type="email"
         required
@@ -55,13 +58,14 @@ function EmailStep({ email, setEmail, onSent }) {
         onChange={(e) => setEmail(e.target.value)}
       />
       <Button type="submit" className="w-full" loading={forgot.isPending}>
-        Send code
+        {t('auth.sendCode')}
       </Button>
     </form>
   );
 }
 
 function CodeStep({ email, onChangeEmail }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const reset = useResetPassword();
   const resend = useForgotPassword();
@@ -75,7 +79,7 @@ function CodeStep({ email, onChangeEmail }) {
       { email, code: form.code, newPassword: form.newPassword },
       {
         onSuccess: () => {
-          notify.success('Password reset. You are logged in.');
+          notify.success(t('auth.resetDone'));
           navigate('/', { replace: true });
         },
       },
@@ -88,15 +92,14 @@ function CodeStep({ email, onChangeEmail }) {
       <div className="flex gap-3 rounded-lg bg-brand-50 p-3 text-sm text-brand-800 dark:text-brand-300">
         <MailCheck className="size-5 shrink-0" />
         <p>
-          If <b>{email}</b> has an account, a 6-digit code is on its way. It works for 15 minutes. Check your spam
-          folder too.
+          <Trans i18nKey="auth.codeSent" values={{ email }} components={[<b key="email" />]} />
         </p>
       </div>
       {reset.isError && <ErrorState error={reset.error} />}
       {/* inputMode="numeric": number keypad on phones. autoComplete="one-time-code": phones can
            offer the code straight from the notification. */}
       <Input
-        label="6-digit code"
+        label={t('auth.code')}
         name="code"
         required
         inputMode="numeric"
@@ -109,7 +112,7 @@ function CodeStep({ email, onChangeEmail }) {
         onChange={(e) => setForm({ ...form, code: e.target.value.replace(/\D/g, '') })}
       />
       <Input
-        label="New password"
+        label={t('auth.newPassword')}
         name="newPassword"
         type="password"
         required
@@ -119,7 +122,7 @@ function CodeStep({ email, onChangeEmail }) {
         onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
       />
       <Input
-        label="Confirm new password"
+        label={t('auth.confirmPassword')}
         name="confirm"
         type="password"
         required
@@ -127,13 +130,13 @@ function CodeStep({ email, onChangeEmail }) {
         value={form.confirm}
         onChange={(e) => setForm({ ...form, confirm: e.target.value })}
       />
-      {mismatch && <p className="text-sm text-red-600">The two passwords don't match.</p>}
+      {mismatch && <p className="text-sm text-red-600">{t('auth.mismatch')}</p>}
       <Button type="submit" className="w-full" loading={reset.isPending} disabled={mismatch || form.code.length !== 6}>
-        Reset password
+        {t('auth.resetButton')}
       </Button>
       <div className="flex justify-between text-sm">
         <button type="button" onClick={onChangeEmail} className="text-slate-500 hover:underline">
-          Use a different email
+          {t('auth.differentEmail')}
         </button>
         <button
           type="button"
@@ -141,12 +144,12 @@ function CodeStep({ email, onChangeEmail }) {
           onClick={() =>
             resend.mutate(
               { email },
-              { onSuccess: () => notify.success('If the account exists, a new code is on its way.') },
+              { onSuccess: () => notify.success(t('auth.newCodeSent')) },
             )
           }
           className="text-brand-600 dark:text-brand-300 hover:underline disabled:opacity-50"
         >
-          Send a new code
+          {t('auth.sendNewCode')}
         </button>
       </div>
     </form>

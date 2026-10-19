@@ -1,3 +1,4 @@
+import i18n from '@/i18n';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { useAuthStore } from '@/features/auth/auth.store';
@@ -67,7 +68,7 @@ export function useUploadAvatar() {
     form.append('file', file);
     const res = await fetch(signed.uploadUrl, { method: 'POST', body: form });
     const uploaded = await res.json();
-    if (!res.ok || !uploaded.secure_url) throw new Error(uploaded.error?.message ?? 'Upload failed');
+    if (!res.ok || !uploaded.secure_url) throw new Error(uploaded.error?.message ?? i18n.t('account.uploadFailed'));
     return api.put('/profile/avatar', { url: uploaded.secure_url });
   });
 }

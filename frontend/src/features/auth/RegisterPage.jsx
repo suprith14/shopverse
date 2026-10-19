@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '@/components/ui/Button';
@@ -8,6 +9,7 @@ import { PageTitle } from '@/components/layout/PageTitle';
 import { useOnboardingStore } from '@/features/onboarding/onboarding.store';
 
 export function RegisterPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const register = useRegister();
   const startOnboarding = useOnboardingStore((s) => s.start);
@@ -25,14 +27,14 @@ export function RegisterPage() {
 
   return (
     <div className="mx-auto max-w-sm py-12">
-      <PageTitle title="Create account" />
-      <h1 className="text-2xl font-bold">Create your account</h1>
-      <p className="mt-1 text-sm text-slate-500">Save your cart, wishlist and orders.</p>
+      <PageTitle title={t('nav.createAccount')} />
+      <h1 className="text-2xl font-bold">{t('auth.createTitle')}</h1>
+      <p className="mt-1 text-sm text-slate-500">{t('auth.createSubtitle')}</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         {register.isError && <ErrorState error={register.error} />}
         <Input
-          label="Name"
+          label={t('auth.name')}
           name="name"
           required
           minLength={2}
@@ -41,7 +43,7 @@ export function RegisterPage() {
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
         <Input
-          label="Email"
+          label={t('auth.email')}
           name="email"
           type="email"
           required
@@ -50,7 +52,7 @@ export function RegisterPage() {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
         <Input
-          label="Password"
+          label={t('auth.password')}
           name="password"
           type="password"
           required
@@ -60,14 +62,14 @@ export function RegisterPage() {
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
         <Button type="submit" className="w-full" loading={register.isPending}>
-          Create account
+          {t('nav.createAccount')}
         </Button>
       </form>
 
       <p className="mt-6 text-center text-sm text-slate-600">
-        Already have an account?{' '}
+        {t('auth.haveAccount')}{' '}
         <Link to="/login" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
-          Log in
+          {t('auth.loginTitle')}
         </Link>
       </p>
     </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { createBrowserRouter, Link } from 'react-router';
 import { RootLayout } from '@/components/layout/RootLayout';
 import { HomePage } from '@/features/catalog/HomePage';
@@ -101,13 +102,14 @@ export const router = createBrowserRouter([
 ]);
 
 function NotFound() {
+  const { t } = useTranslation();
   return (
     <div className="py-24 text-center">
-      <PageTitle title="Page not found" />
+      <PageTitle title={t('notFound.title')} />
       <h1 className="text-4xl font-bold">404</h1>
-      <p className="mt-2 text-slate-500">This page doesn't exist.</p>
+      <p className="mt-2 text-slate-500">{t('notFound.text')}</p>
       <Link to="/" className="mt-6 inline-block text-brand-600 dark:text-brand-300 hover:underline">
-        Go home
+        {t('notFound.goHome')}
       </Link>
     </div>
   );

@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Cake, Camera, MapPin, Phone, X } from 'lucide-react';
@@ -8,7 +9,7 @@ import { notify } from '@/lib/notify';
 import { useProfile, useUpdateProfile, useUploadAvatar } from '@/features/account/account.api';
 import { useOnboardingStore } from './onboarding.store';
 
-const STEPS = ['Photo', 'Mobile number', 'Date of birth', 'Delivery address'];
+const STEPS = ['photo', 'phone', 'birthday', 'address']; // keys in onboarding.steps.* (i18n)
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_PHOTO_MB = 5;
 
@@ -18,6 +19,7 @@ const MAX_PHOTO_MB = 5;
 //  - Built on the browser's <dialog>: showModal() keeps keyboard focus inside, Esc closes it,
 //    and screen readers announce it as a dialog. No library needed.
 export function OnboardingDialog() {
+  const { t } = useTranslation();
   const open = useOnboardingStore((s) => s.open);
   const finish = useOnboardingStore((s) => s.finish);
   const dialogRef = useRef(null);
@@ -50,18 +52,18 @@ export function OnboardingDialog() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 id="onboarding-title" className="text-lg font-bold">
-                Welcome, {profile.name.split(' ')[0]}! 👋
+                {t('onboarding.welcome', { name: profile.name.split(' ')[0] })}
               </h2>
-              <p className="text-sm text-slate-500">Let's set up your profile. It takes a minute.</p>
+              <p className="text-sm text-slate-500">{t('onboarding.intro')}</p>
             </div>
-            <button onClick={finish} aria-label="Close" className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100">
+            <button onClick={finish} aria-label={t('common.close')} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100">
               <X className="size-5" />
             </button>
           </div>
 
           {/* Progress: "Step 2 of 4" in words and as a bar */}
           <p className="mt-5 text-xs font-medium text-slate-500">
-            Step {step + 1} of {STEPS.length}: {STEPS[step]}
+            {t('onboarding.progress', { step: step + 1, total: STEPS.length, name: t(`onboarding.steps.${STEPS[step]}`) })}
           </p>
           <div className="mt-1.5 flex gap-1.5" aria-hidden>
             {STEPS.map((s, i) => (
@@ -82,17 +84,18 @@ export function OnboardingDialog() {
 }
 
 function StepFooter({ onBack, onSkip, children }) {
+  const { t } = useTranslation();
   return (
     <div className="mt-6 flex items-center gap-2">
       {onBack && (
         <Button type="button" variant="ghost" onClick={onBack}>
-          Back
+          {t('onboarding.back')}
         </Button>
       )}
       <div className="ml-auto flex gap-2">
         {onSkip && (
           <Button type="button" variant="ghost" onClick={onSkip}>
-            Skip
+            {t('onboarding.skip')}
           </Button>
         )}
         {children}
@@ -118,6 +121,7 @@ function StepIntro({ icon: Icon, title, text }) {
 // ------------------------------------------------------------------ 1. Photo
 
 function PhotoStep({ avatarUrl, initial, onNext }) {
+  const { t } = useTranslation();
   const fileInput = useRef(null);
   const upload = useUploadAvatar();
   const [localError, setLocalError] = useState(null);
@@ -128,19 +132,19 @@ function PhotoStep({ avatarUrl, initial, onNext }) {
     e.target.value = '';
     if (!file) return;
     setLocalError(null);
-    if (!PHOTO_TYPES.includes(file.type)) return setLocalError('Please choose a JPG, PNG or WebP image.');
+    if (!PHOTO_TYPES.includes(file.type)) return setLocalError(t('account.photoType'));
     if (file.size > MAX_PHOTO_MB * 1024 * 1024)
-      return setLocalError(`Please choose an image under ${MAX_PHOTO_MB} MB.`);
+      return setLocalError(t('account.photoSize', { mb: MAX_PHOTO_MB }));
     upload.mutate(file);
   };
 
   return (
     <>
-      <StepIntro icon={Camera} title="Add a profile photo" text="It shows in the header and next to your reviews." />
+      <StepIntro icon={Camera} title={t('onboarding.photoTitle')} text={t('onboarding.photoText')} />
       <div className="flex flex-col items-center gap-3">
         <div className="size-24 overflow-hidden rounded-full bg-slate-100">
           {avatarUrl ? (
-            <img src={avatarUrl} alt="Your profile photo" className="size-full object-cover" />
+            <img src={avatarUrl} alt={t('account.photoAlt')} className="size-full object-cover" />
           ) : (
             <div className="flex size-full items-center justify-center text-3xl font-semibold text-slate-400">
               {initial.toUpperCase()}
@@ -149,14 +153,14 @@ function PhotoStep({ avatarUrl, initial, onNext }) {
         </div>
         <input ref={fileInput} type="file" accept={PHOTO_TYPES.join(',')} onChange={onPick} className="hidden" />
         <Button variant="secondary" loading={upload.isPending} onClick={() => fileInput.current?.click()}>
-          {avatarUrl ? 'Choose a different photo' : 'Choose photo'}
+          {avatarUrl ? t('onboarding.chooseDifferent') : t('onboarding.choosePhoto')}
         </Button>
         {localError && <p className="text-sm text-red-600">{localError}</p>}
         {upload.isError && <ErrorState error={upload.error} />}
       </div>
       <StepFooter onSkip={avatarUrl ? undefined : onNext}>
         <Button onClick={onNext} disabled={upload.isPending}>
-          Next
+          {t('onboarding.next')}
         </Button>
       </StepFooter>
     </>
@@ -166,6 +170,7 @@ function PhotoStep({ avatarUrl, initial, onNext }) {
 // ------------------------------------------------------------------ 2. Mobile number
 
 function PhoneStep({ initial, onNext, onBack }) {
+  const { t } = useTranslation();
   const [phone, setPhone] = useState(initial ?? '');
   const update = useUpdateProfile();
 
@@ -180,8 +185,8 @@ function PhoneStep({ initial, onNext, onBack }) {
     <form onSubmit={submit}>
       <StepIntro
         icon={Phone}
-        title="Your mobile number"
-        text="Used by the delivery partner if they need to reach you."
+        title={t('onboarding.phoneTitle')}
+        text={t('onboarding.phoneText')}
       />
       {update.isError && (
         <div className="mb-3">
@@ -189,7 +194,7 @@ function PhoneStep({ initial, onNext, onBack }) {
         </div>
       )}
       <Input
-        label="Mobile number"
+        label={t('onboarding.steps.phone')}
         name="phone"
         type="tel"
         value={phone}
@@ -198,10 +203,10 @@ function PhoneStep({ initial, onNext, onBack }) {
         autoComplete="tel"
         autoFocus
       />
-      <p className="mt-1 text-xs text-slate-500">Include your country code, e.g. +91 for India.</p>
+      <p className="mt-1 text-xs text-slate-500">{t('onboarding.phoneHint')}</p>
       <StepFooter onBack={onBack} onSkip={onNext}>
         <Button type="submit" loading={update.isPending}>
-          Next
+          {t('onboarding.next')}
         </Button>
       </StepFooter>
     </form>
@@ -211,6 +216,7 @@ function PhoneStep({ initial, onNext, onBack }) {
 // ------------------------------------------------------------------ 3. Date of birth
 
 function BirthdayStep({ initial, onNext, onBack }) {
+  const { t } = useTranslation();
   const [date, setDate] = useState(initial ?? '');
   const update = useUpdateProfile();
 
@@ -222,14 +228,14 @@ function BirthdayStep({ initial, onNext, onBack }) {
 
   return (
     <form onSubmit={submit}>
-      <StepIntro icon={Cake} title="Your date of birth" text="Optional. We may send you a little birthday surprise." />
+      <StepIntro icon={Cake} title={t('onboarding.birthdayTitle')} text={t('onboarding.birthdayText')} />
       {update.isError && (
         <div className="mb-3">
           <ErrorState error={update.error} />
         </div>
       )}
       <Input
-        label="Date of birth"
+        label={t('onboarding.steps.birthday')}
         name="dateOfBirth"
         type="date"
         value={date}
@@ -239,7 +245,7 @@ function BirthdayStep({ initial, onNext, onBack }) {
       />
       <StepFooter onBack={onBack} onSkip={onNext}>
         <Button type="submit" loading={update.isPending}>
-          Next
+          {t('onboarding.next')}
         </Button>
       </StepFooter>
     </form>
@@ -249,23 +255,24 @@ function BirthdayStep({ initial, onNext, onBack }) {
 // ------------------------------------------------------------------ 4. Address (info)
 
 function AddressStep({ onBack }) {
+  const { t } = useTranslation();
   const finish = useOnboardingStore((s) => s.finish);
   const navigate = useNavigate();
 
   const done = () => {
     finish();
-    notify.success('Your profile is set up');
+    notify.success(t('onboarding.finished'));
   };
 
   return (
     <>
       <StepIntro
         icon={MapPin}
-        title="One more thing: your delivery address"
-        text="Add an address in My account and you can check out in one tap. You can also add it at checkout."
+        title={t('onboarding.addressTitle')}
+        text={t('onboarding.addressText')}
       />
       <div className="rounded-lg bg-brand-50 p-4 text-sm text-brand-800 dark:text-brand-300">
-        Find it any time under <b>My account → Delivery addresses</b> (your photo or name at the top right).
+        <Trans i18nKey="onboarding.whereToFind" components={[<b key="where" />]} />
       </div>
       <StepFooter onBack={onBack}>
         <Button
@@ -275,9 +282,9 @@ function AddressStep({ onBack }) {
             navigate('/account');
           }}
         >
-          Add address now
+          {t('onboarding.addNow')}
         </Button>
-        <Button onClick={done}>Done</Button>
+        <Button onClick={done}>{t('onboarding.done')}</Button>
       </StepFooter>
     </>
   );

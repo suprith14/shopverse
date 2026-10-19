@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +10,7 @@ import { PageTitle } from '@/components/layout/PageTitle';
 import { useSiteContent } from '@/content/use-site-content';
 
 export function LoginPage() {
+  const { t } = useTranslation();
   const { brand } = useSiteContent();
   const navigate = useNavigate();
   const location = useLocation();
@@ -25,25 +27,28 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto max-w-sm py-12">
-      <PageTitle title="Log in" />
-      <h1 className="text-2xl font-bold">Welcome back</h1>
-      <p className="mt-1 text-sm text-slate-500">Log in to your {brand.name} account.</p>
+      <PageTitle title={t('auth.loginTitle')} />
+      <h1 className="text-2xl font-bold">{t('auth.welcomeBack')}</h1>
+      <p className="mt-1 text-sm text-slate-500">{t('auth.loginSubtitle', { brand: brand.name })}</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         {/* While rate-limited, a live countdown replaces the generic error message */}
         {retry.blocked ? (
           <div role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-            Too many failed attempts. For your security, try again in <b className="tabular-nums">{retry.label}</b>, or{' '}
-            <Link to="/forgot-password" className="font-medium underline">
-              reset your password
-            </Link>
-            .
+            <Trans
+              i18nKey="auth.rateLimited"
+              values={{ time: retry.label }}
+              components={[
+                <b key="time" className="tabular-nums" />,
+                <Link key="reset" to="/forgot-password" className="font-medium underline" />,
+              ]}
+            />
           </div>
         ) : (
           login.isError && <ErrorState error={login.error} />
         )}
         <Input
-          label="Email"
+          label={t('auth.email')}
           name="email"
           type="email"
           required
@@ -52,7 +57,7 @@ export function LoginPage() {
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
         <Input
-          label="Password"
+          label={t('auth.password')}
           name="password"
           type="password"
           required
@@ -62,29 +67,33 @@ export function LoginPage() {
         />
         <div className="-mt-2 text-right">
           <Link to="/forgot-password" className="text-sm text-brand-600 dark:text-brand-300 hover:underline">
-            Forgot password?
+            {t('auth.forgotPassword')}
           </Link>
         </div>
         <Button type="submit" className="w-full" loading={login.isPending} disabled={retry.blocked}>
-          {retry.blocked ? `Try again in ${retry.label}` : 'Log in'}
+          {retry.blocked ? t('auth.tryAgainIn', { time: retry.label }) : t('auth.loginTitle')}
         </Button>
       </form>
 
       <div className="mt-4 rounded-lg bg-brand-50 p-3 text-xs text-brand-700 dark:text-brand-300">
-        Demo account: <b>demo@shopverse.dev</b> / <b>Demo@12345</b>
+        <Trans
+          i18nKey="auth.demoAccount"
+          values={{ email: 'demo@shopverse.dev', password: 'Demo@12345' }}
+          components={[<b key="email" />, <b key="password" />]}
+        />
         <button
           type="button"
           className="ml-2 underline"
           onClick={() => setForm({ email: 'demo@shopverse.dev', password: 'Demo@12345' })}
         >
-          Fill in
+          {t('auth.fillIn')}
         </button>
       </div>
 
       <p className="mt-6 text-center text-sm text-slate-600">
-        New here?{' '}
+        {t('auth.newHere')}{' '}
         <Link to="/register" className="font-medium text-brand-600 dark:text-brand-300 hover:underline">
-          Create an account
+          {t('auth.createAnAccount')}
         </Link>
       </p>
     </div>

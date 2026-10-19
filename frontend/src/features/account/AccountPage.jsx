@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import { Camera, KeyRound, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -21,14 +22,15 @@ import {
 } from './account.api';
 
 export function AccountPage() {
+  const { t } = useTranslation();
   const { data: profile, isLoading, isError, error } = useProfile();
   if (isLoading) return <ListSkeleton rows={3} />;
   if (isError || !profile) return <ErrorState error={error} />;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <PageTitle title="My account" />
-      <h1 className="text-2xl font-bold">My account</h1>
+      <PageTitle title={t('nav.myAccount')} />
+      <h1 className="text-2xl font-bold">{t('nav.myAccount')}</h1>
       <PhotoSection profile={profile} />
       {/* key: re-create the form with fresh values after a save */}
       <DetailsSection key={`${profile.name}|${profile.phone}|${profile.dateOfBirth}`} profile={profile} />
@@ -55,6 +57,7 @@ const MAX_PHOTO_MB = 5;
 const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 function PhotoSection({ profile }) {
+  const { t } = useTranslation();
   const fileInput = useRef(null);
   const upload = useUploadAvatar();
   const remove = useRemoveAvatar();
@@ -67,18 +70,18 @@ function PhotoSection({ profile }) {
     e.target.value = ''; // allow picking the same file again
     if (!file) return;
     setLocalError(null);
-    if (!PHOTO_TYPES.includes(file.type)) return setLocalError('Please choose a JPG, PNG or WebP image.');
+    if (!PHOTO_TYPES.includes(file.type)) return setLocalError(t('account.photoType'));
     if (file.size > MAX_PHOTO_MB * 1024 * 1024)
-      return setLocalError(`Please choose an image under ${MAX_PHOTO_MB} MB.`);
-    upload.mutate(file, { onSuccess: () => notify.success('Profile photo updated') });
+      return setLocalError(t('account.photoSize', { mb: MAX_PHOTO_MB }));
+    upload.mutate(file, { onSuccess: () => notify.success(t('account.photoUpdated')) });
   };
 
   return (
-    <Section title="Profile photo" icon={Camera}>
+    <Section title={t('account.photo')} icon={Camera}>
       <div className="flex items-center gap-5">
         <div className="size-20 shrink-0 overflow-hidden rounded-full bg-slate-100">
           {profile.avatarUrl ? (
-            <img src={profile.avatarUrl} alt="Your profile photo" className="size-full object-cover" />
+            <img src={profile.avatarUrl} alt={t('account.photoAlt')} className="size-full object-cover" />
           ) : (
             <div className="flex size-full items-center justify-center text-2xl font-semibold text-slate-400">
               {profile.name.charAt(0).toUpperCase()}
@@ -89,20 +92,20 @@ function PhotoSection({ profile }) {
           <div className="flex gap-2">
             <input ref={fileInput} type="file" accept={PHOTO_TYPES.join(',')} onChange={onPick} className="hidden" />
             <Button variant="secondary" loading={upload.isPending} onClick={() => fileInput.current?.click()}>
-              {profile.avatarUrl ? 'Change photo' : 'Upload photo'}
+              {profile.avatarUrl ? t('account.changePhoto') : t('account.uploadPhoto')}
             </Button>
             {profile.avatarUrl && (
               <Button
                 variant="ghost"
                 loading={remove.isPending}
-                onClick={() => remove.mutate(undefined, { onSuccess: () => notify.success('Profile photo removed') })}
+                onClick={() => remove.mutate(undefined, { onSuccess: () => notify.success(t('account.photoRemoved')) })}
               >
-                Remove
+                {t('cart.remove')}
               </Button>
             )}
           </div>
           <p className="text-xs text-slate-500">
-            JPG, PNG or WebP, up to {MAX_PHOTO_MB} MB. It's cropped to a square around your face.
+            {t('account.photoHint', { mb: MAX_PHOTO_MB })}
           </p>
           {localError && <p className="text-sm text-red-600">{localError}</p>}
           {(upload.isError || remove.isError) && <ErrorState error={upload.error ?? remove.error} />}
@@ -115,6 +118,7 @@ function PhotoSection({ profile }) {
 // ------------------------------------------------------------------ Details
 
 function DetailsSection({ profile }) {
+  const { t } = useTranslation();
   const update = useUpdateProfile();
   const [form, setForm] = useState({
     name: profile.name,
@@ -127,17 +131,17 @@ function DetailsSection({ profile }) {
     // Empty fields are sent as null = "remove it".
     update.mutate(
       { name: form.name, phone: form.phone.trim() || null, dateOfBirth: form.dateOfBirth || null },
-      { onSuccess: () => notify.success('Details saved') },
+      { onSuccess: () => notify.success(t('account.detailsSaved')) },
     );
   };
 
   return (
-    <Section title="Your details" icon={UserIcon}>
+    <Section title={t('account.details')} icon={UserIcon}>
       <form onSubmit={submit} className="space-y-3">
         {update.isError && <ErrorState error={update.error} />}
         <div className="grid gap-3 sm:grid-cols-2">
           <Input
-            label="Name"
+            label={t('auth.name')}
             name="name"
             required
             value={form.name}
@@ -145,9 +149,9 @@ function DetailsSection({ profile }) {
             autoComplete="name"
           />
           {/* Email is shown but not editable: changing the login email needs re-verification. */}
-          <Input label="Email" name="email" value={profile.email} disabled className="bg-slate-50 text-slate-500" />
+          <Input label={t('auth.email')} name="email" value={profile.email} disabled className="bg-slate-50 text-slate-500" />
           <Input
-            label="Phone (optional)"
+            label={t('account.phoneOptional')}
             name="phone"
             value={form.phone}
             onChange={(e) => setForm({ ...form, phone: e.target.value })}
@@ -155,7 +159,7 @@ function DetailsSection({ profile }) {
             autoComplete="tel"
           />
           <Input
-            label="Date of birth (optional)"
+            label={t('account.birthdayOptional')}
             name="dateOfBirth"
             type="date"
             value={form.dateOfBirth}
@@ -164,7 +168,7 @@ function DetailsSection({ profile }) {
           />
         </div>
         <Button type="submit" loading={update.isPending}>
-          Save details
+          {t('account.saveDetails')}
         </Button>
       </form>
     </Section>
@@ -176,6 +180,7 @@ function DetailsSection({ profile }) {
 // ------------------------------------------------------------------ Password
 
 function PasswordSection() {
+  const { t } = useTranslation();
   const change = useChangePassword();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirm: '' });
   const [show, setShow] = useState(false);
@@ -190,18 +195,18 @@ function PasswordSection() {
       {
         onSuccess: () => {
           setForm({ currentPassword: '', newPassword: '', confirm: '' });
-          notify.success('Password changed. You were signed out on your other devices.');
+          notify.success(t('account.passwordChanged'));
         },
       },
     );
   };
 
   return (
-    <Section title="Password" icon={KeyRound}>
+    <Section title={t('account.password')} icon={KeyRound}>
       <form onSubmit={submit} className="space-y-3">
         {change.isError && <ErrorState error={change.error} />}
         <Input
-          label="Current password"
+          label={t('account.currentPassword')}
           name="currentPassword"
           type={show ? 'text' : 'password'}
           required
@@ -212,7 +217,7 @@ function PasswordSection() {
         <div className="grid gap-3 sm:grid-cols-2">
           {/* autoComplete="new-password" lets the browser's password manager suggest a strong one */}
           <Input
-            label="New password"
+            label={t('auth.newPassword')}
             name="newPassword"
             type={show ? 'text' : 'password'}
             required
@@ -222,7 +227,7 @@ function PasswordSection() {
             onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
           />
           <Input
-            label="Confirm new password"
+            label={t('auth.confirmPassword')}
             name="confirm"
             type={show ? 'text' : 'password'}
             required
@@ -231,15 +236,15 @@ function PasswordSection() {
             onChange={(e) => setForm({ ...form, confirm: e.target.value })}
           />
         </div>
-        {mismatch && <p className="text-sm text-red-600">The two new passwords don't match.</p>}
+        {mismatch && <p className="text-sm text-red-600">{t('account.passwordsMismatch')}</p>}
         <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
-          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> Show passwords
+          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> {t('account.showPasswords')}
         </label>
         <p className="text-xs text-slate-500">
-          At least 8 characters. Changing it signs you out on all your other devices.
+          {t('account.passwordHint')}
         </p>
         <Button type="submit" loading={change.isPending} disabled={mismatch}>
-          Change password
+          {t('account.changePassword')}
         </Button>
       </form>
     </Section>
@@ -247,13 +252,14 @@ function PasswordSection() {
 }
 
 function AddressBook({ profile }) {
+  const { t } = useTranslation();
   const [adding, setAdding] = useState(false);
   const add = useAddAddress();
 
   return (
-    <Section title={`Delivery addresses (${profile.addresses.length}/10)`} icon={MapPin}>
+    <Section title={t('account.addresses', { count: profile.addresses.length })} icon={MapPin}>
       {profile.addresses.length === 0 && !adding && (
-        <p className="mb-3 text-sm text-slate-500">No saved addresses yet. Add one to check out faster.</p>
+        <p className="mb-3 text-sm text-slate-500">{t('account.noAddresses')}</p>
       )}
       <ul className="space-y-3">
         {profile.addresses.map((a) => (
@@ -267,14 +273,14 @@ function AddressBook({ profile }) {
             <AddressForm
               defaultName={profile.name}
               defaultPhone={profile.phone}
-              submitLabel="Save address"
+              submitLabel={t('account.saveAddress')}
               saving={add.isPending}
               error={add.error}
               onSubmit={(input) =>
                 add.mutate(input, {
                   onSuccess: () => {
                     setAdding(false);
-                    notify.success('Address saved');
+                    notify.success(t('account.addressSaved'));
                   },
                 })
               }
@@ -284,7 +290,7 @@ function AddressBook({ profile }) {
         ) : (
           profile.addresses.length < 10 && (
             <Button variant="secondary" onClick={() => setAdding(true)}>
-              <Plus className="size-4" /> Add address
+              <Plus className="size-4" /> {t('account.addAddress')}
             </Button>
           )
         )}
@@ -294,6 +300,7 @@ function AddressBook({ profile }) {
 }
 
 function AddressRow({ address }) {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const update = useUpdateAddress();
   const setDefault = useSetDefaultAddress();
@@ -304,7 +311,7 @@ function AddressRow({ address }) {
       <li className="rounded-lg border border-slate-200 p-4">
         <AddressForm
           address={address}
-          submitLabel="Save changes"
+          submitLabel={t('account.saveChanges')}
           saving={update.isPending}
           error={update.error}
           onSubmit={(input) =>
@@ -313,7 +320,7 @@ function AddressRow({ address }) {
               {
                 onSuccess: () => {
                   setEditing(false);
-                  notify.success('Address updated');
+                  notify.success(t('account.addressUpdated'));
                 },
               },
             )
@@ -334,7 +341,7 @@ function AddressRow({ address }) {
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{address.label}</span>
           )}
           {address.isDefault && (
-            <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">Default</span>
+            <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">{t('address.default')}</span>
           )}
         </div>
         <AddressLines address={address} />
@@ -352,22 +359,22 @@ function AddressRow({ address }) {
             loading={setDefault.isPending}
             onClick={() => setDefault.mutate(address.id)}
           >
-            Make default
+            {t('account.makeDefault')}
           </Button>
         )}
         <Button variant="ghost" className="px-2 py-1 text-xs" onClick={() => setEditing(true)}>
-          Edit
+          {t('account.edit')}
         </Button>
         <Button
           variant="ghost"
           className="px-2 py-1 text-xs text-red-600 hover:bg-red-50"
           loading={remove.isPending}
           onClick={() => {
-            if (confirm('Delete this address? Past orders keep their own copy.'))
-              remove.mutate(address.id, { onSuccess: () => notify.success('Address deleted') });
+            if (confirm(t('account.confirmDeleteAddress')))
+              remove.mutate(address.id, { onSuccess: () => notify.success(t('account.addressDeleted')) });
           }}
         >
-          <Trash2 className="size-3.5" /> Delete
+          <Trash2 className="size-3.5" /> {t('account.delete')}
         </Button>
       </div>
     </li>
