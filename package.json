@@ -1,0 +1,15 @@
+{
+  "name": "shopverse",
+  "private": true,
+  "description": "ShopVerse: run every app from the project root. Each app (backend, cms, frontend, admin) is still its own project.",
+  "scripts": {
+    "dev": "concurrently --names api,cms,store,admin --prefix-colors blue,magenta,green,yellow --prefix \"[{name}]\" \"cd backend && npm run dev\" \"cd cms && npm run dev\" \"cd frontend && npm run dev\" \"cd admin && npm run dev\"",
+    "dev:api": "concurrently --names api,cms --prefix-colors blue,magenta --prefix \"[{name}]\" \"cd backend && npm run dev\" \"cd cms && npm run dev\"",
+    "install:all": "npm install && cd backend && npm install && cd ../cms && npm install && cd ../frontend && npm install && cd ../admin && npm install",
+    "test": "cd backend && npm test",
+    "build": "cd frontend && npm run build && cd ../admin && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.6"
+  }
+}

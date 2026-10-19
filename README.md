@@ -38,10 +38,12 @@ See the full **[Feature Tracker](docs/FEATURE_TRACKER.md)** for status and per-f
 
 ```
 shopverse/
-├── backend/    # REST API (independent project)
+├── backend/    # shop REST API: auth, catalog, cart, orders, payments, admin (independent project)
+├── cms/        # headless CMS: store text + home page banner (independent project, own database)
 ├── frontend/   # React storefront for customers (independent project)
-├── admin/      # React admin panel for staff (independent project, same backend)
-└── docs/       # architecture, feature tracker, per-feature explanations
+├── admin/      # React admin panel for staff (independent project, uses backend + cms)
+├── docs/       # architecture, feature tracker, per-feature explanations
+└── package.json  # only the scripts that run all four together
 ```
 
 Read **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** to understand how everything fits together, and
@@ -49,30 +51,42 @@ Read **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** to understand how everythi
 
 ## Running locally
 
-**Requirements:** Node.js 20+ and a PostgreSQL database (local, or a free one from
-[Neon](https://neon.tech)).
+**Requirements:** Node.js 24 and PostgreSQL databases (local, or free ones from [Neon](https://neon.tech)):
+one for the shop, one named `cms` for the CMS.
 
-### 1. Backend
+### 1. One-time setup
 
 ```bash
+npm run install:all         # installs the root tool + all four apps
+
 cd backend
-npm install
-cp .env.example .env        # then set DATABASE_URL, JWT_ACCESS_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET (+ optional RESEND_API_KEY, EMAIL_DEV_REDIRECT_TO)
+cp .env.example .env        # set DATABASE_URL, JWT_ACCESS_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET (+ optional RESEND_API_KEY, EMAIL_DEV_REDIRECT_TO, CLOUDINARY_*)
 npm run db:migrate          # create tables
 npm run db:seed             # demo products + users
 npm run db:seed-orders      # optional: 90 days of demo sales for the admin dashboard
-npm run dev                 # http://localhost:4000
+
+cd ../cms
+cp .env.example .env        # DATABASE_URL must end in /cms; JWT_ACCESS_SECRET = the same as backend's
+npm run db:migrate          # create the CMS table
 ```
 
-### 2. Frontend (in a second terminal)
+### 2. Start everything (one terminal)
 
 ```bash
-cd frontend
-npm install
-npm run dev                 # http://localhost:5173
+npm run dev                 # from the project root
 ```
 
-### 3. Stripe webhooks (in a third terminal, needed to confirm payments)
+| Label | App | URL |
+|---|---|---|
+| `[api]` | shop API | http://localhost:4000 |
+| `[cms]` | CMS | http://localhost:4100/cms |
+| `[store]` | store | http://localhost:5173 |
+| `[admin]` | admin panel | http://localhost:5174 |
+
+Every line is labelled with the app it came from, so a crash is easy to spot. `Ctrl+C` stops all four.
+`npm run dev:api` starts only the two APIs. Each app can still be started on its own (`cd <app> && npm run dev`).
+
+### 3. Stripe webhooks (in a second terminal, needed to confirm payments)
 
 Install the [Stripe CLI](https://docs.stripe.com/stripe-cli), then:
 
@@ -84,13 +98,7 @@ stripe listen --events checkout.session.completed,checkout.session.async_payment
 Put the `whsec_...` secret it prints into `backend/.env` as `STRIPE_WEBHOOK_SECRET` and restart the backend.
 Pay with the test card `4242 4242 4242 4242` (any future date, any CVC).
 
-### 4. Admin panel (optional, another terminal)
-
-```bash
-cd admin
-npm install
-npm run dev                 # http://localhost:5174 (log in with the admin account below)
-```
+### Logging in to both apps
 
 On `localhost` both apps share cookies, so logging into one replaces the session in the other.
 Use a private window for the second one if you need both logged in.

@@ -1,0 +1,2 @@
+# Root only: the tool that starts every app (each app has its own .gitignore)
+node_modules
