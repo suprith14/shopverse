@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { ServerCrash } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -10,6 +11,7 @@ const WAIT_SECONDS = 5;
 // hosting are short: a restart, a database waking up. Retrying instantly usually fails again, and
 // a short wait also stops many visitors hammering a struggling server at the same moment.
 export function ServerErrorDialog() {
+  const { t } = useTranslation();
   const open = useServerError((s) => s.open);
   const ref = useRef(null);
   const [secondsLeft, setSecondsLeft] = useState(WAIT_SECONDS);
@@ -45,17 +47,17 @@ export function ServerErrorDialog() {
           <ServerCrash className="size-6 text-red-600" aria-hidden />
         </span>
         <h2 id="server-error-title" className="mt-4 text-lg font-semibold">
-          Something went wrong
+          {t('errors.serverTitle')}
         </h2>
         <p id="server-error-text" className="mt-2 text-sm text-slate-600">
-          An error occurred on our side. Please retry after {WAIT_SECONDS} seconds.
+          {t('errors.serverText', { seconds: WAIT_SECONDS })}
         </p>
         <div className="mt-6 flex flex-col gap-2">
           <Button onClick={() => window.location.reload()} disabled={secondsLeft > 0} className="w-full">
-            {secondsLeft > 0 ? `Retry in ${secondsLeft}s` : 'Retry'}
+            {secondsLeft > 0 ? t('errors.retryIn', { seconds: secondsLeft }) : t('common.retry')}
           </Button>
           <Button variant="ghost" onClick={() => ref.current?.close()} className="w-full">
-            Close
+            {t('common.close')}
           </Button>
         </div>
       </div>

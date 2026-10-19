@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
@@ -19,6 +20,7 @@ const prefersReducedMotion = () => window.matchMedia?.('(prefers-reduced-motion:
 //   - Arrows, dots, keyboard (← →) and swipe on phones.
 //   - Only the first image loads straight away; the others load lazily.
 export function HeroCarousel({ slides, intervalSeconds }) {
+  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(() => !prefersReducedMotion());
   const [hovered, setHovered] = useState(false);
@@ -60,7 +62,7 @@ export function HeroCarousel({ slides, intervalSeconds }) {
   return (
     <section
       aria-roledescription="carousel"
-      aria-label="Featured"
+      aria-label={t('carousel.label')}
       className="relative h-[420px] overflow-hidden rounded-3xl bg-night text-white md:h-[480px]"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -78,7 +80,7 @@ export function HeroCarousel({ slides, intervalSeconds }) {
             key={slide.imageUrl + i}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${i + 1} of ${count}`}
+            aria-label={t('carousel.position', { number: i + 1, total: count })}
             aria-hidden={!active}
             inert={!active ? true : undefined}
             className={`absolute inset-0 transition-opacity duration-700 motion-reduce:transition-none ${active ? 'opacity-100' : 'opacity-0'}`}
@@ -116,7 +118,7 @@ export function HeroCarousel({ slides, intervalSeconds }) {
       {count > 1 && (
         <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 px-4 pb-4 md:px-6">
           <div className="flex items-center gap-2">
-            <ControlButton label={playing ? 'Pause slides' : 'Play slides'} onClick={() => setPlaying((p) => !p)}>
+            <ControlButton label={playing ? t('carousel.pause') : t('carousel.play')} onClick={() => setPlaying((p) => !p)}>
               {playing ? <Pause className="size-4" /> : <Play className="size-4" />}
             </ControlButton>
             <div className="flex items-center gap-1.5">
@@ -125,7 +127,7 @@ export function HeroCarousel({ slides, intervalSeconds }) {
                   key={i}
                   type="button"
                   onClick={() => go(i)}
-                  aria-label={`Show slide ${i + 1}`}
+                  aria-label={t('carousel.show', { number: i + 1 })}
                   aria-current={i === current}
                   // A 24px tap target around a small visible dot
                   className="group flex size-6 items-center justify-center"
@@ -138,10 +140,10 @@ export function HeroCarousel({ slides, intervalSeconds }) {
             </div>
           </div>
           <div className="flex gap-2">
-            <ControlButton label="Previous slide" onClick={() => go(current - 1)}>
+            <ControlButton label={t('carousel.previous')} onClick={() => go(current - 1)}>
               <ChevronLeft className="size-5" />
             </ControlButton>
-            <ControlButton label="Next slide" onClick={() => go(current + 1)}>
+            <ControlButton label={t('carousel.next')} onClick={() => go(current + 1)}>
               <ChevronRight className="size-5" />
             </ControlButton>
           </div>

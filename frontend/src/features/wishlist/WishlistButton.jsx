@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router';
 import { Heart } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/auth.store';
@@ -6,6 +7,7 @@ import { notify } from '@/lib/notify';
 
 // The heart button. Used on product cards and on the product page.
 export function WishlistButton({ productId, className = '' }) {
+  const { t } = useTranslation();
   const status = useAuthStore((s) => s.status);
   const navigate = useNavigate();
   const location = useLocation();
@@ -31,8 +33,8 @@ export function WishlistButton({ productId, className = '' }) {
       {
         onSuccess: () =>
           save
-            ? notify.success('Saved to your wishlist', { label: 'View', onClick: () => navigate('/wishlist') })
-            : notify.success('Removed from your wishlist'),
+            ? notify.success(t('wishlist.saved'), { label: t('common.view'), onClick: () => navigate('/wishlist') })
+            : notify.success(t('wishlist.removed')),
         onError: notify.error,
       },
     );
@@ -42,11 +44,11 @@ export function WishlistButton({ productId, className = '' }) {
     <button
       onClick={onClick}
       aria-pressed={saved}
-      aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
-      title={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+      aria-label={saved ? t('wishlist.remove') : t('wishlist.save')}
+      title={saved ? t('wishlist.remove') : t('wishlist.save')}
       className={`flex size-9 items-center justify-center rounded-full bg-white/90 shadow-sm transition hover:scale-110 ${className}`}
     >
-      <Heart className={`size-5 ${saved ? 'fill-red-500 text-red-500' : 'text-slate-600'}`} />
+      <Heart className={`size-5 ${saved ? 'fill-red-500 text-red-500' : 'text-night/70'}`} />
     </button>
   );
 }

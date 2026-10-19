@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
 import { Heart, LogOut, Menu, Package, ShoppingBag, ShoppingCart, User as UserIcon, X } from 'lucide-react';
@@ -8,11 +9,13 @@ import { SearchBox } from '@/features/catalog/components/SearchBox';
 import { useProfile } from '@/features/account/account.api';
 import { useSiteContent } from '@/content/use-site-content';
 import { ThemeToggle } from './ThemeToggle';
+import { LanguageSwitch } from './LanguageSwitch';
 
 // Wide screens: logo · Shop · search · orders · wishlist · cart · account · log out (one row).
 // Phones (< md): logo · cart · account · ☰ menu, and the search bar gets its own full-width row,
 // because on mobile search is how most shoppers find things.
 export function Header() {
+  const { t } = useTranslation();
   const { brand } = useSiteContent();
   const { user, status } = useAuthStore();
   const logout = useLogout();
@@ -44,26 +47,27 @@ export function Header() {
 
         <nav className="hidden gap-5 md:flex">
           <NavLink to="/shop" className={navClass}>
-            Shop
+            {t('nav.shop')}
           </NavLink>
         </nav>
 
         <SearchBox className="ml-auto hidden max-w-sm flex-1 md:block" />
 
         <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-3">
+          <LanguageSwitch />
           <ThemeToggle />
           {loggedIn && (
             <>
-              <Link to="/orders" className={`${iconLink} hidden md:block`} aria-label="My orders" title="My orders">
+              <Link to="/orders" className={`${iconLink} hidden md:block`} aria-label={t('nav.myOrders')} title={t('nav.myOrders')}>
                 <Package className="size-5" />
               </Link>
-              <Link to="/wishlist" className={`${iconLink} hidden md:block`} aria-label="Wishlist" title="Wishlist">
+              <Link to="/wishlist" className={`${iconLink} hidden md:block`} aria-label={t('nav.wishlist')} title={t('nav.wishlist')}>
                 <Heart className="size-5" />
               </Link>
             </>
           )}
           {loggedIn && (
-            <Link to="/cart" className={`relative ${iconLink}`} aria-label="Cart" title="Cart">
+            <Link to="/cart" className={`relative ${iconLink}`} aria-label={t('nav.cart')} title={t('nav.cart')}>
               <ShoppingCart className="size-5" />
               {!!cart?.itemCount && (
                 <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-brand-600 text-xs font-semibold text-white">
@@ -75,8 +79,8 @@ export function Header() {
           {loggedIn && (
             <Link
               to="/account"
-              title="My account"
-              aria-label="My account"
+              title={t('nav.myAccount')}
+              aria-label={t('nav.myAccount')}
               className="flex items-center gap-1.5 rounded-lg p-1 text-sm text-slate-700 hover:bg-slate-100"
             >
               {profile?.avatarUrl ? (
@@ -87,7 +91,7 @@ export function Header() {
               <span className="hidden md:inline">{user.name}</span>
               {user.role === 'ADMIN' && (
                 <span className="hidden rounded bg-amber-100 px-1.5 py-0.5 text-xs font-medium text-amber-800 md:inline">
-                  Admin
+                  {t('nav.admin')}
                 </span>
               )}
             </Link>
@@ -96,8 +100,8 @@ export function Header() {
             <button
               onClick={() => logout.mutate()}
               className={`${iconLink} hidden md:block`}
-              aria-label="Log out"
-              title="Log out"
+              aria-label={t('nav.logOut')}
+              title={t('nav.logOut')}
             >
               <LogOut className="size-4" />
             </button>
@@ -107,7 +111,7 @@ export function Header() {
               to="/login"
               className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-slate-50 hover:bg-slate-700"
             >
-              Log in
+              {t('nav.logIn')}
             </Link>
           )}
 
@@ -115,7 +119,7 @@ export function Header() {
           <button
             onClick={() => setMenuOpen((o) => !o)}
             className={`${iconLink} md:hidden`}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')}
             aria-expanded={menuOpen}
             aria-controls="mobile-menu"
           >
@@ -131,27 +135,27 @@ export function Header() {
 
       {menuOpen && (
         <nav id="mobile-menu" className="border-t border-slate-200 bg-surface px-4 py-2 md:hidden">
-          <MobileLink to="/shop">Shop</MobileLink>
+          <MobileLink to="/shop">{t('nav.shop')}</MobileLink>
           {loggedIn ? (
             <>
               <MobileLink to="/orders" icon={Package}>
-                My orders
+                {t('nav.myOrders')}
               </MobileLink>
               <MobileLink to="/wishlist" icon={Heart}>
-                Wishlist
+                {t('nav.wishlist')}
               </MobileLink>
               <MobileLink to="/account" icon={UserIcon}>
-                My account
+                {t('nav.myAccount')}
               </MobileLink>
               <button
                 onClick={() => logout.mutate()}
                 className="flex w-full items-center gap-3 rounded-lg px-2 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
-                <LogOut className="size-4" /> Log out
+                <LogOut className="size-4" /> {t('nav.logOut')}
               </button>
             </>
           ) : (
-            <MobileLink to="/register">Create account</MobileLink>
+            <MobileLink to="/register">{t('nav.createAccount')}</MobileLink>
           )}
         </nav>
       )}

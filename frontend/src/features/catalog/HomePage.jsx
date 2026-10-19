@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { ArrowRight, BookOpen, Footprints, Lamp, Smartphone } from 'lucide-react';
 import { ErrorState } from '@/components/ui/States';
@@ -16,6 +17,7 @@ const categoryIcons = {
 };
 
 export function HomePage() {
+  const { t } = useTranslation();
   const categories = useCategories();
   const topRated = useProducts({ sort: 'rating', page: 1 });
   const { brand, home, banner } = useSiteContent();
@@ -64,8 +66,8 @@ export function HomePage() {
                 className="group rounded-2xl border border-slate-200 bg-surface p-6 transition hover:border-brand-500 hover:shadow-md"
               >
                 <Icon className="size-8 text-brand-600 dark:text-brand-300" />
-                <h3 className="mt-4 font-semibold">{c.name}</h3>
-                <p className="text-sm text-slate-500">{c._count.products} products</p>
+                <h3 className="mt-4 font-semibold">{t(`category.${c.slug}`, { defaultValue: c.name })}</h3>
+                <p className="text-sm text-slate-500">{t('catalog.productCount', { count: c._count.products })}</p>
               </Link>
             );
           })}

@@ -23,6 +23,11 @@
         }
       } catch (e) {}
     </script>
+    <!-- Kannada script font. Google's stylesheet splits it by character range (unicode-range), so
+         the font file only downloads on pages that actually show Kannada text. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Kannada:wght@400..700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="/src/splash.css" />
   </head>
   <body>

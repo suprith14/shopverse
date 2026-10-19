@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { SlidersHorizontal } from 'lucide-react';
@@ -50,6 +51,7 @@ function useFiltersFromUrl() {
 }
 
 export function CatalogPage() {
+  const { t } = useTranslation();
   const { filters, update, reset } = useFiltersFromUrl();
   const { data, isLoading, isError, error, isFetching } = useProducts(filters);
   const [showFilters, setShowFilters] = useState(false);
@@ -59,10 +61,10 @@ export function CatalogPage() {
 
   return (
     <div className="space-y-6">
-      <PageTitle title={filters.q ? `"${filters.q}"` : 'Shop'} />
+      <PageTitle title={filters.q ? `"${filters.q}"` : t('catalog.title')} />
       <div>
-        <h1 className="text-2xl font-bold">{filters.q ? `Results for "${filters.q}"` : 'Shop'}</h1>
-        {data && <p className="text-sm text-slate-500">{data.total} products</p>}
+        <h1 className="text-2xl font-bold">{filters.q ? t('catalog.resultsFor', { query: filters.q }) : t('catalog.title')}</h1>
+        {data && <p className="text-sm text-slate-500">{t('catalog.productCount', { count: data.total })}</p>}
       </div>
 
       {/* Changing tab clears brand (brands differ per category) */}
@@ -80,7 +82,7 @@ export function CatalogPage() {
         aria-controls="filters"
         className="flex items-center gap-2 rounded-lg border border-slate-300 bg-surface px-4 py-2 text-sm font-medium lg:hidden"
       >
-        <SlidersHorizontal className="size-4" /> {showFilters ? 'Hide filters' : 'Filters'}
+        <SlidersHorizontal className="size-4" /> {showFilters ? t('catalog.hideFilters') : t('catalog.filters')}
         {activeFilters > 0 && (
           <span className="rounded-full bg-brand-600 px-2 text-xs text-white">{activeFilters}</span>
         )}
@@ -96,7 +98,7 @@ export function CatalogPage() {
             {/* No product had every word: we're showing products that match some of them. */}
             {data?.matchMode === 'any' ? (
               <p className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
-                No exact matches for "{filters.q}". Showing products that match some of your words.
+                {t('catalog.partialMatch', { query: filters.q })}
               </p>
             ) : (
               <span />
@@ -105,20 +107,20 @@ export function CatalogPage() {
               value={filters.sort ?? data?.sort ?? 'newest'}
               onChange={(e) => update({ sort: e.target.value })}
               className="rounded-lg border border-slate-300 bg-surface px-3 py-2 text-sm"
-              aria-label="Sort products"
+              aria-label={t('catalog.sortLabel')}
             >
-              {filters.q && <option value="relevance">Best match</option>}
-              <option value="newest">Newest</option>
-              <option value="price_asc">Price: low to high</option>
-              <option value="price_desc">Price: high to low</option>
-              <option value="rating">Top rated</option>
+              {filters.q && <option value="relevance">{t('catalog.sort.relevance')}</option>}
+              <option value="newest">{t('catalog.sort.newest')}</option>
+              <option value="price_asc">{t('catalog.sort.price_asc')}</option>
+              <option value="price_desc">{t('catalog.sort.price_desc')}</option>
+              <option value="rating">{t('catalog.sort.rating')}</option>
             </select>
           </div>
 
           {isLoading && <ProductGridSkeleton count={6} className="grid grid-cols-2 gap-4 md:grid-cols-3" />}
           {isError && <ErrorState error={error} />}
           {data && data.items.length === 0 && (
-            <EmptyState title="No products found" hint="Try removing some filters." />
+            <EmptyState title={t('catalog.noProducts')} hint={t('catalog.noProductsHint')} />
           )}
 
           {data && data.items.length > 0 && (

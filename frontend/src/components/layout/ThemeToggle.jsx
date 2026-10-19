@@ -1,18 +1,20 @@
+import { useTranslation } from 'react-i18next';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { setThemePreference, useTheme } from '@/lib/theme';
 
 // One button that cycles System -> Light -> Dark. The icon shows the current choice,
 // and the label says what a click does next (for screen readers and the tooltip).
 const options = {
-  system: { icon: Monitor, label: 'System theme', next: 'light' },
-  light: { icon: Sun, label: 'Light theme', next: 'dark' },
-  dark: { icon: Moon, label: 'Dark theme', next: 'system' },
+  system: { icon: Monitor, next: 'light' },
+  light: { icon: Sun, next: 'dark' },
+  dark: { icon: Moon, next: 'system' },
 };
 
 export function ThemeToggle({ className = '' }) {
+  const { t } = useTranslation();
   const preference = useTheme((s) => s.preference);
-  const { icon: Icon, label, next } = options[preference];
-  const action = `${label}. Switch to ${options[next].label.toLowerCase()}`;
+  const { icon: Icon, next } = options[preference];
+  const action = t('theme.action', { current: t(`theme.${preference}`), next: t(`theme.${next}`) });
 
   return (
     <button

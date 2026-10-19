@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 // Skeletons: grey shapes in the layout of the real content, shown while it loads.
 // Compared with a spinner, the page doesn't jump when data arrives (no "layout shift") and it
 // feels faster because the structure is visible at once.
@@ -9,8 +10,9 @@ export function Skeleton({ className = '' }) {
 
 // Same grid and card shape as ProductCard.
 export function ProductGridSkeleton({ count = 8, className = 'grid grid-cols-2 gap-4 md:grid-cols-4' }) {
+  const { t } = useTranslation();
   return (
-    <div className={className} role="status" aria-label="Loading products">
+    <div className={className} role="status" aria-label={t('catalog.loadingProducts')}>
       {Array.from({ length: count }, (_, i) => (
         <div key={i} className="overflow-hidden rounded-xl border border-slate-200 bg-surface">
           <Skeleton className="aspect-square rounded-none" />
@@ -28,8 +30,9 @@ export function ProductGridSkeleton({ count = 8, className = 'grid grid-cols-2 g
 
 // Same layout as the product page: gallery left, details right.
 export function ProductDetailSkeleton() {
+  const { t } = useTranslation();
   return (
-    <div className="grid gap-10 md:grid-cols-2" role="status" aria-label="Loading product">
+    <div className="grid gap-10 md:grid-cols-2" role="status" aria-label={t('product.loading')}>
       <Skeleton className="aspect-square rounded-2xl" />
       <div className="space-y-4">
         <Skeleton className="h-3 w-24" />
@@ -50,11 +53,12 @@ export function ProductDetailSkeleton() {
 
 // Rows like the cart, orders and similar lists.
 export function ListSkeleton({ rows = 3 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-surface"
       role="status"
-      aria-label="Loading"
+      aria-label={t('common.loading')}
     >
       {Array.from({ length: rows }, (_, i) => (
         <div key={i} className="flex items-center gap-4 p-4">

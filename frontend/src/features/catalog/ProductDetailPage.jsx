@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { Minus, Plus, ShoppingCart } from 'lucide-react';
@@ -25,6 +26,7 @@ export function ProductDetailPage() {
 }
 
 function ProductView({ product }) {
+  const { t } = useTranslation();
   const [imageIndex, setImageIndex] = useState(0);
   // Default to the first variant that is in stock.
   const [variantId, setVariantId] = useState((product.variants.find((v) => v.stock > 0) ?? product.variants[0])?.id);
@@ -35,11 +37,11 @@ function ProductView({ product }) {
       <PageTitle title={product.name} />
       <nav className="text-sm text-slate-500">
         <Link to="/shop" className="hover:underline">
-          Shop
+          {t('nav.shop')}
         </Link>{' '}
         /{' '}
         <Link to={`/shop?category=${product.category.slug}`} className="hover:underline">
-          {product.category.name}
+          {t(`category.${product.category.slug}`, { defaultValue: product.category.name })}
         </Link>{' '}
         / <span className="text-slate-800">{product.name}</span>
       </nav>
@@ -80,7 +82,7 @@ function ProductView({ product }) {
           <p className="leading-relaxed text-slate-600">{product.description}</p>
 
           <div>
-            <h2 className="mb-2 text-sm font-semibold">Choose an option</h2>
+            <h2 className="mb-2 text-sm font-semibold">{t('product.chooseOption')}</h2>
             <div className="flex flex-wrap gap-2">
               {product.variants.map((v) => (
                 <button
@@ -101,7 +103,11 @@ function ProductView({ product }) {
               <p
                 className={`mt-2 text-sm ${variant.stock > 0 && variant.stock <= 5 ? 'text-amber-600' : 'text-slate-500'}`}
               >
-                {variant.stock === 0 ? 'Out of stock' : variant.stock <= 5 ? `Only ${variant.stock} left!` : 'In stock'}
+                {variant.stock === 0
+                  ? t('product.outOfStock')
+                  : variant.stock <= 5
+                    ? t('product.onlyLeft', { count: variant.stock })
+                    : t('product.inStock')}
               </p>
             )}
           </div>
@@ -122,6 +128,7 @@ function ProductView({ product }) {
 const MAX_PER_ITEM = 10;
 
 function AddToCart({ variant, productName }) {
+  const { t } = useTranslation();
   const status = useAuthStore((s) => s.status);
   const navigate = useNavigate();
   const location = useLocation();
@@ -140,8 +147,8 @@ function AddToCart({ variant, productName }) {
       { variantId: variant.id, quantity },
       {
         onSuccess: () =>
-          notify.success(`Added ${quantity} × ${productName} (${variant.name})`, {
-            label: 'View cart',
+          notify.success(t('product.added', { count: quantity, name: productName, variant: variant.name }), {
+            label: t('product.viewCart'),
             onClick: () => navigate('/cart'),
           }),
         onError: notify.error, // e.g. "Only 2 left in stock"
@@ -159,13 +166,13 @@ function AddToCart({ variant, productName }) {
         <div
           className="flex items-center rounded-lg border border-slate-300 bg-surface"
           role="group"
-          aria-label="Quantity"
+          aria-label={t('product.quantity')}
         >
           <button
             onClick={() => setQuantity((q) => Math.max(1, q - 1))}
             disabled={soldOut || quantity <= 1}
             className="p-3 hover:bg-slate-50 disabled:opacity-30"
-            aria-label="Decrease quantity"
+            aria-label={t('product.decrease')}
           >
             <Minus className="size-4" />
           </button>
@@ -176,13 +183,13 @@ function AddToCart({ variant, productName }) {
             onClick={() => setQuantity((q) => Math.min(max, q + 1))}
             disabled={soldOut || quantity >= max}
             className="p-3 hover:bg-slate-50 disabled:opacity-30"
-            aria-label="Increase quantity"
+            aria-label={t('product.increase')}
           >
             <Plus className="size-4" />
           </button>
         </div>
         <Button className="flex-1 py-3" onClick={onClick} loading={addToCart.isPending} disabled={soldOut}>
-          <ShoppingCart className="size-4" /> {soldOut ? 'Out of stock' : 'Add to cart'}
+          <ShoppingCart className="size-4" /> {soldOut ? t('product.outOfStock') : t('product.addToCart')}
         </Button>
       </div>
     </div>
@@ -191,6 +198,7 @@ function AddToCart({ variant, productName }) {
 
 // Renders category-specific details: author/pages for books, specs for electronics, etc.
 function Attributes({ attributes }) {
+  const { t } = useTranslation();
   const flat = Object.entries(attributes).flatMap(([key, value]) =>
     value && typeof value === 'object' ? Object.entries(value) : [[key, value]],
   );
@@ -198,7 +206,7 @@ function Attributes({ attributes }) {
 
   return (
     <div className="rounded-xl border border-slate-200 bg-surface">
-      <h2 className="border-b border-slate-200 px-4 py-3 text-sm font-semibold">Details</h2>
+      <h2 className="border-b border-slate-200 px-4 py-3 text-sm font-semibold">{t('product.details')}</h2>
       <dl className="divide-y divide-slate-100 text-sm">
         {flat.map(([key, value]) => (
           <div key={key} className="grid grid-cols-3 px-4 py-2.5">

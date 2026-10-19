@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { StarRating } from '@/components/ui/StarRating';
 import { formatPrice } from '@/lib/format';
 import { WishlistButton } from '@/features/wishlist/WishlistButton';
 
 export function ProductCard({ product }) {
+  const { t } = useTranslation();
   return (
     <Link
       to={`/products/${product.slug}`}
@@ -20,7 +22,7 @@ export function ProductCard({ product }) {
         )}
         {!product.inStock && (
           <span className="absolute left-2 top-2 rounded-full bg-night/80 px-2 py-0.5 text-xs font-medium text-white">
-            Sold out
+            {t('catalog.soldOut')}
           </span>
         )}
         <WishlistButton productId={product.id} className="absolute right-2 top-2" />

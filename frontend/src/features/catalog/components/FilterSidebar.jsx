@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -8,6 +9,7 @@ const toDollars = (cents) => (cents === undefined ? '' : String(cents / 100));
 // The counts come from the backend's facets. Each facet ignores its own filter, so after
 // picking a brand the other brands still show their counts and can be picked instead.
 export function FilterSidebar({ filters, facets, onChange, onReset }) {
+  const { t } = useTranslation();
   // Price inputs are local state, applied on "Apply" so we don't fire a request per keystroke.
   const [min, setMin] = useState(toDollars(filters.minPrice));
   const [max, setMax] = useState(toDollars(filters.maxPrice));
@@ -22,12 +24,12 @@ export function FilterSidebar({ filters, facets, onChange, onReset }) {
   return (
     <aside className="space-y-6 rounded-xl border border-slate-200 bg-surface p-5">
       <section>
-        <h3 className="mb-2 text-sm font-semibold">Brand</h3>
+        <h3 className="mb-2 text-sm font-semibold">{t('catalog.brand')}</h3>
         <div className="max-h-56 space-y-1.5 overflow-y-auto text-sm">
           <Option
             checked={!filters.brand}
             onSelect={() => onChange({ brand: undefined })}
-            label="All brands"
+            label={t('catalog.allBrands')}
             name="brand"
           />
           {brands.map((b) => (
@@ -40,17 +42,18 @@ export function FilterSidebar({ filters, facets, onChange, onReset }) {
               onSelect={() => onChange({ brand: b.value })}
             />
           ))}
-          {facets && brands.length === 0 && <p className="text-slate-400">No brands match</p>}
+          {facets && brands.length === 0 && <p className="text-slate-400">{t('catalog.noBrands')}</p>}
         </div>
       </section>
 
       <section>
-        <h3 className="mb-2 text-sm font-semibold">Price ($)</h3>
+        <h3 className="mb-2 text-sm font-semibold">{t('catalog.price')}</h3>
         <div className="flex items-center gap-2">
           <input
             type="number"
             min={0}
-            placeholder="Min"
+            placeholder={t('catalog.min')}
+            aria-label={t('catalog.min')}
             value={min}
             onChange={(e) => setMin(e.target.value)}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
@@ -59,7 +62,8 @@ export function FilterSidebar({ filters, facets, onChange, onReset }) {
           <input
             type="number"
             min={0}
-            placeholder="Max"
+            placeholder={t('catalog.max')}
+            aria-label={t('catalog.max')}
             value={max}
             onChange={(e) => setMax(e.target.value)}
             className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm"
@@ -70,12 +74,12 @@ export function FilterSidebar({ filters, facets, onChange, onReset }) {
           className="mt-2 w-full"
           onClick={() => onChange({ minPrice: toCents(min), maxPrice: toCents(max) })}
         >
-          Apply price
+          {t('catalog.applyPrice')}
         </Button>
       </section>
 
       <section>
-        <h3 className="mb-2 text-sm font-semibold">Rating</h3>
+        <h3 className="mb-2 text-sm font-semibold">{t('catalog.rating')}</h3>
         <div className="space-y-1.5 text-sm">
           {(facets?.ratings ?? [4, 3, 2].map((min) => ({ min, count: undefined }))).map((r) => (
             <Option
@@ -88,7 +92,7 @@ export function FilterSidebar({ filters, facets, onChange, onReset }) {
               label={
                 <span className="flex items-center gap-1">
                   {r.min}
-                  <Star className="size-3.5 fill-amber-400 text-amber-400" /> & up
+                  <Star className="size-3.5 fill-amber-400 text-amber-400" /> {t('catalog.andUp')}
                 </span>
               }
             />
@@ -97,13 +101,13 @@ export function FilterSidebar({ filters, facets, onChange, onReset }) {
             name="rating"
             checked={filters.minRating === undefined}
             onSelect={() => onChange({ minRating: undefined })}
-            label="Any rating"
+            label={t('catalog.anyRating')}
           />
         </div>
       </section>
 
       <Button variant="ghost" className="w-full" onClick={onReset}>
-        Clear all filters
+        {t('catalog.clearFilters')}
       </Button>
     </aside>
   );

@@ -1,15 +1,21 @@
+import { useTranslation } from 'react-i18next';
 import { useCategories } from '../catalog.api';
 
 // "All | Sneakers | Electronics | Books | Home Decor" tabs.
 // With facets, each tab shows how many results it has for the current search and filters,
 // e.g. searching "wireless" shows "Electronics 3 · Books 0".
 export function CategoryTabs({ active, facets, onChange }) {
+  const { t } = useTranslation();
   const { data: categories = [] } = useCategories();
   const countBySlug = new Map(facets?.categories.map((c) => [c.slug, c.count]));
   const total = facets?.categories.reduce((sum, c) => sum + c.count, 0);
   const tabs = [
-    { slug: undefined, name: 'All', count: total },
-    ...categories.map((c) => ({ ...c, count: countBySlug.get(c.slug) })),
+    { slug: undefined, name: t('catalog.all'), count: total },
+    ...categories.map((c) => ({
+      ...c,
+      name: t(`category.${c.slug}`, { defaultValue: c.name }), // names come from the database
+      count: countBySlug.get(c.slug),
+    })),
   ];
 
   return (
@@ -18,7 +24,7 @@ export function CategoryTabs({ active, facets, onChange }) {
         const selected = tab.slug === active;
         return (
           <button
-            key={tab.name}
+            key={tab.slug ?? 'all'}
             role="tab"
             aria-selected={selected}
             onClick={() => onChange(tab.slug)}

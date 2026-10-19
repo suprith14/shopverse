@@ -1,11 +1,11 @@
 # Feature 22: Dark Mode + Kannada (store)
 
-**Status:** 🚧 Step 1 (dark mode) done. Step 2 (Kannada UI text) and step 3 (Kannada CMS text) next.
+**Status:** 🚧 Step 1 (dark mode) done. Step 2 (Kannada UI text) in progress: batch 2a done. Step 3 (Kannada CMS text) next.
 
 | Step | What | Status |
 |---|---|---|
 | 1 | Dark mode: System / Light / Dark switch in the header | ✅ |
-| 2 | Kannada for the store's own text (buttons, menus, messages) | ⏳ |
+| 2 | Kannada for the store's own text: **2a** header, home, shop, product page ✅ · **2b** cart, checkout, orders ⏳ · **2c** login, account, onboarding, review form, invoices ⏳ | 🚧 |
 | 3 | Kannada for CMS text (home page, banner, footer): English + Kannada per field, edited in admin | ⏳ |
 
 ## Dark mode
@@ -38,6 +38,26 @@ JavaScript loads later). The start-up loader has dark colours too (`src/splash.c
 **Files:** `src/index.css`, `src/lib/theme.js`, `src/components/layout/ThemeToggle.jsx`, `index.html`,
 `src/splash.css`, plus class changes in 32 components.
 
+## Kannada (step 2)
+
+**The switch:** the header shows the *other* language in its own script ("ಕನ್ನಡ" while reading English, "English" while
+reading Kannada), so someone who can't read the current language still recognises theirs. The choice is saved
+(`shopverse:lang`); on a first visit a browser that prefers Kannada gets Kannada. `<html lang>` follows the choice.
+
+**How it works:** `react-i18next`. Every piece of store text lives in `src/i18n/en.js` and `src/i18n/kn.js` under the
+same key; components call `t('product.addToCart')`. Missing Kannada keys fall back to English.
+- Values: `t('catalog.resultsFor', { query })` fills `{{query}}`.
+- Plurals: `t('reviews.count', { count })` picks `count_one` / `count_other` using each language's plural rules.
+- A link inside a sentence: `<Trans>` with `<0>…</0>` in the text, so each language puts the link where its grammar needs it.
+- Category names come from the database, so they're translated by slug (`category.home-decor`), with the database name as fallback.
+- Dates follow the language (`formatDate`, `formatDateTime` in `lib/format.js`); prices stay `$` in every language.
+- Font: **Noto Sans Kannada** from Google Fonts. Its stylesheet is split by character range, so the font only downloads when Kannada text is on the page.
+
+**Not translated (by design):** product names and descriptions, product details, and messages written by the API
+(e.g. "Only 2 left in stock"). CMS text gets its Kannada version in step 3.
+
+**Terms:** shopping words use the loanwords Kannada shoppers see on Indian stores (ಕಾರ್ಟ್, ಆರ್ಡರ್, ವಿಶ್‌ಲಿಸ್ಟ್).
+
 ## Why these choices
 
 | Choice | Alternatives | Why |
@@ -45,6 +65,9 @@ JavaScript loads later). The start-up loader has dark colours too (`src/splash.c
 | Theme tokens (redefine colours in `.dark`) | `dark:` classes on every element | One place defines the dark palette; 38 files of `dark:bg-... dark:text-... dark:border-...` would be hard to keep consistent |
 | `class` on `<html>` + saved choice | Only `prefers-color-scheme` | Visitors can override their device; "System" stays the default |
 | Inline script before paint | Set the class from React | React runs after the first paint: dark-mode users would see a white flash |
+| `react-i18next` | A hand-written dictionary + hook; FormatJS (react-intl) | The most used React i18n library: plurals, values, `<Trans>` for links inside sentences, fallbacks. react-intl is equally good; i18next is simpler to start with |
+| Text in JS files (`en.js`, `kn.js`) | JSON files; a translation service (Crowdin, Lokalise) | Comments for translators, and no extra service. A service is worth it with many languages and professional translators |
+| Show the other language in its own script | A flag, or "Language" | Flags are countries, not languages; a reader of only Kannada recognises "ಕನ್ನಡ" |
 | System → Light → Dark cycle | A dropdown | One small icon in a crowded header; the tooltip says what the next click does |
 
 ## Concepts to be able to explain

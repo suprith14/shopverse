@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router';
 import { Loader2, Search, Tag, LayoutGrid } from 'lucide-react';
@@ -10,6 +11,7 @@ import { useSuggestions } from '../catalog.api';
 //  - Keyboard: ↑/↓ move, Enter opens the highlighted row (or searches), Esc closes.
 // className positions the box (the header uses it twice: inline on wide screens, own row on phones).
 export function SearchBox({ className = '' }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [params] = useSearchParams();
@@ -43,7 +45,7 @@ export function SearchBox({ className = '' }) {
       key: 'search',
       kind: 'search',
       to: `/shop?q=${encodeURIComponent(trimmed)}`,
-      label: `Search for "${trimmed}"`,
+      label: t('search.searchFor', { query: trimmed }),
     });
     if (data) {
       for (const c of data.categories)
@@ -51,11 +53,11 @@ export function SearchBox({ className = '' }) {
           key: `c-${c.slug}`,
           kind: 'category',
           to: `/shop?category=${c.slug}`,
-          label: c.name,
-          sub: 'Category',
+          label: t(`category.${c.slug}`, { defaultValue: c.name }),
+          sub: t('search.category'),
         });
       for (const b of data.brands)
-        rows.push({ key: `b-${b}`, kind: 'brand', to: `/shop?brand=${encodeURIComponent(b)}`, label: b, sub: 'Brand' });
+        rows.push({ key: `b-${b}`, kind: 'brand', to: `/shop?brand=${encodeURIComponent(b)}`, label: b, sub: t('search.brand') });
       for (const p of data.products)
         rows.push({
           key: p.id,
@@ -109,8 +111,8 @@ export function SearchBox({ className = '' }) {
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={onKeyDown}
-          placeholder="Search products, brands..."
-          aria-label="Search products"
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.label')}
           role="combobox"
           aria-expanded={showDropdown}
           aria-controls={listId}

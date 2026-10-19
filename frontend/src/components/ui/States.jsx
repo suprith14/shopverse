@@ -1,13 +1,15 @@
+import { useTranslation } from 'react-i18next';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { getErrorMessage } from '@/lib/format';
 import { isServerError } from '@/lib/server-error';
 
 // Reusable loading / error / empty states, so every page handles them the same way.
 
-export function Spinner({ label = 'Loading...' }) {
+export function Spinner({ label }) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center justify-center gap-2 py-16 text-slate-500">
-      <Loader2 className="size-5 animate-spin" /> {label}
+      <Loader2 className="size-5 animate-spin" /> {label ?? t('common.loading')}
     </div>
   );
 }
