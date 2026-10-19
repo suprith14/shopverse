@@ -39,5 +39,9 @@ export function useCouponPreview(code, subtotal) {
     // placeholderData = what to show while the real data loads
     // keepPreviousData = keep showing the old results while the new ones load
     placeholderData: keepPreviousData, // no flicker while the new total loads
+    // No error popup: the coupon box shows the reason right under the code ("This coupon has
+    // expired"), and the check re-runs whenever the cart total changes
+    // meta = extra info for the global error handler in main.jsx
+    meta: { errorPopup: false },
   });
 }

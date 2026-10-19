@@ -14,7 +14,7 @@ import { Header } from './Header';
 // import = bring in code from another file or package
 import { SlowServerBanner } from './SlowServerBanner';
 // import = bring in code from another file or package
-import { ServerErrorDialog } from './ServerErrorDialog';
+import { ApiErrorDialog } from './ApiErrorDialog';
 // import = bring in code from another file or package
 import { OnboardingDialog } from '@/features/onboarding/OnboardingDialog';
 // import = bring in code from another file or package
@@ -23,7 +23,7 @@ import { useSiteContent } from '@/content/use-site-content';
 import { useTheme } from '@/lib/theme';
 
 // The frame around every page: banner, header, the current page (<Outlet />), footer, plus the
-// popups that can appear anywhere (toasts, onboarding wizard, server-error dialog).
+// popups that can appear anywhere (toasts, onboarding wizard, API error dialog).
 // router.jsx uses it as the parent of every route.
 // export = other files can import this
 // function Name() = a React component (capital letter): returns what to show (JSX)
@@ -71,8 +71,8 @@ export function RootLayout() {
       <Toaster position="bottom-center" richColors closeButton duration={4000} theme={theme} />
       {/* The "set up your profile" wizard after sign-up (renders nothing until opened) */}
       <OnboardingDialog />
-      {/* "Something went wrong, retry" popup for server errors (5xx) */}
-      <ServerErrorDialog />
+      {/* The popup for every failed API request, with a message that fits the error */}
+      <ApiErrorDialog />
     </div>
   );
 }

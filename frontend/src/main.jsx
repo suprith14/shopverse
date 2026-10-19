@@ -14,7 +14,11 @@ import { RouterProvider } from 'react-router';
 // import = bring in code from another file or package
 // QueryClient = the cache that stores every server answer by its key
 // QueryClientProvider = makes the cache available to every component
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// QueryCache / MutationCache = the lists of all queries / mutations; their onError runs for EVERY one
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query';
+// import = bring in code from another file or package
+// reportApiError = open the error popup for this error (lib/api-error.js)
+import { reportApiError } from './lib/api-error';
 // import = bring in code from another file or package
 import './i18n'; // load translations before anything renders
 // import = bring in code from another file or package
@@ -28,6 +32,24 @@ import './index.css';
 // new = create an object from a class (e.g. new Date())
 // QueryClient = the cache that stores every server answer by its key
 const queryClient = new QueryClient({
+  // Any failed request -> the error popup (components/layout/ApiErrorDialog.jsx).
+  // onError here runs once per failure, AFTER retries. meta = extra info a query/mutation can
+  // carry: meta: { errorPopup: false } = "this screen explains the error itself, no popup".
+  // new = create an object from a class (e.g. new Date())
+  // => = an arrow function (a short function)
+  // ?. = optional chaining: stop (undefined) instead of crashing if the left side is null/undefined
+  // !== = not strictly equal
+  // a && b = AND; in JSX: show b only when a is true
+  queryCache: new QueryCache({ onError: (error, query) => query.meta?.errorPopup !== false && reportApiError(error) }),
+  // the same for mutations (the 4th argument is the mutation itself)
+  // new = create an object from a class (e.g. new Date())
+  // => = an arrow function (a short function)
+  mutationCache: new MutationCache({
+    // ?. = optional chaining: stop (undefined) instead of crashing if the left side is null/undefined
+    // !== = not strictly equal
+    // a && b = AND; in JSX: show b only when a is true
+    onError: (error, _variables, _context, mutation) => mutation.meta?.errorPopup !== false && reportApiError(error),
+  }),
   defaultOptions: {
     queries: {
       // staleTime = how long cached data counts as fresh (no refetch during that time)

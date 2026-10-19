@@ -6,7 +6,7 @@ import { AlertCircle, Loader2 } from 'lucide-react';
 // import = bring in code from another file or package
 import { getErrorMessage } from '@/lib/format';
 // import = bring in code from another file or package
-import { isServerError } from '@/lib/server-error';
+import { isServerError } from '@/lib/api-error';
 
 // Reusable loading / error / empty states, so every page handles them the same way.
 
@@ -41,7 +41,7 @@ export function Spinner({ label }) {
 export function ErrorState({ error }) {
   // if (...) = run the next part only when the condition is true
   // return = give this value back and stop the function here
-  if (isServerError(error)) return null; // the server-error popup explains it instead
+  if (isServerError(error)) return null; // the error popup explains it instead
   // return = give this value back and stop the function here
   return (
     // className = CSS classes (Tailwind) for this element (class is a JS keyword)

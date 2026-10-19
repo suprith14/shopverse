@@ -5,8 +5,6 @@ import axios from 'axios';
 import { useAuthStore } from '@/features/auth/auth.store';
 // import = bring in code from another file or package
 import { track } from './network-status';
-// import = bring in code from another file or package
-import { reportServerError } from './server-error';
 
 // A single axios instance used by every feature's *.api.ts file.
 // export = other files can import this
@@ -98,10 +96,8 @@ api.interceptors.response.use(
     // ?. = optional chaining: stop (undefined) instead of crashing if the left side is null/undefined
     const isAuthCall = original?.url?.startsWith('/auth/');
 
-    // The server failed (5xx): one popup for the whole page, see lib/server-error.js
-    // if (...) = run the next part only when the condition is true
-    // ?. = optional chaining: stop (undefined) instead of crashing if the left side is null/undefined
-    if (error.response?.status >= 500) reportServerError();
+    // Failures are NOT reported here: a query may retry, and this would fire on every attempt.
+    // TanStack Query reports each failure once, after retries (main.jsx -> lib/api-error.js).
 
     // if (...) = run the next part only when the condition is true
     // ?. = optional chaining: stop (undefined) instead of crashing if the left side is null/undefined
