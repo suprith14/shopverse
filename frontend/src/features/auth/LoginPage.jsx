@@ -1,3 +1,8 @@
+// /login: email + password. On success the API returns an access token (kept in memory) and
+// sets the refresh cookie; then we go back to the page that sent us here.
+// 5 wrong passwords lock the account for 15 minutes (server side); the page then shows a live
+// countdown instead of an error.
+
 import { Trans, useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
@@ -16,12 +21,14 @@ export function LoginPage() {
   const location = useLocation();
   // If the user was redirected here from a protected page, send them back after login.
   const from = location.state?.from ?? '/';
+  // the POST /api/auth/login call with its loading/error state (auth.api.js)
   const login = useLogin();
   const retry = useRetryCountdown(login.error); // 429 -> live "try again in 14:05"
   const [form, setForm] = useState({ email: '', password: '' });
 
   const onSubmit = (e) => {
     e.preventDefault();
+    // replace: Back won't return to the login form after logging in
     login.mutate(form, { onSuccess: () => navigate(from, { replace: true }) });
   };
 
@@ -61,6 +68,7 @@ export function LoginPage() {
           name="password"
           type="password"
           required
+          // password managers fill the saved password
           autoComplete="current-password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -70,11 +78,13 @@ export function LoginPage() {
             {t('auth.forgotPassword')}
           </Link>
         </div>
+        {/* Disabled while locked out; the label shows the countdown */}
         <Button type="submit" className="w-full" loading={login.isPending} disabled={retry.blocked}>
           {retry.blocked ? t('auth.tryAgainIn', { time: retry.label }) : t('auth.loginTitle')}
         </Button>
       </form>
 
+      {/* Demo login for visitors and recruiters. "Fill in" types it into the form for them. */}
       <div className="mt-4 rounded-lg bg-brand-50 p-3 text-xs text-brand-700 dark:text-brand-300">
         <Trans
           i18nKey="auth.demoAccount"

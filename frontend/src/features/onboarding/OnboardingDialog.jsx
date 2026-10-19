@@ -37,6 +37,7 @@ export function OnboardingDialog() {
     if (!open && dialog.open) dialog.close();
   }, [open]);
 
+  // Move between steps without going past the first or the last
   const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
   const back = () => setStep((s) => Math.max(s - 1, 0));
 
@@ -92,6 +93,7 @@ export function OnboardingDialog() {
   );
 }
 
+// The buttons at the bottom of each step: Back on the left, Skip + the step's main button on the right
 function StepFooter({ onBack, onSkip, children }) {
   const { t } = useTranslation();
   return (
@@ -113,6 +115,7 @@ function StepFooter({ onBack, onSkip, children }) {
   );
 }
 
+// Icon + title + one line of explanation at the top of each step
 function StepIntro({ icon: Icon, title, text }) {
   return (
     <div className="mb-4 flex gap-3">
@@ -178,6 +181,7 @@ function PhoneStep({ initial, onNext, onBack }) {
 
   const submit = (e) => {
     e.preventDefault();
+    // left empty = skipped: nothing to save
     if (!phone.trim()) return onNext();
     // The backend cleans it up ("+91 98765-43210" -> "+919876543210") and explains bad formats.
     update.mutate({ phone: phone.trim() }, { onSuccess: onNext });
@@ -220,6 +224,7 @@ function BirthdayStep({ initial, onNext, onBack }) {
 
   const submit = (e) => {
     e.preventDefault();
+    // left empty = skipped: nothing to save
     if (!date) return onNext();
     update.mutate({ dateOfBirth: date }, { onSuccess: onNext }); // backend checks it's a real date and age 13+
   };
@@ -238,6 +243,7 @@ function BirthdayStep({ initial, onNext, onBack }) {
         type="date"
         value={date}
         onChange={(e) => setDate(e.target.value)}
+        // no birthdays in the future (today as YYYY-MM-DD)
         max={new Date().toISOString().slice(0, 10)}
         autoComplete="bday"
       />

@@ -16,6 +16,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
   const [showAll, setShowAll] = useState(false);
 
   // Pre-select the default address once the profile loads (or if the chosen one was deleted).
+  // Pick an address automatically: the default one, or again if the chosen one was deleted
   useEffect(() => {
     if (!profile) return;
     if (!value || !profile.addresses.some((a) => a.id === value)) onChange(profile.defaultAddressId);
@@ -27,6 +28,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
   const noAddresses = profile.addresses.length === 0;
 
   // No address yet, or "add new" clicked: show the form. A new address becomes the choice.
+  // No saved address (or "Add a new address" clicked): show the address form right here
   if (noAddresses || adding) {
     return (
       <div className="space-y-2">
@@ -42,6 +44,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
               onSuccess: (p) => {
                 // The new address is the one whose id wasn't in the list before.
                 const before = new Set(profile.addresses.map((a) => a.id));
+                // the new address = the one that wasn't there before saving; select it
                 const created = p.addresses.find((a) => !before.has(a.id));
                 onChange(created?.id ?? p.defaultAddressId);
                 setAdding(false);
@@ -55,6 +58,7 @@ export function DeliveryAddressPicker({ value, onChange }) {
   }
 
   // Collapsed: show the chosen address with a "Change" link (like most stores).
+  // Normal case: show just the chosen address with a "Change" link
   if (!showAll && selected) {
     return (
       <div className="space-y-2">

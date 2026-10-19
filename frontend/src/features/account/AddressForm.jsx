@@ -1,3 +1,7 @@
+// The address form (receiver, phone, address lines, city, state, postcode, country, label).
+// Used to add/edit addresses on My account and to add one during checkout. It only collects
+// the fields: the parent decides what saving means (onSubmit) and shows saving/errors.
+
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -9,6 +13,7 @@ import { COUNTRIES, countryName } from './countries';
 // Validation messages come from the backend (e.g. "Postcode should look like 560001").
 export function AddressForm({ address, defaultName, defaultPhone, saving, error, submitLabel, onSubmit, onCancel }) {
   const { t } = useTranslation();
+  // Start from the address being edited, or empty (name/phone prefilled from the profile)
   const [form, setForm] = useState({
     label: address?.label ?? '',
     fullName: address?.fullName ?? defaultName ?? '',
@@ -20,10 +25,12 @@ export function AddressForm({ address, defaultName, defaultPhone, saving, error,
     postalCode: address?.postalCode ?? '',
     country: address?.country ?? 'IN',
   });
+  // set({ city: 'Mysuru' }) changes one field and keeps the rest
   const set = (patch) => setForm((f) => ({ ...f, ...patch }));
 
   const submit = (e) => {
     e.preventDefault();
+    // empty optional fields are sent as null, not ""
     onSubmit({ ...form, label: form.label.trim() || null, line2: form.line2.trim() || null });
   };
 
@@ -56,6 +63,7 @@ export function AddressForm({ address, defaultName, defaultPhone, saving, error,
         value={form.line1}
         onChange={(e) => set({ line1: e.target.value })}
         placeholder={t('address.line1Placeholder')}
+        // autoComplete lets the browser fill the whole address in one tap
         autoComplete="address-line1"
       />
       <Input

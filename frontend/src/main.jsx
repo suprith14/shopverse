@@ -1,3 +1,7 @@
+// The app's starting point: Vite loads this file first (index.html has <script src="/src/main.jsx">).
+// It creates the React root, plugs in the data cache (TanStack Query) and the router, and removes
+// the start-up loader once the first frame is painted.
+
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
@@ -6,16 +10,22 @@ import './i18n'; // load translations before anything renders
 import { router } from './router';
 import './index.css';
 
+// One cache for all server data (products, cart, orders...). Components ask for data with
+// useQuery(); the cache shares one request between components and remembers the answer.
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 60 * 1000, // treat data as fresh for 1 minute
+      // a failed request is tried once more before showing an error
       retry: 1,
+      // don't reload everything each time the tab is focused
       refetchOnWindowFocus: false,
     },
   },
 });
 
+// Mount React into <div id="root">. StrictMode runs extra checks while developing (only in dev).
+// QueryClientProvider makes the cache available everywhere; RouterProvider shows the page for the URL.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>

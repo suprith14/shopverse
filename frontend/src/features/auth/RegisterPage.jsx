@@ -1,3 +1,8 @@
+// /register: create an account (name, email, password).
+// On success the API logs the new user straight in, the page goes home and the
+// "set up your profile" wizard opens. Validation rules live on the backend (auth.schema.js);
+// the required/minLength attributes here only give quick feedback in the browser.
+
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
@@ -11,14 +16,19 @@ import { useOnboardingStore } from '@/features/onboarding/onboarding.store';
 export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  // the API call + its loading/error state (features/auth/auth.api.js)
   const register = useRegister();
+  // opens the profile wizard (features/onboarding/)
   const startOnboarding = useOnboardingStore((s) => s.start);
+  // one object for all fields; each input updates its own key
   const [form, setForm] = useState({ name: '', email: '', password: '' });
 
   const onSubmit = (e) => {
+    // stop the browser's own form submit (page reload); React handles it
     e.preventDefault();
     register.mutate(form, {
       onSuccess: () => {
+        // replace: Back won't return to the sign-up form
         navigate('/', { replace: true });
         startOnboarding(); // the "set up your profile" wizard, only after creating an account
       },
@@ -32,6 +42,7 @@ export function RegisterPage() {
       <p className="mt-1 text-sm text-slate-500">{t('auth.createSubtitle')}</p>
 
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
+        {/* e.g. "An account with this email already exists" from the API */}
         {register.isError && <ErrorState error={register.error} />}
         <Input
           label={t('auth.name')}
@@ -57,6 +68,7 @@ export function RegisterPage() {
           type="password"
           required
           minLength={8}
+          // lets the browser suggest a strong password
           autoComplete="new-password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}

@@ -17,11 +17,14 @@ export function WishlistButton({ productId, className = '' }) {
   // Optimistic UI, the simple way: while the request is running, show what the user
   // asked for. When it finishes, the real data from the server takes over.
   // If the request fails, it falls back to the real (unchanged) data on its own.
+  // While the request runs, show the NEW state already (feels instant); otherwise what the server says
   const saved = toggle.isPending ? toggle.variables.save : savedIds.has(productId);
 
   const onClick = (e) => {
     // On a product card the heart sits inside a link. Don't open the product page.
+    // the button sits inside a product card link: don't open the product
     e.preventDefault();
+    // and don't let the click reach the card
     e.stopPropagation();
     if (status !== 'authenticated') {
       navigate('/login', { state: { from: location.pathname + location.search } });
@@ -43,6 +46,7 @@ export function WishlistButton({ productId, className = '' }) {
   return (
     <button
       onClick={onClick}
+      // screen readers announce it as a toggle: pressed = saved
       aria-pressed={saved}
       aria-label={saved ? t('wishlist.remove') : t('wishlist.save')}
       title={saved ? t('wishlist.remove') : t('wishlist.save')}

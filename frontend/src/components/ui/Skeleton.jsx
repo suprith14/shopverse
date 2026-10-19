@@ -1,3 +1,7 @@
+// Grey placeholder shapes shown while data loads, shaped like the real content (a product grid,
+// the product page, a list). Feels faster than a spinner and the page doesn't jump when data
+// arrives. The pulse animation is off for people who chose "reduce motion" (motion-safe:).
+
 import { useTranslation } from 'react-i18next';
 // Skeletons: grey shapes in the layout of the real content, shown while it loads.
 // Compared with a spinner, the page doesn't jump when data arrives (no "layout shift") and it

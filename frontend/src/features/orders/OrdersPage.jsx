@@ -10,6 +10,7 @@ import { PageTitle } from '@/components/layout/PageTitle';
 
 
 // "My orders": every order, newest first.
+// Data: useOrders() -> GET /api/orders, only THIS user's orders (the server filters by the login token).
 export function OrdersPage() {
   const { t } = useTranslation();
   const { data: orders, isLoading, isError, error } = useOrders();
@@ -37,6 +38,7 @@ export function OrdersPage() {
             <li key={order.id}>
               <Link to={`/orders/${order.id}`} className="flex items-center gap-4 p-4 hover:bg-slate-50">
                 <div className="flex -space-x-3">
+                  {/* Up to 3 product photos, overlapping (-space-x-3); the border keeps them apart */}
                   {order.items.slice(0, 3).map((item) => (
                     <div
                       key={item.id}
@@ -49,6 +51,7 @@ export function OrdersPage() {
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{order.items.map((i) => i.productName).join(', ')}</p>
                   <p className="text-sm text-slate-500">
+                    {/* date in the reader's language; the order number is the last 8 characters of its id */}
                     {formatDate(order.createdAt)} · #{order.id.slice(-8).toUpperCase()}
                   </p>
                 </div>

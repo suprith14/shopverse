@@ -1,3 +1,8 @@
+// /products/:slug: one product. Photos, price, options (sizes/colours = variants), quantity,
+// Add to cart, details and reviews.
+// The page is split in parts: ProductDetailPage loads the data, ProductView shows it, AddToCart
+// handles the quantity and the cart call, Attributes lists the product details.
+
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
@@ -16,7 +21,9 @@ import { notify } from '@/lib/notify';
 import { PageTitle } from '@/components/layout/PageTitle';
 
 export function ProductDetailPage() {
+  // the :slug part of the URL, e.g. "air-stride-runner"
   const { slug = '' } = useParams();
+  // GET /api/catalog/products/:slug (catalog.api.js)
   const { data: product, isLoading, isError, error } = useProduct(slug);
 
   if (isLoading) return <ProductDetailSkeleton />;
@@ -27,14 +34,17 @@ export function ProductDetailPage() {
 
 function ProductView({ product }) {
   const { t } = useTranslation();
+  // which photo is shown big
   const [imageIndex, setImageIndex] = useState(0);
   // Default to the first variant that is in stock.
   const [variantId, setVariantId] = useState((product.variants.find((v) => v.stock > 0) ?? product.variants[0])?.id);
+  // the chosen option: its price and stock are what the page shows
   const variant = product.variants.find((v) => v.id === variantId);
 
   return (
     <div className="space-y-4">
       <PageTitle title={product.name} />
+      {/* Breadcrumb: Shop / Category / Product name */}
       <nav className="text-sm text-slate-500">
         <Link to="/shop" className="hover:underline">
           {t('nav.shop')}
@@ -84,6 +94,7 @@ function ProductView({ product }) {
           <div>
             <h2 className="mb-2 text-sm font-semibold">{t('product.chooseOption')}</h2>
             <div className="flex flex-wrap gap-2">
+              {/* One button per option; sold-out options are disabled and struck through */}
               {product.variants.map((v) => (
                 <button
                   key={v.id}
@@ -103,6 +114,7 @@ function ProductView({ product }) {
               <p
                 className={`mt-2 text-sm ${variant.stock > 0 && variant.stock <= 5 ? 'text-amber-600' : 'text-slate-500'}`}
               >
+                {/* "Only 3 left!" in amber when 5 or fewer remain (a gentle nudge, and true) */}
                 {variant.stock === 0
                   ? t('product.outOfStock')
                   : variant.stock <= 5
@@ -119,6 +131,7 @@ function ProductView({ product }) {
         </div>
       </div>
 
+      {/* Reviews load separately, so the product shows first */}
       <ProductReviews productId={product.id} />
     </div>
   );
@@ -132,8 +145,10 @@ function AddToCart({ variant, productName }) {
   const status = useAuthStore((s) => s.status);
   const navigate = useNavigate();
   const location = useLocation();
+  // POST /api/cart/items; on success the cart badge in the header updates (cart.api.js)
   const addToCart = useAddToCart();
   const [quantity, setQuantity] = useState(1);
+  // the + button stops at the stock or at 10, whichever is lower
   const max = Math.max(1, Math.min(variant?.stock ?? 1, MAX_PER_ITEM));
 
   const onClick = () => {
@@ -156,6 +171,7 @@ function AddToCart({ variant, productName }) {
     );
   };
 
+  // no option chosen, or it has no stock: the button is disabled
   const soldOut = !variant || variant.stock === 0;
 
   return (
@@ -199,6 +215,7 @@ function AddToCart({ variant, productName }) {
 // Renders category-specific details: author/pages for books, specs for electronics, etc.
 function Attributes({ attributes }) {
   const { t } = useTranslation();
+  // { author: "X", specs: { ram: "8 GB" } } -> [["author","X"], ["ram","8 GB"]]: one flat list of rows
   const flat = Object.entries(attributes).flatMap(([key, value]) =>
     value && typeof value === 'object' ? Object.entries(value) : [[key, value]],
   );

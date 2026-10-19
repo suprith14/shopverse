@@ -7,6 +7,7 @@ import { useCategories } from '../catalog.api';
 export function CategoryTabs({ active, facets, onChange }) {
   const { t } = useTranslation();
   const { data: categories = [] } = useCategories();
+  // slug -> number of results, from the product list's facets
   const countBySlug = new Map(facets?.categories.map((c) => [c.slug, c.count]));
   const total = facets?.categories.reduce((sum, c) => sum + c.count, 0);
   const tabs = [

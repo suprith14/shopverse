@@ -1,3 +1,8 @@
+// /account ("My account"): profile photo, details, delivery addresses, password, project guide.
+// Each card is its own small component below (PhotoSection, DetailsSection, AddressBook,
+// PasswordSection, GuideSection) with its own save button, loading state and errors, so a
+// problem in one never blocks the others. All data: useProfile() -> GET /api/profile.
+
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { BookOpen, Camera, KeyRound, Lock, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
@@ -23,6 +28,7 @@ import {
   useUploadAvatar,
 } from './account.api';
 
+// The page: loads the profile once and hands it to each card.
 export function AccountPage() {
   const { t } = useTranslation();
   const { data: profile, isLoading, isError, error } = useProfile();
@@ -61,6 +67,7 @@ function GuideSection() {
   );
 }
 
+// The white card with an icon + title that every section uses
 function Section({ title, icon: Icon, children }) {
   return (
     <section className="rounded-xl border border-slate-200 bg-surface p-5">
@@ -86,6 +93,7 @@ function PhotoSection({ profile }) {
   // Quick checks in the browser, so a 40 MB file fails instantly instead of after a long upload.
   // (Cloudinary enforces the formats too: the browser check is only for convenience.)
   // From the camera or a file: the same checks either way
+  // Checked here first for a quick message; the server and Cloudinary check again
   const onPick = (file) => {
     setLocalError(null);
     if (!PHOTO_TYPES.includes(file.type)) return setLocalError(t('account.photoType'));
@@ -201,8 +209,10 @@ function PasswordSection() {
   const { t } = useTranslation();
   const change = useChangePassword();
   const [form, setForm] = useState({ currentPassword: '', newPassword: '', confirm: '' });
+  // "Show passwords" checkbox: switches the inputs between type="password" and type="text"
   const [show, setShow] = useState(false);
   // Checked in the browser for instant feedback; the server checks the real rules.
+  // only complain once something was typed in "Confirm"
   const mismatch = form.confirm.length > 0 && form.confirm !== form.newPassword;
 
   const submit = (e) => {
@@ -268,8 +278,10 @@ function PasswordSection() {
   );
 }
 
+// The list of saved addresses (max 10) + "Add address".
 function AddressBook({ profile }) {
   const { t } = useTranslation();
+  // true while the "new address" form is open
   const [adding, setAdding] = useState(false);
   const add = useAddAddress();
 
@@ -316,8 +328,10 @@ function AddressBook({ profile }) {
   );
 }
 
+// One saved address: shown normally, or as the edit form when "Edit" is clicked.
 function AddressRow({ address }) {
   const { t } = useTranslation();
+  // true while this address is shown as the edit form
   const [editing, setEditing] = useState(false);
   const update = useUpdateAddress();
   const setDefault = useSetDefaultAddress();

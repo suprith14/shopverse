@@ -13,6 +13,7 @@ import { ReviewForm } from './ReviewForm';
 // The "Customer reviews" section at the bottom of a product page.
 export function ProductReviews({ productId }) {
   const { t } = useTranslation();
+  // which page of reviews (newest first)
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, error, isFetching } = useReviews(productId, page);
 
@@ -37,6 +38,7 @@ export function ProductReviews({ productId }) {
             <ul className="space-y-1.5">
               {[5, 4, 3, 2, 1].map((star) => {
                 const count = data.distribution[star];
+                // share of reviews with this many stars, for the bar
                 const percent = data.ratingCount ? Math.round((count / data.ratingCount) * 100) : 0;
                 return (
                   <li key={star} className="flex items-center gap-2 text-sm">
@@ -106,6 +108,7 @@ function MyReviewBox({ productId }) {
   const { data: mine } = useMyReview(productId);
   const [editing, setEditing] = useState(false);
 
+  // Guests: "Log in to review this product"
   if (status === 'guest') {
     return (
       <p className="text-sm text-slate-600">
@@ -136,6 +139,7 @@ function MyReviewBox({ productId }) {
       </Button>
     );
   }
+  // Bought it and no review yet: "Write a review"
   if (mine.canReview) {
     return (
       <Button className="w-full" onClick={() => setEditing(true)}>
@@ -143,5 +147,6 @@ function MyReviewBox({ productId }) {
       </Button>
     );
   }
+  // Otherwise the server says why not (e.g. "Only customers who bought this can review it")
   return <p className="text-sm text-slate-500">{mine.reason}</p>;
 }

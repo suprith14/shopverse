@@ -1,8 +1,13 @@
+// The filter panel on /shop: brand, price range, minimum rating, "Clear all filters".
+// It doesn't fetch anything itself: it calls onChange({ brand: ... }) and CatalogPage puts that
+// into the URL. The numbers next to each option (facets) come with the product list.
+
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
+// the API speaks cents, people type dollars: "12.50" <-> 1250
 const toCents = (dollars) => (dollars === '' ? undefined : Math.round(Number(dollars) * 100));
 const toDollars = (cents) => (cents === undefined ? '' : String(cents / 100));
 

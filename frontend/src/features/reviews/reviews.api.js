@@ -1,7 +1,16 @@
+// Reviews: list per product, "my review", save and delete.
+// How these *.api.js files work (TanStack Query):
+//   useQuery    = READ data. queryKey names the data in the cache; the same key anywhere = the same
+//                 cached answer, fetched once. enabled: false = don't ask yet (e.g. not logged in).
+//   useMutation = CHANGE data (POST/PUT/DELETE). onSuccess updates or refreshes ("invalidates")
+//                 the cached queries, so every screen showing that data updates by itself.
+// The user id is part of the key, so one user's cached data is never shown to the next.
+
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { useAuthStore } from '@/features/auth/auth.store';
 
+// Public: one page of reviews for a product, with the star summary
 export function useReviews(productId, page) {
   return useQuery({
     queryKey: ['reviews', productId, page],
@@ -10,6 +19,7 @@ export function useReviews(productId, page) {
   });
 }
 
+// Logged in: my review of this product, and whether I may write one (only after buying it)
 export function useMyReview(productId) {
   const userId = useAuthStore((s) => s.user?.id);
   return useQuery({
@@ -32,6 +42,7 @@ function useRefreshAfterReviewChange(productId) {
   };
 }
 
+// Create or update my review (PUT = "set it to this", so the same call does both)
 export function useSaveReview(productId) {
   const refresh = useRefreshAfterReviewChange(productId);
   return useMutation({

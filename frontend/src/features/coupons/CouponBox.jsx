@@ -18,6 +18,7 @@ export function CouponBox({ preview }) {
   };
 
   // No coupon applied yet: show the input.
+  // No coupon yet: a text field + Apply. Applying only stores the code; the cart page asks the server.
   if (!code) {
     return (
       <form onSubmit={onSubmit} className="flex gap-2">
@@ -38,6 +39,7 @@ export function CouponBox({ preview }) {
   // Coupon applied: show it as a chip, with either the saving or why it doesn't work.
   return (
     <div
+      // red box if the server refused the code (expired, minimum not reached...), green with the saving if accepted
       className={`rounded-lg border p-3 text-sm ${preview.isError ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}
     >
       <div className="flex items-center justify-between">

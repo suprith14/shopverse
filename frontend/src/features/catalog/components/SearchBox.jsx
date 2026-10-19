@@ -15,6 +15,7 @@ export function SearchBox({ className = '' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [params] = useSearchParams();
+  // on /shop?q=… the box shows the current search; elsewhere it starts empty
   const urlQuery = location.pathname === '/shop' ? (params.get('q') ?? '') : '';
 
   const [text, setText] = useState(urlQuery);
@@ -39,6 +40,7 @@ export function SearchBox({ className = '' }) {
   }, []);
 
   const trimmed = text.trim();
+  // The dropdown rows, in order: "Search for …", then matching categories, brands and products.
   const rows = [];
   if (trimmed.length >= 2) {
     rows.push({
@@ -82,6 +84,7 @@ export function SearchBox({ className = '' }) {
     go(trimmed ? `/shop?q=${encodeURIComponent(trimmed)}` : '/shop');
   };
 
+  // Arrow keys move through the rows, Enter opens the highlighted one, Escape closes the list
   const onKeyDown = (e) => {
     if (e.key === 'ArrowDown') {
       e.preventDefault();
@@ -113,6 +116,7 @@ export function SearchBox({ className = '' }) {
           onKeyDown={onKeyDown}
           placeholder={t('search.placeholder')}
           aria-label={t('search.label')}
+          // ARIA combobox pattern: screen readers announce the list and the highlighted row
           role="combobox"
           aria-expanded={showDropdown}
           aria-controls={listId}
@@ -140,6 +144,7 @@ export function SearchBox({ className = '' }) {
               aria-selected={i === active}
               onMouseEnter={() => setActive(i)}
               // mousedown (not click) fires before the input loses focus, so the dropdown is still there
+              // mousedown (not click) fires before the input loses focus, so the list is still there
               onMouseDown={(e) => {
                 e.preventDefault();
                 go(row.to);

@@ -15,6 +15,7 @@ import { useForgotPassword, useResetPassword } from './auth.api';
 export function ForgotPasswordPage() {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
+  // 'email' = ask for the email; 'code' = enter the code + new password
   const [step, setStep] = useState('email');
 
   return (
@@ -36,6 +37,7 @@ export function ForgotPasswordPage() {
   );
 }
 
+// Step 1: the email. The server answers the same way whether or not the account exists.
 function EmailStep({ email, setEmail, onSent }) {
   const { t } = useTranslation();
   const forgot = useForgotPassword();
@@ -64,10 +66,12 @@ function EmailStep({ email, setEmail, onSent }) {
   );
 }
 
+// Step 2: the 6-digit code from the email and the new password. Success logs the user in.
 function CodeStep({ email, onChangeEmail }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const reset = useResetPassword();
+  // "Send a new code" calls the same endpoint again (limited to one email a minute)
   const resend = useForgotPassword();
   const [form, setForm] = useState({ code: '', newPassword: '', confirm: '' });
   const mismatch = form.confirm.length > 0 && form.confirm !== form.newPassword;

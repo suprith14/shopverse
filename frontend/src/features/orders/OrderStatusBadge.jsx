@@ -1,4 +1,8 @@
+// The coloured pill showing an order's state: Awaiting payment, Paid, Shipped, Delivered...
+// Colour + text together (never colour alone), so it's readable without seeing colour.
+
 import { useTranslation } from 'react-i18next';
+// Colours per status. They have dark-mode versions too (index.css).
 // Labels: orders.status.* (i18n)
 const styles = {
   PENDING: 'bg-amber-100 text-amber-800',

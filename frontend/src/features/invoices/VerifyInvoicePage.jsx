@@ -15,6 +15,7 @@ import { useSiteContent } from '@/content/use-site-content';
 export function VerifyInvoicePage() {
   const { t } = useTranslation();
   const { brand } = useSiteContent();
+  // the secret 48-character code from the QR link (not the invoice number, which is guessable)
   const { token = '' } = useParams();
   const { data, isLoading, error } = useQuery({
     queryKey: ['verify-invoice', token],
@@ -22,6 +23,7 @@ export function VerifyInvoicePage() {
     retry: false, // "not found" won't change by asking again
   });
 
+  // unknown or malformed code = "not found"; anything else = "could not check right now"
   const notFound = isAxiosError(error) && (error.response?.status === 404 || error.response?.status === 400);
 
   return (
@@ -78,6 +80,7 @@ export function VerifyInvoicePage() {
   );
 }
 
+// One "label: value" line in the details box
 function Row({ label, value }) {
   return (
     <div className="flex justify-between gap-4 px-4 py-2.5">

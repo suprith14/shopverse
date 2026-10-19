@@ -8,7 +8,10 @@ import { create } from 'zustand';
 export const useAuthStore = create((set) => ({
   user: null,
   accessToken: null,
+  // 'loading' until the first refresh answers, then 'authenticated' or 'guest'
   status: 'loading',
+  // after login, register, refresh or password reset
   setSession: (user, accessToken) => set({ user, accessToken, status: 'authenticated' }),
+  // after logout, or when the refresh fails
   clearSession: () => set({ user: null, accessToken: null, status: 'guest' }),
 }));

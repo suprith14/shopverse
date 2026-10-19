@@ -19,6 +19,7 @@ export function Header() {
   const { brand } = useSiteContent();
   const { user, status } = useAuthStore();
   const logout = useLogout();
+  // for the number on the cart icon (only fetched when logged in)
   const { data: cart } = useCart();
   const { data: profile } = useProfile(); // for the photo next to the name
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +34,9 @@ export function Header() {
     return () => window.removeEventListener('keydown', onKey);
   }, [menuOpen]);
 
+  // status is 'loading' until the first refresh answers: show neither guest nor user buttons yet
   const loggedIn = status === 'authenticated' && !!user;
+  // NavLink passes isActive: the current page's link is highlighted
   const navClass = ({ isActive }) =>
     `text-sm font-medium ${isActive ? 'text-brand-600 dark:text-brand-300' : 'text-slate-600 hover:text-slate-900'}`;
   const iconLink = 'rounded-lg p-2 text-slate-600 hover:bg-slate-100';
@@ -51,6 +54,7 @@ export function Header() {
           </NavLink>
         </nav>
 
+        {/* Wide screens: search in the header row (phones get their own row below) */}
         <SearchBox className="ml-auto hidden max-w-sm flex-1 md:block" />
 
         <div className="ml-auto flex items-center gap-1 md:ml-0 md:gap-3">
@@ -71,6 +75,7 @@ export function Header() {
               <ShoppingCart className="size-5" />
               {!!cart?.itemCount && (
                 <span className="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-brand-600 text-xs font-semibold text-white">
+                  {/* Badge with the number of items; "9+" keeps it small */}
                   {cart.itemCount > 9 ? '9+' : cart.itemCount}
                 </span>
               )}
@@ -106,6 +111,7 @@ export function Header() {
               <LogOut className="size-4" />
             </button>
           )}
+          {/* Not logged in: a Log in button (hidden while the login check is still running) */}
           {status === 'guest' && (
             <Link
               to="/login"

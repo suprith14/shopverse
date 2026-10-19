@@ -5,6 +5,7 @@ import { isServerError } from '@/lib/server-error';
 
 // Reusable loading / error / empty states, so every page handles them the same way.
 
+// While data loads (pass a label like "Loading addresses...", or get the default text)
 export function Spinner({ label }) {
   const { t } = useTranslation();
   return (
@@ -14,6 +15,8 @@ export function Spinner({ label }) {
   );
 }
 
+// A red box with a readable message for a failed request. Server failures (5xx) are left to the
+// global "Something went wrong" popup instead, so the page doesn't show both.
 export function ErrorState({ error }) {
   if (isServerError(error)) return null; // the server-error popup explains it instead
   return (
@@ -23,6 +26,7 @@ export function ErrorState({ error }) {
   );
 }
 
+// When a list has nothing in it yet ("Your cart is empty"), with an optional hint
 export function EmptyState({ title, hint }) {
   return (
     <div className="rounded-xl border border-dashed border-slate-300 bg-surface py-16 text-center">

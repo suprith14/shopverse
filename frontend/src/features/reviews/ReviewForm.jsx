@@ -1,3 +1,7 @@
+// Write or edit my review: star picker, title, text; Delete when editing.
+// Shown on the product page (ProductReviews) only to customers who bought the product; the server
+// checks that again. Saving refreshes the reviews, the average and the stars on product cards.
+
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Star } from 'lucide-react';
@@ -12,6 +16,7 @@ import { notify } from '@/lib/notify';
 export function ReviewForm({ productId, existing, onDone }) {
   const { t } = useTranslation();
   const [rating, setRating] = useState(existing?.rating ?? 0);
+  // the star under the mouse: hovering previews a rating before clicking
   const [hover, setHover] = useState(0);
   const [title, setTitle] = useState(existing?.title ?? '');
   const [body, setBody] = useState(existing?.body ?? '');
@@ -31,6 +36,7 @@ export function ReviewForm({ productId, existing, onDone }) {
     );
   };
 
+  // what the stars show: the hovered rating, else the chosen one
   const shown = hover || rating;
 
   return (
@@ -48,6 +54,7 @@ export function ReviewForm({ productId, existing, onDone }) {
               onClick={() => setRating(n)}
               onMouseEnter={() => setHover(n)}
               aria-label={t('reviewForm.stars', { count: n })}
+              // each star is a button: works with the keyboard, announced as pressed/not
               aria-pressed={rating === n}
             >
               <Star
@@ -99,6 +106,7 @@ export function ReviewForm({ productId, existing, onDone }) {
             className="ml-auto text-red-600 hover:bg-red-50"
             loading={remove.isPending}
             onClick={() => {
+              // deleting a review can't be undone, so it asks first
               if (confirm(t('reviewForm.confirmDelete')))
                 remove.mutate(undefined, {
                   onSuccess: () => {

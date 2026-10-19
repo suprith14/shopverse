@@ -10,6 +10,7 @@ export function AddressLines({ address }) {
       <p>
         {address.city}, {address.state} {address.postalCode}
       </p>
+      {/* "IN" -> "India" / "ಭಾರತ" in the reader's language (countries.js) */}
       <p>{countryName(address.country)}</p>
       <p className="text-slate-500">{address.phone}</p>
     </div>

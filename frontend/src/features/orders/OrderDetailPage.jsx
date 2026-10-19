@@ -31,6 +31,7 @@ export function OrderDetailPage() {
 
   // Once paid, the backend has emptied the bought items from the cart and the coupon is
   // used up. Refresh the cart (header badge) and forget the coupon code.
+  // Once paid: refresh the cart badge (bought items left the cart), the orders list, and forget the coupon
   const isPaid = order?.status === 'PAID';
   useEffect(() => {
     if (!isPaid) return;
@@ -119,6 +120,7 @@ export function OrderDetailPage() {
   );
 }
 
+// The coloured message at the top: what happened to this order and what the customer can do now.
 function StatusBanner({ order, payment }) {
   const { t } = useTranslation();
   const pay = usePayOrder();
@@ -198,6 +200,7 @@ function StatusBanner({ order, payment }) {
   }
 }
 
+// Border, background and text colour per banner type (all have dark-mode versions)
 const tones = {
   green: 'border-green-200 bg-green-50 text-green-900',
   blue: 'border-blue-200 bg-blue-50 text-blue-900',
@@ -206,6 +209,7 @@ const tones = {
   purple: 'border-purple-200 bg-purple-50 text-purple-900',
 };
 
+// The banner box itself: icon on the left, title + text on the right
 function Banner({ tone, icon, title, children }) {
   return (
     <div className={`flex gap-3 rounded-xl border p-4 ${tones[tone]}`}>
@@ -227,6 +231,7 @@ function PaymentDetails({ order }) {
       ? `${order.cardBrand.charAt(0).toUpperCase()}${order.cardBrand.slice(1)} •••• ${order.cardLast4}`
       : t('orders.cardViaStripe');
 
+  // The PDF needs the login token, so it's fetched with it and saved as a file (lib/download.js)
   const download = async () => {
     setDownloading(true);
     try {

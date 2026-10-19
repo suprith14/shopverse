@@ -1,3 +1,7 @@
+// /shop: the product list with category tabs, filters, sorting, search results and pages.
+// Every filter lives in the URL, so a filtered page can be shared, bookmarked, reloaded, and the
+// Back button works. useProducts(filters) asks the API for exactly what the URL says.
+
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router';
@@ -11,6 +15,7 @@ import { Pagination } from './components/Pagination';
 import { ProductCard } from './components/ProductCard';
 import { PageTitle } from '@/components/layout/PageTitle';
 
+// "25" -> 25, missing or empty -> undefined (= no filter)
 const num = (v) => (v === null || v === '' ? undefined : Number(v));
 
 // The URL is the single source of truth for filters: /shop?category=books&sort=price_asc&page=2
@@ -30,10 +35,12 @@ function useFiltersFromUrl() {
     page: num(params.get('page')) ?? 1,
   };
 
+  // Change some filters, e.g. update({ sort: "price_asc" }): writes a new URL, which triggers a new query.
   const update = (patch) => {
     const next = { ...filters, page: 1, ...patch }; // any filter change resets to page 1
     const search = new URLSearchParams();
     for (const [key, value] of Object.entries(next)) {
+      // keep the URL short: skip empty filters and page=1
       if (value !== undefined && value !== '' && !(key === 'page' && value === 1)) search.set(key, String(value));
     }
     setParams(search);
@@ -53,8 +60,11 @@ function useFiltersFromUrl() {
 export function CatalogPage() {
   const { t } = useTranslation();
   const { filters, update, reset } = useFiltersFromUrl();
+  // isFetching = a new page/filter is loading while the old results are still shown
   const { data, isLoading, isError, error, isFetching } = useProducts(filters);
+  // phones only: is the filter panel open?
   const [showFilters, setShowFilters] = useState(false);
+  // how many filters are on, shown as a badge on the "Filters" button
   const activeFilters = [filters.brand, filters.minPrice ?? filters.maxPrice, filters.minRating].filter(
     (v) => v !== undefined,
   ).length;
@@ -89,6 +99,7 @@ export function CatalogPage() {
       </button>
 
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
+        {/* Always visible on large screens; on phones only after tapping "Filters" */}
         <div id="filters" className={showFilters ? 'block' : 'hidden lg:block'}>
           <FilterSidebar filters={filters} facets={data?.facets} onChange={update} onReset={reset} />
         </div>
@@ -104,11 +115,13 @@ export function CatalogPage() {
               <span />
             )}
             <select
+              // the URL's sort, else what the server chose (best match when searching)
               value={filters.sort ?? data?.sort ?? 'newest'}
               onChange={(e) => update({ sort: e.target.value })}
               className="rounded-lg border border-slate-300 bg-surface px-3 py-2 text-sm"
               aria-label={t('catalog.sortLabel')}
             >
+              {/* "Best match" only makes sense when searching */}
               {filters.q && <option value="relevance">{t('catalog.sort.relevance')}</option>}
               <option value="newest">{t('catalog.sort.newest')}</option>
               <option value="price_asc">{t('catalog.sort.price_asc')}</option>
@@ -124,6 +137,7 @@ export function CatalogPage() {
           )}
 
           {data && data.items.length > 0 && (
+            // Faded while the next page loads, instead of an empty grid
             <div className={`grid grid-cols-2 gap-4 md:grid-cols-3 ${isFetching ? 'opacity-60' : ''}`}>
               {data.items.map((p) => (
                 <ProductCard key={p.id} product={p} />

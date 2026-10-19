@@ -1,8 +1,12 @@
+// Page buttons under the product grid: ‹ 1 2 3 ›. The current page comes from the URL
+// (?page=2) and a click calls onChange, which CatalogPage writes back into the URL.
+
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export function Pagination({ page, totalPages, onChange }) {
   const { t } = useTranslation();
+  // one page only: no buttons at all (after the hook, hooks must always run)
   if (totalPages <= 1) return null;
   const btn = 'flex size-9 items-center justify-center rounded-lg text-sm font-medium transition';
 
@@ -20,6 +24,7 @@ export function Pagination({ page, totalPages, onChange }) {
         <button
           key={p}
           onClick={() => onChange(p)}
+          // tells screen readers which page is the current one
           aria-current={p === page ? 'page' : undefined}
           className={`${btn} ${p === page ? 'bg-slate-900 text-slate-50' : 'hover:bg-slate-200'}`}
         >

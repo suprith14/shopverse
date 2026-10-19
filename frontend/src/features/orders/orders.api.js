@@ -1,3 +1,11 @@
+// Orders: my list, one order, place an order, pay, cancel.
+// How these *.api.js files work (TanStack Query):
+//   useQuery    = READ data. queryKey names the data in the cache; the same key anywhere = the same
+//                 cached answer, fetched once. enabled: false = don't ask yet (e.g. not logged in).
+//   useMutation = CHANGE data (POST/PUT/DELETE). onSuccess updates or refreshes ("invalidates")
+//                 the cached queries, so every screen showing that data updates by itself.
+// The user id is part of the key, so one user's cached data is never shown to the next.
+
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api-client';
 import { useAuthStore } from '@/features/auth/auth.store';
@@ -6,6 +14,7 @@ function useUserId() {
   return useAuthStore((s) => s.user?.id);
 }
 
+// My orders, newest first (the server only returns this user's orders)
 export function useOrders() {
   const userId = useUserId();
   return useQuery({
@@ -48,6 +57,7 @@ export function usePayOrder() {
   });
 }
 
+// Cancel an unpaid order: the stock goes back. The answer updates the cached order directly.
 export function useCancelOrder() {
   const queryClient = useQueryClient();
   const userId = useUserId();

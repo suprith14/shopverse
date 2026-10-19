@@ -1,3 +1,7 @@
+// /cart: the items, the order summary (subtotal, coupon, total), the delivery address and the
+// Checkout button. Prices always come from the server (current price), never from the browser.
+// Checkout creates the order (stock is reserved) and sends the browser to Stripe to pay.
+
 import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
@@ -21,15 +25,21 @@ const MAX_QUANTITY_PER_ITEM = 10;
 
 export function CartPage() {
   const { t } = useTranslation();
+  // GET /api/cart: items with current prices, stock and any problems (cart.api.js)
   const { data: cart, isLoading, isError, error } = useCart();
   const clearCart = useClearCart();
+  // the code the customer typed (only the code is kept in the browser)
   const couponCode = useCouponStore((s) => s.code);
+  // the server checks the code and calculates the discount for this subtotal
   const couponPreview = useCouponPreview(couponCode, cart?.subtotal ?? 0);
   // Only count the discount if the preview is for the code currently applied and is valid.
   const coupon = !couponPreview.isError && couponPreview.data?.code === couponCode ? couponPreview.data : undefined;
   const discount = coupon?.discount ?? 0;
+  // POST /api/orders -> { checkoutUrl } -> the browser goes to Stripe (orders.api.js)
   const placeOrder = usePlaceOrder();
+  // the chosen delivery address (the picker below sets it)
   const [addressId, setAddressId] = useState(null);
+  // to scroll to the address form when Checkout is pressed without one
   const addressSection = useRef(null);
 
   if (isLoading) return <ListSkeleton />;
@@ -53,6 +63,7 @@ export function CartPage() {
   return (
     <div className="space-y-6">
       <PageTitle title={t('cart.title')} />
+      {/* Step 1 of 3: Cart & delivery -> Payment (Stripe) -> Confirmation */}
       <CheckoutSteps current={1} />
       <div className="flex items-baseline justify-between">
         <h1 className="text-2xl font-bold">
@@ -67,6 +78,7 @@ export function CartPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <ul className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-surface">
           {cart.items.map((item) => (
+            // Each row has its own quantity buttons and Remove (with Undo), see CartRow below
             <CartRow key={item.variantId} item={item} />
           ))}
         </ul>
@@ -88,6 +100,7 @@ export function CartPage() {
             <span>{t('cart.total')}</span>
             <span>{formatPrice(cart.subtotal - discount)}</span>
           </div>
+          {/* Type a code, see the saving or why it doesn't work */}
           <CouponBox preview={couponPreview} />
           <div ref={addressSection} className="scroll-mt-24 border-t border-slate-200 pt-4">
             <DeliveryAddressPicker value={addressId} onChange={setAddressId} />

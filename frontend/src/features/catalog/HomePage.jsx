@@ -1,3 +1,7 @@
+// The home page (/): banner, category tiles, featured products.
+// Texts come from the CMS through useSiteContent() (edited in admin -> Content); categories and
+// products come from the shop API through TanStack Query hooks (catalog.api.js).
+
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router';
 import { ArrowRight, BookOpen, Footprints, Lamp, Smartphone } from 'lucide-react';
@@ -9,6 +13,7 @@ import { HeroCarousel } from './components/HeroCarousel';
 import { PageTitle } from '@/components/layout/PageTitle';
 import { useSiteContent } from '@/content/use-site-content';
 
+// An icon per category slug. Unknown slugs fall back to the book icon.
 const categoryIcons = {
   sneakers: Footprints,
   electronics: Smartphone,
@@ -19,11 +24,14 @@ const categoryIcons = {
 export function HomePage() {
   const { t } = useTranslation();
   const categories = useCategories();
+  // the best-rated products, used for "Featured products"
   const topRated = useProducts({ sort: 'rating', page: 1 });
+  // CMS text, already in the reader's language
   const { brand, home, banner } = useSiteContent();
 
   return (
     <div className="space-y-14">
+      {/* No title given: the tab shows the default title from the CMS */}
       <PageTitle />
       {/* Image slides from the CMS when there are any, otherwise the purple text banner */}
       {banner.slides.length > 0 ? (
@@ -48,6 +56,7 @@ export function HomePage() {
 
       <section>
         <h2 className="mb-4 text-xl font-bold">{home.categoriesHeading}</h2>
+        {/* Four grey tiles while the categories load */}
         {categories.isLoading && (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {Array.from({ length: 4 }, (_, i) => (
@@ -66,6 +75,7 @@ export function HomePage() {
                 className="group rounded-2xl border border-slate-200 bg-surface p-6 transition hover:border-brand-500 hover:shadow-md"
               >
                 <Icon className="size-8 text-brand-600 dark:text-brand-300" />
+                {/* Translated by slug; the database name is the fallback */}
                 <h3 className="mt-4 font-semibold">{t(`category.${c.slug}`, { defaultValue: c.name })}</h3>
                 <p className="text-sm text-slate-500">{t('catalog.productCount', { count: c._count.products })}</p>
               </Link>
@@ -83,6 +93,7 @@ export function HomePage() {
         </div>
         {topRated.isLoading && <ProductGridSkeleton />}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {/* How many to show is a CMS setting (4-16) */}
           {topRated.data?.items.slice(0, home.featuredCount).map((p) => (
             <ProductCard key={p.id} product={p} />
           ))}
