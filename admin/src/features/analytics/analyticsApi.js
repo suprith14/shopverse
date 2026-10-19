@@ -1,104 +1,52 @@
-// import = bring in code from another file or package
 import { api } from '@/app/api';
 
 // Dashboard data. Every endpoint provides the 'Analytics' tag, so any product or order change
 // that invalidates 'Analytics' makes the dashboard numbers refresh.
 // One endpoint per widget: they load in parallel, and a slow one doesn't block the others.
-// export = other files can import this
-// const = a name for a value that is never reassigned
-// injectEndpoints = add endpoints to the shared API from a feature file
 export const analyticsApi = api.injectEndpoints({
-  // endpoints = the list of requests this API can make
-  // => = an arrow function (a short function)
   endpoints: (build) => ({
-    // build.query = define a READ request: cached, and turned into a useXxxQuery hook
     getSummary: build.query({
-      // query = build the request (URL, method, body) from the hook's argument
-      // => = an arrow function (a short function)
       query: (days) => ({ url: '/admin/analytics/summary', params: { days } }),
-      // providesTags = label this cached data (e.g. Order 5) so it can be refreshed later
       providesTags: ['Analytics'],
     }),
-    // build.query = define a READ request: cached, and turned into a useXxxQuery hook
     getSales: build.query({
-      // query = build the request (URL, method, body) from the hook's argument
-      // => = an arrow function (a short function)
       query: (days) => ({ url: '/admin/analytics/sales', params: { days } }),
-      // transformResponse = reshape the server answer before it is cached
-      // => = an arrow function (a short function)
       transformResponse: (res) => res.series,
-      // providesTags = label this cached data (e.g. Order 5) so it can be refreshed later
       providesTags: ['Analytics'],
     }),
-    // build.query = define a READ request: cached, and turned into a useXxxQuery hook
     getTopProducts: build.query({
-      // query = build the request (URL, method, body) from the hook's argument
-      // => = an arrow function (a short function)
       query: (days) => ({ url: '/admin/analytics/top-products', params: { days, limit: 5 } }),
-      // transformResponse = reshape the server answer before it is cached
-      // => = an arrow function (a short function)
       transformResponse: (res) => res.items,
-      // providesTags = label this cached data (e.g. Order 5) so it can be refreshed later
       providesTags: ['Analytics'],
     }),
-    // build.query = define a READ request: cached, and turned into a useXxxQuery hook
     getSalesByCategory: build.query({
-      // query = build the request (URL, method, body) from the hook's argument
-      // => = an arrow function (a short function)
       query: (days) => ({ url: '/admin/analytics/sales-by-category', params: { days } }),
-      // transformResponse = reshape the server answer before it is cached
-      // => = an arrow function (a short function)
       transformResponse: (res) => res.items,
-      // providesTags = label this cached data (e.g. Order 5) so it can be refreshed later
       providesTags: ['Analytics'],
     }),
-    // build.query = define a READ request: cached, and turned into a useXxxQuery hook
     getCustomerStats: build.query({
-      // query = build the request (URL, method, body) from the hook's argument
-      // => = an arrow function (a short function)
       query: (days) => ({ url: '/admin/analytics/customers', params: { days } }),
-      // providesTags = label this cached data (e.g. Order 5) so it can be refreshed later
       providesTags: ['Analytics'],
       // "Active now" changes by itself as people come and go, so the dashboard polls it (pollingInterval).
     }),
-    // build.query = define a READ request: cached, and turned into a useXxxQuery hook
     getOrdersByStatus: build.query({
-      // query = build the request (URL, method, body) from the hook's argument
-      // => = an arrow function (a short function)
       query: () => '/admin/analytics/orders-by-status',
-      // transformResponse = reshape the server answer before it is cached
-      // => = an arrow function (a short function)
       transformResponse: (res) => res.items,
-      // providesTags = label this cached data (e.g. Order 5) so it can be refreshed later
       providesTags: ['Analytics'],
     }),
-    // build.query = define a READ request: cached, and turned into a useXxxQuery hook
     getLowStock: build.query({
-      // query = build the request (URL, method, body) from the hook's argument
-      // => = an arrow function (a short function)
       query: () => '/admin/analytics/low-stock',
-      // providesTags = label this cached data (e.g. Order 5) so it can be refreshed later
       providesTags: ['Analytics'],
     }),
   }),
 });
 
-// export = other files can import this
-// const = a name for a value that is never reassigned
-// { a, b } = destructuring: take properties a and b out of an object
 export const {
-  // useGetSummaryQuery = generated by RTK Query from the endpoint: gives { data, isLoading, isFetching, error } and caches it
   useGetSummaryQuery,
-  // useGetSalesQuery = generated by RTK Query from the endpoint: gives { data, isLoading, isFetching, error } and caches it
   useGetSalesQuery,
-  // useGetTopProductsQuery = generated by RTK Query from the endpoint: gives { data, isLoading, isFetching, error } and caches it
   useGetTopProductsQuery,
-  // useGetSalesByCategoryQuery = generated by RTK Query from the endpoint: gives { data, isLoading, isFetching, error } and caches it
   useGetSalesByCategoryQuery,
-  // useGetOrdersByStatusQuery = generated by RTK Query from the endpoint: gives { data, isLoading, isFetching, error } and caches it
   useGetOrdersByStatusQuery,
-  // useGetCustomerStatsQuery = generated by RTK Query from the endpoint: gives { data, isLoading, isFetching, error } and caches it
   useGetCustomerStatsQuery,
-  // useGetLowStockQuery = generated by RTK Query from the endpoint: gives { data, isLoading, isFetching, error } and caches it
   useGetLowStockQuery,
 } = analyticsApi;

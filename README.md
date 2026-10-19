@@ -48,6 +48,8 @@ shopverse/
 
 Read **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** to understand how everything fits together, and
 **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** for how it runs online.
+**[docs/GLOSSARY.md](docs/GLOSSARY.md)** explains every keyword used in the code (React, TanStack Query,
+Redux Toolkit, Express, Prisma, Zod...) with links to where it is used.
 
 ## Running locally
 

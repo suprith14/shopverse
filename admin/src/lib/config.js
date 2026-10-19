@@ -3,7 +3,4 @@
 // (set them in Vercel's project settings). Without one, the local default is used.
 
 // Where the customer store lives, for "View store" / "View in store" links.
-// export = other files can import this
-// const = a name for a value that is never reassigned
-// a ?? b = a, unless a is null/undefined, then b
 export const STORE_URL = import.meta.env.VITE_STORE_URL ?? 'http://localhost:5173';
