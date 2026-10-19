@@ -62,7 +62,7 @@ h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; letter-spacing: -0.02e
 h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.01em; }
 h3 { font-size: 17px; font-weight: 700; }
 p { margin: 0; }
-code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; font-variant-ligatures: none; }
 a { color: var(--accent); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 
@@ -177,6 +177,7 @@ svg { display: block; }
 pre.code {
   margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
   padding: 12px 14px; overflow-x: auto; font: 12.5px/1.55 var(--font-mono); color: var(--ink); white-space: pre;
+  font-variant-ligatures: none; /* show === and => exactly as typed */
 }
 .controls { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn {
@@ -218,6 +219,19 @@ pre.code {
 .db-label { font: 700 12px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
 
 /* ---------- cross-cutting ---------- */
+.strat-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+#stratSearch {
+  font: 14px var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+  border-radius: 10px; padding: 9px 12px; min-width: 0; width: min(100%, 280px);
+}
+.strats { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 360px), 1fr)); gap: 14px; align-items: start; }
+.strat { padding: 16px 18px; display: grid; gap: 8px; border-top: 4px solid var(--c); min-width: 0; }
+.strat .cat { font: 600 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--c); }
+.strat h3 { font-size: 16.5px; }
+.strat p { font-size: 14px; }
+.strat p b { font: 600 11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); margin-right: 6px; }
+.strat pre.code { font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.strat .file { font: 12px var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
 .mech { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
 .mech article { padding: 18px; display: grid; gap: 8px; align-content: start; }
 .mech .file { font: 12px var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
@@ -251,7 +265,7 @@ table.hosts td code { overflow-wrap: anywhere; }
     <a href="#flows">2 · Flows step by step</a>
     <a href="#code">3 · Inside the code</a>
     <a href="#data">4 · Data</a>
-    <a href="#shared">5 · Shared mechanisms</a>
+    <a href="#shared">5 · Strategies</a>
     <a href="#hosts">6 · Where it runs</a>
     <a href="#local">7 · Run it locally</a>
     <a href="#glossary">8 · Glossary</a>
@@ -475,13 +489,18 @@ src/
   </figure>
 </section>
 
-<!-- ================================================================ 5. SHARED -->
+<!-- ================================================================ 5. STRATEGIES -->
 <section id="shared">
   <div class="sec-head">
-    <h2>5 · Shared mechanisms</h2>
-    <p>Ideas that run through several apps. Each one is small on its own; together they are what makes the system behave well when things go wrong.</p>
+    <h2>5 · Strategies and the code behind them</h2>
+    <p>Every technique ShopVerse uses, one card each: the problem, the strategy, the real code, where it lives, and why it was chosen over the obvious alternative. Filter by kind or search.</p>
   </div>
-  <div class="mech" id="mech"></div>
+  <div class="strat-tools">
+    <div class="flow-tabs" id="stratFilters" role="tablist" aria-label="Strategy kinds"></div>
+    <input id="stratSearch" type="search" placeholder="Search: token, stock, cache…" aria-label="Search strategies">
+  </div>
+  <p class="hint" id="stratCount"></p>
+  <div class="strats" id="strats"></div>
 </section>
 
 <!-- ================================================================ 6. HOSTS -->
@@ -779,17 +798,115 @@ const FLOWS = [
   },
 ];
 
-/* =================================================================== data: shared mechanisms */
-const MECH = [
-  { h: 'Two tokens', f: 'backend/src/modules/auth/ · cms/src/middleware/auth.js', p: 'A 15-minute access token (JWT, in memory) goes with every request and is checked without the database. A 7-day refresh token (random, stored hashed, httpOnly cookie) only buys new access tokens and rotates on every use. Both servers check access tokens with one shared secret.' },
-  { h: 'Waiting for sleeping servers', f: 'cms/src/lib/prisma.js · tests/api/global-setup.js · lib/network-status.js', p: 'Neon databases sleep after 5 idle minutes; the first query can fail. The CMS retries connection errors after 1 s, 2 s and 4 s (exponential backoff), then answers 503 with Retry-After. The store explains slow first loads with a banner.' },
-  { h: 'Errors people can understand', f: 'middleware/error-handler.js · lib/server-error.js (store + admin)', p: 'Every error has the same JSON shape. Fixable ones (validation, stock, rate limit) show next to the cause; server failures (5xx) open one popup with a 5-second retry. A 401 means "log in again"; a 5xx means "the server is down, keep the session".' },
-  { h: 'Money stays consistent', f: 'orders.service.js · stripe-webhook.js · invoice.js', p: 'Stock and coupons are taken with conditional updates inside one transaction. Webhooks are verified and idempotent. Invoice numbers come from a locked counter row, so there are no gaps or duplicates. Refunds use idempotency keys.' },
-  { h: 'Content without waiting', f: 'frontend/src/content/use-site-content.js', p: 'Stale-while-revalidate twice: the CDN keeps CMS answers 60 s, and the browser shows its saved copy instantly while fetching fresh text. If the CMS is down, the saved copy (or site.js) stays on screen.' },
-  { h: 'Dark mode as design tokens', f: 'frontend/src/index.css · lib/theme.js · index.html', p: 'Tailwind colours are CSS variables, so the .dark block redefines them once (greys flip, surface and night tokens) instead of dark: classes on every element. An inline script sets the class before the first paint.' },
-  { h: 'Two languages', f: 'frontend/src/i18n/ · cms content-types.js', p: 'Store text lives in en.js and kn.js (330 keys each) and is read with t(). CMS text is stored as { en, kn } per field, with English as the fallback; images and links are shared. Dates and country names come from the browser in the reader\'s language.' },
-  { h: 'Guard rails', f: 'cms/scripts/check-db.js · tests/api/global-setup.js · lib/account-status.js', p: 'The CMS refuses any database not named "cms"; API tests refuse to run on the dev database. Blocked accounts can\'t log in or pay; the shared demo accounts can\'t be blocked, deleted or have their password changed.' },
+/* =================================================================== data: strategies */
+const KINDS = {
+  security: { label: 'Security', color: 'accent' },
+  data: { label: 'Data integrity', color: 'neon' },
+  perf: { label: 'Performance', color: 'render' },
+  rel: { label: 'Reliability', color: 'ext' },
+  arch: { label: 'Architecture', color: 'device' },
+  ux: { label: 'UX', color: 'vercel' },
+};
+
+// k = kind, t = title, p = problem, s = strategy, c = code, f = file, w = why this over the alternative
+const STRATEGIES = [
+  // ------------------------------------------------ security
+  { k: 'security', t: 'Two tokens: short access, rotating refresh', p: 'A stolen login must stop working quickly, but people should not log in every 15 minutes.', s: 'A 15-min JWT in memory for every request; a 7-day random refresh token in an httpOnly cookie, rotated on each use. A reused old token means theft: all sessions end.', c: `if (stored.revokedAt) {             // reused = stolen\n  await revokeAllSessions(userId);\n  throw unauthorized('Refresh token reused');\n}\nawait revoke(stored.id); return issueTokens(user);`, f: 'backend/src/modules/auth/auth.service.js', w: 'One long-lived token in localStorage can be stolen by any injected script and never expires.' },
+  { k: 'security', t: 'Passwords hashed with bcrypt', p: 'A leaked database must not reveal passwords.', s: 'bcrypt with cost 12: deliberately slow (~0.3 s), salted per password. Tests use cost 4 to stay fast.', c: `const passwordHash = await bcrypt.hash(password, env.BCRYPT_ROUNDS); // 12\nconst ok = await bcrypt.compare(attempt, user.passwordHash);`, f: 'src/modules/auth/auth.service.js', w: 'SHA-256 is fast, which makes guessing billions of passwords per second cheap.' },
+  { k: 'security', t: 'Sliding-window rate limits', p: 'Password guessing and code guessing.', s: 'Remember the times of recent failures per key (account, IP, user). Over the limit: 429 with Retry-After, which the page turns into a countdown.', c: `retryAfterMs(key) {\n  const recent = this.recent(key, now);\n  if (recent.length < this.max) return 0;\n  return recent[recent.length - this.max] + this.windowMs - now;\n}`, f: 'src/lib/rate-limiter.js', w: 'Fixed windows let an attacker burst at the window edge. In memory is fine for one server; several servers would need Redis.' },
+  { k: 'security', t: 'No account enumeration', p: 'Error messages or timing could reveal which emails have accounts.', s: 'The same message for "no user" and "wrong password"; forgot-password replies first and does the work afterwards, so timing is equal too.', c: `if (!user || !valid) throw unauthorized('Invalid email or password');\n// forgot password:\nres.json({ message: 'If an account exists…' });\nrequestReset(email).catch(log);`, f: 'src/modules/auth/auth.controller.js', w: '"No account with that email" is friendlier, but hands attackers a list of real accounts.' },
+  { k: 'security', t: 'HMAC reset codes, constant-time compare', p: 'A 6-digit code has only a million values: a plain hash is cracked instantly.', s: 'Store an HMAC keyed with a server secret; compare in constant time; burn the code after 5 wrong tries.', c: `createHmac('sha256', SECRET).update(\`\${userId}:\${code}\`).digest('hex')\nconst same = a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));`, f: 'src/modules/auth/password-reset.js', w: 'Without the secret a leaked table is useless; === would leak how many characters matched.' },
+  { k: 'security', t: 'Ownership in every query (no IDOR)', p: 'Changing /orders/123 to /orders/124 must not show someone else\'s order.', s: 'The user id always comes from the verified token, and every query filters by it. Someone else\'s order is "not found", exactly like a missing one.', c: `const order = await prisma.order.findFirst({ where: { id: orderId, userId } });\nif (!order) throw notFound('Order not found');`, f: 'src/modules/orders/orders.service.js', w: 'A 403 would confirm the order exists. Checking ownership after loading is easy to forget.' },
+  { k: 'security', t: 'Validate at the edge with Zod', p: 'Any request can contain anything: wrong types, extra fields, a fake price.', s: 'Every route validates body, query and params against a schema before the controller runs. Prices are never accepted from the client.', c: `export const addItemSchema = z.object({\n  variantId: z.string().min(1),\n  quantity: z.coerce.number().int().min(1).max(10).default(1),\n}); // a "price" field is simply dropped`, f: 'src/modules/*/…schema.js, src/middleware/validate.js', w: 'Checks scattered inside services get missed; one schema per route is visible and testable.' },
+  { k: 'security', t: 'Signed direct uploads', p: 'Uploads should not pass through our small servers, and only we decide where files go.', s: 'The server signs exact upload rules (folder, random id, size, formats); the browser sends the file straight to Cloudinary; the saved URL must be in our folder.', c: `const params = { public_id: \`shopverse/banners/\${randomUUID()}\`,\n  transformation: 'c_limit,w_2400,h_1200,q_auto',\n  allowed_formats: 'jpg,jpeg,png,webp', timestamp };\nreturn { uploadUrl, fields: { ...params, api_key, signature: sign(params) } };`, f: 'cms/src/lib/cloudinary.js, backend/src/lib/cloudinary.js', w: 'Uploading through the API would tie up a free server with big files and need extra limits.' },
+  { k: 'security', t: 'No open redirects', p: 'A link or return address we control could be bent to send customers to a fake site.', s: 'Stripe\'s return address comes from an allow-list; banner buttons may only link to store pages starting with one "/".', c: `if (!isProd && (LOCALHOST.test(origin) || PRIVATE_NETWORK.test(origin))) return origin;\nreturn env.CLIENT_URL; // anything else is ignored\n// CMS: .regex(/^\\/(?!\\/)\\S*$/)`, f: 'backend/src/lib/store-origin.js, cms/src/content/content-types.js', w: 'Trusting the request\'s Origin or any URL is a classic phishing hole.' },
+  { k: 'security', t: 'Verify webhook signatures', p: 'Anyone could POST "order paid" to our webhook URL.', s: 'Verify Stripe\'s signature over the raw body with the webhook secret before reading the event.', c: `app.post('/api/webhooks/stripe', express.raw({ type: 'application/json' }), handler);\nevent = stripe.webhooks.constructEvent(req.body, signature, STRIPE_WEBHOOK_SECRET);`, f: 'src/modules/webhooks/stripe-webhook.js, src/app.js', w: 'The success page URL proves nothing: anyone can type it.' },
+  { k: 'security', t: 'Settings checked at startup', p: 'A missing secret should not surface as a crash hours later.', s: 'Parse process.env with Zod when the server starts; anything missing or malformed stops it with a clear list.', c: `const parsed = envSchema.safeParse(process.env);\nif (!parsed.success) {\n  for (const i of parsed.error.issues) console.error(\`  \${i.path}: \${i.message}\`);\n  process.exit(1);\n}`, f: 'backend/src/config/env.js, cms/src/config/env.js', w: 'Reading process.env.X wherever it is needed fails late and silently.' },
+  { k: 'security', t: 'Guard rails against costly mistakes', p: 'One wrong URL once wiped a database.', s: 'The CMS refuses any database not named "cms"; API tests refuse the dev database; demo accounts can\'t be blocked, deleted or have their password changed.', c: `if (new URL(url).pathname.slice(1) !== 'cms') {\n  console.error('Refusing to run: …not "cms"'); process.exit(1);\n}`, f: 'cms/scripts/check-db.js, backend/tests/api/global-setup.js, src/lib/account-status.js', w: 'A confirmation prompt is easy to click through; code that refuses is not.' },
+
+  // ------------------------------------------------ data integrity
+  { k: 'data', t: 'Conditional update: no overselling', p: 'Two buyers click Pay for the last item at the same moment.', s: 'Decrease stock only where enough is left, in a single UPDATE. The database serialises it, so only one buyer succeeds.', c: `const { count } = await tx.productVariant.updateMany({\n  where: { id: variantId, stock: { gte: quantity } },\n  data: { stock: { decrement: quantity } },\n});\nif (count === 0) throw conflict('…sold out');`, f: 'src/modules/orders/orders.service.js', w: 'Read stock, then write: both buyers read "1 left" and both succeed.' },
+  { k: 'data', t: 'Transactions: all or nothing', p: 'An order is several writes: stock, coupon, order, items, reservation.', s: 'Run them in one database transaction; any failure rolls all of them back.', c: `const order = await prisma.$transaction(async (tx) => {\n  /* take stock, use coupon, create order + items + reservation */\n});`, f: 'src/modules/orders/orders.service.js', w: 'Without it, a failure on item 3 leaves stock taken for items 1 and 2.' },
+  { k: 'data', t: 'Idempotency', p: 'Stripe can deliver the same webhook twice; retries can repeat requests.', s: 'Record processed event ids; move to PAID only from PENDING; refunds carry an idempotency key.', c: `if (await prisma.processedWebhookEvent.findUnique({ where: { id: event.id } })) return;\ntx.order.updateMany({ where: { id, status: 'PENDING' }, data: { status: 'PAID' } });\nstripe.refunds.create({…}, { idempotencyKey: \`refund-\${orderId}\` });`, f: 'src/modules/webhooks/stripe-webhook.js, src/modules/orders/orders.service.js', w: 'Otherwise one payment could send two emails, take two invoice numbers or refund twice.' },
+  { k: 'data', t: 'Gapless invoice numbers', p: 'Invoices must be numbered 1, 2, 3 with no gaps or duplicates (an accounting rule).', s: 'A counter row incremented with UPDATE … RETURNING inside the payment transaction: the row lock makes payments take turns, a rollback undoes the +1.', c: `UPDATE "InvoiceCounter" SET value = value + 1\nWHERE id = 'invoice' RETURNING value`, f: 'src/modules/orders/invoice.js', w: 'A database sequence never rolls back, so a failed payment would leave a gap.' },
+  { k: 'data', t: 'Snapshots', p: 'Renaming a product or editing an address must not change past orders.', s: 'Copy the product name, price and delivery address into the order when it is placed.', c: `items: { create: cart.items.map((i) => ({\n  productName: i.productName, variantName: i.variantName,\n  unitPrice: i.unitPrice, quantity: i.quantity })) },\nshippingAddress: { fullName, line1, city, … } // a JSON copy`, f: 'src/modules/orders/orders.service.js', w: 'Joining to the live product would rewrite history on every price change.' },
+  { k: 'data', t: 'Money in cents', p: '0.1 + 0.2 = 0.30000000000000004.', s: 'Store and calculate whole cents (integers); format only for display.', c: `price Int   // 12999 = $129.99\nexport const formatPrice = (cents) => currency.format(cents / 100);`, f: 'backend/prisma/schema.prisma, frontend/src/lib/format.js', w: 'Floats round wrongly; Decimal works but is heavier for no gain here.' },
+  { k: 'data', t: 'Reservations that expire', p: 'Stock held for an unpaid checkout must come back.', s: 'A reservation with an expiry (32 min, 2 more than Stripe\'s page) and a job every minute that releases expired ones.', c: `export const RESERVATION_MINUTES = 32;\nsetInterval(run, EVERY_MINUTE); // expireStaleOrders(now)`, f: 'src/modules/orders/orders.service.js, src/jobs/expire-orders.job.js', w: 'Taking stock only after payment lets two people pay for the last item.' },
+  { k: 'data', t: 'Anonymise instead of delete', p: 'Privacy law says erase the person; tax law says keep the invoice.', s: 'A customer with orders is anonymised (name, email, phone, addresses wiped); one without orders is deleted.', c: `name: 'Deleted customer',\nemail: \`deleted-\${user.id}@deleted.invalid\`,\npasswordHash: \`deleted:\${randomBytes(16).toString('hex')}\`,\ndeletedAt: new Date(),`, f: 'src/modules/admin/customers/customers.service.js', w: 'A hard delete is blocked by the orders (or would destroy invoices).' },
+
+  // ------------------------------------------------ performance
+  { k: 'perf', t: 'Full-text search in PostgreSQL', p: 'LIKE \'%shoe%\' misses "shoes" and gets slow.', s: 'A generated tsvector column (name A, brand B, description C) with a GIN index; prefix matches; ranked; falls back to "any word".', c: `SELECT p.id, ts_rank(p."searchVector", q) AS rank\nFROM "Product" p, to_tsquery('english', 'runn:*') q\nWHERE p."searchVector" @@ q ORDER BY rank DESC`, f: 'src/modules/catalog/search.js, migrations/…add_product_search', w: 'Elasticsearch or Algolia would be another service to run and keep in sync.' },
+  { k: 'perf', t: 'Throttled writes', p: 'Writing "last seen" on every request = 50 writes for 50 clicks.', s: 'Remember in memory when we last wrote for each user; write at most every 5 minutes, without waiting.', c: `if (previous && now - previous < THROTTLE_MS) return; // written recently\nprisma.user.update({ … lastSeenAt }).catch(log);    // fire and forget`, f: 'backend/src/lib/activity.js', w: 'Exact to the second would cost a write per click; 5-minute precision is enough for "online now".' },
+  { k: 'perf', t: 'Debounced search', p: 'Typing "nike" would send 4 requests.', s: 'Wait until typing pauses for 250 ms, then send one.', c: `const debounced = useDebounce(text, 250);\nconst { data } = useSuggestions(open ? debounced : '');`, f: 'frontend/src/lib/use-debounce.js', w: 'Throttling still fires mid-word; debouncing fires once per pause.' },
+  { k: 'perf', t: 'Caching at three levels', p: 'The same data is asked for again and again.', s: 'TanStack Query keeps answers fresh for a minute in the browser; the CDN keeps CMS answers 60 s; the browser keeps a copy of the CMS text for the next visit.', c: `new QueryClient({ defaultOptions: { queries: { staleTime: 60 * 1000 } } })\nres.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');`, f: 'frontend/src/main.jsx, cms/src/content/content.routes.js', w: 'No caching means a request per screen; long caching means stale prices. Private data is never cached.' },
+  { k: 'perf', t: 'Code splitting', p: 'One big JavaScript file makes the first visit slow.', s: 'Pages most visitors never open (account, orders, admin dashboard charts) load only when opened.', c: `{ path: '/account', lazy: async () => {\n  const { AccountPage } = await import('@/features/account/AccountPage');\n  return { element: <RequireAuth><AccountPage /></RequireAuth> };\n} }`, f: 'frontend/src/router.jsx, admin/src/router.jsx', w: 'The store\'s main bundle dropped from 519 to 427 kB.' },
+  { k: 'perf', t: 'Images sized per screen', p: 'A phone downloading a 2400-pixel banner.', s: 'Cloudinary resizes on the fly; srcset lets the browser pick 640, 1024, 1600 or 2400 px, in WebP/AVIF.', c: `const sized = (url, w) => url.replace('/upload/', \`/upload/c_fill,w_\${w},f_auto,q_auto/\`);\n<img srcSet={WIDTHS.map((w) => \`\${sized(url, w)} \${w}w\`).join(', ')} sizes="100vw" />`, f: 'frontend/src/features/catalog/components/HeroCarousel.jsx', w: '43 KB instead of 287 KB for the same banner on a phone.' },
+  { k: 'perf', t: 'Stored summary numbers', p: 'Averaging every review on every product list is slow.', s: 'Keep ratingAvg, ratingCount and basePrice on the product, updated when a review or variant changes.', c: `ratingAvg: Math.round((stats._avg.rating ?? 0) * 10) / 10, // updated on each review\nbasePrice Int // lowest variant price, for sorting and filtering`, f: 'src/modules/reviews/reviews.service.js, prisma/schema.prisma', w: 'A little duplication (denormalisation) buys fast lists and sorting.' },
+
+  // ------------------------------------------------ reliability
+  { k: 'rel', t: 'Retry with exponential backoff', p: 'A sleeping database fails the first connection, then works.', s: 'Retry only connection errors (the query never ran, so it is safe) after 1 s, 2 s, 4 s; then answer 503 with Retry-After.', c: `const wait = 1000 * 2 ** attempt; // 1 s, 2 s, 4 s\nif (!isConnectionError(err) || attempt === RETRIES) throw err;\nawait sleep(wait);`, f: 'cms/src/lib/prisma.js', w: 'Retrying every error could run a payment twice; retrying instantly hammers a struggling server.' },
+  { k: 'rel', t: 'Graceful degradation', p: 'The CMS is a separate free server that sleeps.', s: 'Show the browser\'s saved copy (or built-in text) instantly; swap in fresh text when it arrives; if the CMS is down, keep the copy.', c: `initialData: () => withDefaults(readSavedCopy()),\nqueryFn: fetchContent, // fresh text in the background`, f: 'frontend/src/content/use-site-content.js', w: 'Waiting for the CMS would leave visitors staring at blank text for up to a minute.' },
+  { k: 'rel', t: 'One shared token refresh', p: 'Six widgets get 401 at once and would each refresh, rotating the token six times.', s: 'The first 401 starts the refresh; the rest wait for the same promise, then retry.', c: `refreshPromise ??= axios.post('/api/auth/refresh', …)\n  .finally(() => { refreshPromise = null; });`, f: 'frontend/src/lib/api-client.js, admin/src/app/api.js', w: 'Parallel refreshes would trip the token-reuse alarm and log the user out.' },
+  { k: 'rel', t: 'Side effects after commit', p: 'An email for a change that is later rolled back.', s: 'Send emails and delete images only after the database transaction has committed, and never let them undo it.', c: `const result = await prisma.$transaction(…); // committed\nif (result === 'PAID_NOW') await sendOrderConfirmationEmail(orderId).catch(log);`, f: 'src/modules/orders/orders.service.js, cms/src/content/content.service.js', w: 'Emailing inside the transaction can confirm an order that never happened. (Bigger systems add an outbox table.)' },
+  { k: 'rel', t: 'Tell 401 from 5xx', p: 'A server restart logged admins out.', s: '401 = your login is bad, so log out. 5xx or no answer = the server is down, so keep the session and offer a retry after 5 s.', c: `if (isServerError(refresh.error) || refresh.error?.status === 'FETCH_ERROR')\n  return refresh.error;      // keep the session\napi.dispatch(sessionEnded()); // a real 401`, f: 'admin/src/app/api.js, frontend/src/lib/server-error.js', w: 'Treating every failure as "logged out" turns every restart into a forced login.' },
+  { k: 'rel', t: 'Graceful shutdown', p: 'A deploy stops the server in the middle of requests.', s: 'On SIGTERM: stop the job, finish in-flight requests, close the database pool, then exit.', c: `process.on('SIGTERM', async () => {\n  stopExpireOrdersJob(); server.close();\n  await prisma.$disconnect(); process.exit(0);\n});`, f: 'backend/src/server.js', w: 'Exiting at once can cut a payment write in half.' },
+
+  // ------------------------------------------------ architecture
+  { k: 'arch', t: 'Routes → controller → service', p: 'HTTP details and business rules tangled together.', s: 'Routes map URLs and guards; controllers speak HTTP only; services hold the rules and data, so a background job can reuse them.', c: `cartRouter.post('/items', validate(addItemSchema), controller.addItem);\n// controller\nres.status(201).json({ cart: await cartService.addItem(userId, body) });`, f: 'src/modules/<feature>/', w: 'One fat route handler is quick to write and hard to test or reuse.' },
+  { k: 'arch', t: 'Feature folders, same names everywhere', p: 'Finding all the code for "cart".', s: 'backend/src/modules/cart and frontend/src/features/cart: one folder per feature, mirrored.', c: `backend/src/modules/cart/   cart.routes · schema · controller · service\nfrontend/src/features/cart/ cart.api.js · CartPage.jsx`, f: 'docs/ARCHITECTURE.md', w: 'Folders by type (all controllers together) spread one feature over many places.' },
+  { k: 'arch', t: 'A separate CMS service, shared login', p: 'Content and shop data change for different reasons.', s: 'The CMS has its own server and database and no users: it verifies the shop\'s JWT with the same secret.', c: `payload = jwt.verify(token, env.JWT_ACCESS_SECRET);\nif (payload.role !== 'ADMIN') return next(forbidden());`, f: 'cms/src/middleware/auth.js', w: 'Asking the shop API "is this token valid?" on every call would add a network hop and a dependency.' },
+  { k: 'arch', t: 'Describe once, generate the rest', p: 'A new content field meant editing validation, defaults and the admin form.', s: 'content-types.js describes each field once; the CMS builds validation and defaults from it, and the admin app draws its form from the same description.', c: `heroTitle: text('Banner: title', { max: 60,\n  default: 'Everything you love…', kn: 'ನಿಮಗೆ ಇಷ್ಟವಾದ…' })`, f: 'cms/src/content/content-types.js, admin/src/features/content/ContentField.jsx', w: 'Three hand-written copies drift apart.' },
+  { k: 'arch', t: 'One address in front of two servers', p: 'The browser would need two API addresses, CORS and third-party cookies.', s: 'Vercel rewrites /api/* to the shop API and /cms/* to the CMS, so the browser only sees the store\'s own address (a small API gateway).', c: `{ "source": "/api/:path*", "destination": "https://shopverse-api…/api/:path*" },\n{ "source": "/cms/:path*", "destination": "https://shopverse-cms…/cms/:path*" }`, f: 'frontend/vercel.json, admin/vercel.json', w: 'Calling Render directly makes the login cookie third-party, which browsers increasingly block.' },
+  { k: 'arch', t: 'One error shape', p: 'Every endpoint inventing its own error format.', s: 'Throw an HttpError anywhere; one handler turns it into { error: { message, details } }.', c: `export const notFound = (msg = 'Not found') => new HttpError(404, msg);\n// error-handler.js\nres.status(err.status).json({ error: { message: err.message, details: err.details } });`, f: 'src/lib/http-error.js, src/middleware/error-handler.js', w: 'try/catch in every controller repeats itself and drifts.' },
+
+  // ------------------------------------------------ UX
+  { k: 'ux', t: 'Dark mode as design tokens', p: 'Adding dark: classes to 38 files is hard to keep consistent.', s: 'Tailwind colours are CSS variables; the .dark block redefines them once. An inline script sets the class before the first paint.', c: `.dark { --color-surface: #0f172a; --color-slate-50: #020617; --color-slate-900: #f1f5f9; }\n// index.html, before paint:\nif (theme === 'dark' || …) document.documentElement.classList.add('dark');`, f: 'frontend/src/index.css, src/lib/theme.js, index.html', w: 'Setting the class from React would flash white first.' },
+  { k: 'ux', t: 'Two languages with a fallback', p: 'Kannada readers, without duplicating images and links.', s: 'Store text in en.js / kn.js read with t(); CMS text stored as { en, kn } per field; an empty Kannada field shows English.', c: `t('product.addToCart')\nconst inLanguage = (v, lng) => ('en' in v ? (v[lng] || v.en) : v);`, f: 'frontend/src/i18n/, src/content/use-site-content.js', w: 'A full copy of the site per language means uploading every banner twice.' },
+  { k: 'ux', t: 'Shown before JavaScript', p: 'A blank white page while the app downloads.', s: 'The start-up loader is plain HTML and CSS inside index.html; React removes it after the first paint.', c: `<div id="splash" role="status">…</div>\nrequestAnimationFrame(() => splash.classList.add('splash-hide'));`, f: 'frontend/index.html, src/main.jsx', w: 'A React spinner can only appear after React itself has loaded.' },
+  { k: 'ux', t: 'The URL is the state', p: 'Filters lost on refresh; a search can\'t be shared.', s: 'Category, brand, price, sort, page and search live in the query string; the URL drives the request.', c: `/shop?q=running&category=sneakers&sort=price_asc&page=2\nconst filters = { q: params.get('q'), category: params.get('category'), … };`, f: 'frontend/src/features/catalog/CatalogPage.jsx', w: 'Filters in component state vanish on refresh and break the Back button.' },
+  { k: 'ux', t: 'Undo instead of "Are you sure?"', p: 'Confirm dialogs interrupt every action to protect rare mistakes.', s: 'Act immediately and show a toast with Undo. Dangerous, permanent actions still confirm (deleting a customer: type their email).', c: `notify.success(t('cart.removed', { name }), {\n  label: t('cart.undo'),\n  onClick: () => addBack.mutate({ variantId, quantity }),\n});`, f: 'frontend/src/features/cart/CartPage.jsx, admin/src/features/customers/CustomerDialogs.jsx', w: 'People learn to click "Yes" without reading.' },
+  { k: 'ux', t: 'Accessible by default', p: 'Keyboard and screen-reader users, and people sensitive to motion.', s: 'Native <dialog> (focus trap, Esc), labelled controls, status regions, a pause button on the carousel, no autoplay with "reduce motion".', c: `const [playing, setPlaying] = useState(() => !prefersReducedMotion());\n<dialog ref={ref} aria-labelledby="dialog-title">…</dialog>`, f: 'frontend/src/features/catalog/components/HeroCarousel.jsx, components/ui/PhotoPicker.jsx', w: 'Custom div modals usually leak focus and ignore Esc.' },
 ];
+
+/* =================================================================== strategies rendering */
+let stratKind = 'all';
+const stratList = document.getElementById('strats');
+const stratFilters = document.getElementById('stratFilters');
+const stratSearch = document.getElementById('stratSearch');
+
+function drawStrategies() {
+  const q = stratSearch.value.trim().toLowerCase();
+  const shown = STRATEGIES.filter((x) =>
+    (stratKind === 'all' || x.k === stratKind) &&
+    (!q || [x.t, x.p, x.s, x.c, x.f, x.w].join(' ').toLowerCase().includes(q)));
+  stratList.innerHTML = shown.map((x) => {
+    const kind = KINDS[x.k];
+    return `<article class="panel strat" style="--c: var(--${kind.color})">
+      <div class="cat">${esc(kind.label)}</div>
+      <h3>${esc(x.t)}</h3>
+      <p><b>Problem</b>${esc(x.p)}</p>
+      <p><b>Strategy</b>${esc(x.s)}</p>
+      <pre class="code">${esc(x.c)}</pre>
+      <div class="file">${esc(x.f)}</div>
+      <p><b>Why</b>${esc(x.w)}</p>
+    </article>`;
+  }).join('');
+  document.getElementById('stratCount').textContent = shown.length === STRATEGIES.length
+    ? `${STRATEGIES.length} strategies`
+    : `${shown.length} of ${STRATEGIES.length} strategies`;
+  stratFilters.querySelectorAll('button').forEach((b) => b.setAttribute('aria-selected', b.dataset.k === stratKind ? 'true' : 'false'));
+}
+[['all', 'All'], ...Object.entries(KINDS).map(([k, v]) => [k, v.label])].forEach(([k, label]) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'tab');
+  b.dataset.k = k;
+  b.textContent = label;
+  b.addEventListener('click', () => { stratKind = k; drawStrategies(); });
+  stratFilters.append(b);
+});
+stratSearch.addEventListener('input', drawStrategies);
+drawStrategies();
 
 const GLOSSARY = [
   ['JWT (access token)', 'A small signed note saying who you are and until when. Anyone with the secret can check the signature without a database.', '15-minute login token; checked by both servers'],
@@ -815,7 +932,9 @@ const GLOSSARY = [
 /* =================================================================== map interactions */
 const map = document.getElementById('map');
 const detail = document.getElementById('detail');
-const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+function esc(s) {
+  return String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+}
 
 function showNode(id) {
   const n = NODES[id];
@@ -1071,7 +1190,4 @@ render();
 document.querySelector('#glossaryTable tbody').innerHTML = GLOSSARY.map(([t, m, w]) =>
   `<tr><td><b>${esc(t)}</b></td><td>${esc(m)}</td><td>${esc(w)}</td></tr>`).join('');
 
-/* =================================================================== shared mechanisms */
-document.getElementById('mech').innerHTML = MECH.map((m) => `
-  <article class="panel"><h3>${esc(m.h)}</h3><div class="file">${esc(m.f)}</div><p>${esc(m.p)}</p></article>`).join('');
 </script>
