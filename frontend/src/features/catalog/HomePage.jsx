@@ -4,6 +4,7 @@ import { ErrorState } from '@/components/ui/States';
 import { Skeleton, ProductGridSkeleton } from '@/components/ui/Skeleton';
 import { useCategories, useProducts } from './catalog.api';
 import { ProductCard } from './components/ProductCard';
+import { HeroCarousel } from './components/HeroCarousel';
 import { PageTitle } from '@/components/layout/PageTitle';
 import { useSiteContent } from '@/content/use-site-content';
 
@@ -17,22 +18,31 @@ const categoryIcons = {
 export function HomePage() {
   const categories = useCategories();
   const topRated = useProducts({ sort: 'rating', page: 1 });
-  const { home } = useSiteContent();
+  const { brand, home, banner } = useSiteContent();
 
   return (
     <div className="space-y-14">
       <PageTitle />
-      <section className="rounded-3xl bg-gradient-to-br from-slate-900 via-brand-700 to-brand-500 px-8 py-16 text-white md:px-14">
-        <p className="text-sm font-medium uppercase tracking-widest text-brand-100">{home.heroEyebrow}</p>
-        <h1 className="mt-3 max-w-xl text-4xl font-bold leading-tight md:text-5xl">{home.heroTitle}</h1>
-        <p className="mt-4 max-w-lg text-brand-100">{home.heroText}</p>
-        <Link
-          to="/shop"
-          className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-slate-900 hover:bg-brand-50"
-        >
-          {home.heroCtaLabel} <ArrowRight className="size-4" />
-        </Link>
-      </section>
+      {/* Image slides from the CMS when there are any, otherwise the purple text banner */}
+      {banner.slides.length > 0 ? (
+        <>
+          {/* Slide titles are h2s, so the page still needs ONE h1 (screen readers, search engines) */}
+          <h1 className="sr-only">{brand.defaultTitle}</h1>
+          <HeroCarousel slides={banner.slides} intervalSeconds={banner.intervalSeconds} />
+        </>
+      ) : (
+        <section className="rounded-3xl bg-gradient-to-br from-slate-900 via-brand-700 to-brand-500 px-8 py-16 text-white md:px-14">
+          <p className="text-sm font-medium uppercase tracking-widest text-brand-100">{home.heroEyebrow}</p>
+          <h1 className="mt-3 max-w-xl text-4xl font-bold leading-tight md:text-5xl">{home.heroTitle}</h1>
+          <p className="mt-4 max-w-lg text-brand-100">{home.heroText}</p>
+          <Link
+            to="/shop"
+            className="mt-8 inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 font-medium text-slate-900 hover:bg-brand-50"
+          >
+            {home.heroCtaLabel} <ArrowRight className="size-4" />
+          </Link>
+        </section>
+      )}
 
       <section>
         <h2 className="mb-4 text-xl font-bold">{home.categoriesHeading}</h2>

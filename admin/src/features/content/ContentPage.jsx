@@ -46,9 +46,9 @@ function ContentTypeForm({ contentType }) {
   const [saveContent, { isLoading: saving, error, reset }] = useSaveContentMutation();
   const [savedAt, setSavedAt] = useState(null);
 
-  // Has anything changed compared with what's saved?
-  const dirty = fields.some((f) => form[f.name] !== values[f.name]);
-  // Validation errors from the CMS, per field: { heroTitle: 'At most 60 characters' }
+  // Has anything changed compared with what's saved? (JSON, so lists of slides compare by content)
+  const dirty = JSON.stringify(form) !== JSON.stringify(values);
+  // Validation errors from the CMS, keyed by field path: { heroTitle: '...', 'slides.0.title': 'Required' }
   const fieldErrors = Object.fromEntries(
     (error?.data?.error?.details ?? []).filter((d) => d.field).map((d) => [d.field, d.message]),
   );
@@ -82,7 +82,7 @@ function ContentTypeForm({ contentType }) {
           key={field.name}
           field={field}
           value={form[field.name]}
-          error={fieldErrors[field.name]}
+          errors={fieldErrors}
           onChange={(value) => change(field.name, value)}
         />
       ))}

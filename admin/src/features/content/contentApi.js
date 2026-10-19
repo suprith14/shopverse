@@ -14,7 +14,11 @@ export const contentApi = cmsApi.injectEndpoints({
       query: ({ type, values }) => ({ url: `/admin/content/${type}`, method: 'PUT', body: values }),
       invalidatesTags: ['Content'], // refetch, so "last saved" and every form show what's really stored
     }),
+    // Permission to upload ONE banner image straight to Cloudinary (see ImageField)
+    signBannerUpload: build.mutation({
+      query: () => ({ url: '/admin/uploads/banner-signature', method: 'POST' }),
+    }),
   }),
 });
 
-export const { useGetEditorContentQuery, useSaveContentMutation } = contentApi;
+export const { useGetEditorContentQuery, useSaveContentMutation, useSignBannerUploadMutation } = contentApi;

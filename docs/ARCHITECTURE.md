@@ -24,6 +24,7 @@ Vercel, API on Render). See [DEPLOYMENT.md](DEPLOYMENT.md).
 |---|---|
 | **Store text**: brand name, home page hero, headings, footer, notices | Admin app → **Content** (stored in the CMS, `cms/`). Fallback copy: `frontend/src/content/site.js` |
 | Which text fields exist (labels, limits, defaults) | `cms/src/content/content-types.js` |
+| Home page banner slides (images) | Admin app → **Content → Home page banner**; shown by `frontend/src/features/catalog/components/HeroCarousel.jsx` |
 | Start-up loader (store / admin) | `frontend/index.html` + `src/splash.css` (same in `admin/`) |
 | Colours, fonts | `frontend/src/index.css` (Tailwind theme, `brand-*` colours) |
 | Header / footer layout | `frontend/src/components/layout/Header.jsx`, `RootLayout.jsx` |

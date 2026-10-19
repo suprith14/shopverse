@@ -1,6 +1,7 @@
 import { prisma } from '../lib/prisma.js';
 import { badRequest, notFound } from '../lib/http-error.js';
-import { contentTypes, defaultsFor, schemaFor, typeNames } from './content-types.js';
+import { contentTypes, defaultsFor, describeFields, schemaFor, typeNames } from './content-types.js';
+import { bannerPublicId, deleteImage } from '../lib/cloudinary.js';
 
 function assertType(type) {
   if (!typeNames.includes(type)) throw notFound(`Unknown content type "${type}"`);
@@ -40,7 +41,7 @@ export async function getEditorContent() {
       type,
       label,
       description,
-      fields: Object.entries(fields).map(([name, field]) => ({ name, ...field })),
+      fields: describeFields(fields),
       values: merge(type, row?.data),
       updatedAt: row?.updatedAt ?? null,
       updatedBy: row?.updatedBy ?? null,
@@ -56,10 +57,30 @@ export async function saveContent(type, input, userId) {
     throw badRequest('Validation failed', details);
   }
 
+  const previous = await prisma.contentEntry.findUnique({ where: { type } });
   await prisma.contentEntry.upsert({
     where: { type },
     create: { type, data: result.data, updatedBy: userId },
     update: { data: result.data, updatedBy: userId },
   });
+  deleteRemovedImages(previous?.data, result.data);
   return getContent(type);
+}
+
+// A slide was removed or its image replaced: delete the old file from Cloudinary, so unused
+// images don't pile up. In the background, after saving: a Cloudinary hiccup must never
+// block or undo a save (worst case, one unused file stays behind).
+function deleteRemovedImages(before, after) {
+  const urls = (data) => (data?.slides ?? []).map((slide) => slide.imageUrl);
+  const kept = new Set(urls(after));
+  for (const url of urls(before)) {
+    if (kept.has(url)) continue;
+    let publicId = null;
+    try {
+      publicId = bannerPublicId(url);
+    } catch {
+      return; // uploads not configured: nothing to clean up
+    }
+    if (publicId) deleteImage(publicId).catch((err) => console.error('[banner] could not delete old image', err));
+  }
 }

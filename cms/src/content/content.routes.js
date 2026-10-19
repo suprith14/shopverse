@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAdmin } from '../middleware/auth.js';
 import * as service from './content.service.js';
+import { signBannerUpload } from '../lib/cloudinary.js';
 
 // Mounted at /cms
 
@@ -29,4 +30,10 @@ contentRouter.get('/admin/content', requireAdmin, async (_req, res) => {
 
 contentRouter.put('/admin/content/:type', requireAdmin, async (req, res) => {
   res.json(await service.saveContent(req.params.type, req.body, res.locals.user.id));
+});
+
+// Step 1 of a banner image upload: permission (a signature) for the browser to upload ONE image
+// straight to Cloudinary. Step 2 is saving the banner with the image URL Cloudinary returns.
+contentRouter.post('/admin/uploads/banner-signature', requireAdmin, (_req, res) => {
+  res.json(signBannerUpload());
 });

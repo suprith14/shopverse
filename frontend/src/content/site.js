@@ -23,6 +23,12 @@ export const siteDefaults = {
     viewAllLabel: 'View all',
     featuredCount: 8,
   },
+  // Image slides (uploaded in the admin app). None by default: the home page then shows the
+  // purple banner made from `home` above.
+  banner: {
+    slides: [],
+    intervalSeconds: 6,
+  },
   footer: {
     text: 'ShopVerse, a portfolio project. Payments run in Stripe test mode.',
   },

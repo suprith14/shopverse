@@ -74,6 +74,7 @@ job catches up when it wakes). Neon sleeps too (`connect_timeout=30` handles it)
 | `NODE_ENV` | `production` |
 | `DATABASE_URL` | Neon **production branch**, database **`cms`** (must end in `/cms`, or the CMS refuses to start), direct host, `&connect_timeout=30` |
 | `JWT_ACCESS_SECRET` | **Exactly** the value on `shopverse-api`. Different = every admin save is 401 |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Banner image uploads; the same values as on `shopverse-api` (without them uploads answer 503) |
 
 `VITE_` variables on Vercel are **build-time**: they're written into the public JavaScript, so never put
 secrets in them, and redeploy after changing one.

@@ -39,6 +39,26 @@ admin app ──/api/auth/login──► backend/ (port 4000) ──► shop dat
 
 `cms/` refuses to migrate (`scripts/check-db.js`) or start (`src/config/env.js`) unless `DATABASE_URL` points at a database named **`cms`**. A shop database on the same Neon server has a similar URL, and `prisma migrate dev` would offer to reset it.
 
+## Home page banner (image carousel)
+
+Content type `banner`: up to **5 slides** (`image`, image description, small text, title, text, optional button text + link) and `intervalSeconds` (3-15, default 6). With no slides the store shows the purple text banner from `home`.
+
+**Uploading an image** (admin → Content → Home page banner → Upload image):
+```
+admin ──POST /cms/admin/uploads/banner-signature──► CMS signs: folder shopverse/banners/<random id>,
+                                                    max 2400x1200, jpg/png/webp only
+admin ──file + signature──► Cloudinary ──► image URL
+admin ──Save──► PUT /cms/admin/content/banner ──► CMS checks the URL is OUR banners folder, saves it
+store ──GET /cms/content──► HeroCarousel
+```
+The file never passes through our servers, and a changed signature (other folder, size, format) is rejected by Cloudinary. Removing or replacing a slide deletes the old file from Cloudinary in the background.
+
+**Validation** (`content-types.js`, new field kinds `image`, `link`, `list`): image must be in our Cloudinary `shopverse/banners/` folder; button link must be a store page (`/shop...`): no `https://...`, `//...` or `javascript:`; button text and link both or neither; at most 5 slides; unknown keys refused.
+
+**Store** (`frontend/src/features/catalog/components/HeroCarousel.jsx`): cross-fade every N seconds; **pauses** on hover, keyboard focus and hidden tabs; no autoplay with "reduce motion"; Pause/Play button (WCAG 2.2.2), arrows, dots, ← → keys, swipe; responsive Cloudinary sizes (`f_auto,q_auto`, 640-2400 px `srcset`), first image eager + high priority, others lazy; a dark gradient keeps the text readable on any photo; a hidden `h1` keeps the page's heading structure.
+
+**Settings:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` in `cms/.env` and on Render (`shopverse-cms`), the same values as the shop API. Without them, uploading answers 503.
+
 ## When the database is asleep
 
 Neon suspends the CMS database after 5 idle minutes, and the first connection after that can fail (P1001). `cms/src/lib/prisma.js` retries any query that couldn't **connect** up to 3 times (after 1 s, 2 s, 4 s: exponential backoff). That's safe because a query whose connection failed never ran. If it still fails, the API answers **503** with `Retry-After: 10` (temporarily unavailable), not 500.
