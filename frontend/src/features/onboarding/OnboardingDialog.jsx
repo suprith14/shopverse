@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Cake, Camera, MapPin, Phone, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { PhotoPicker } from '@/components/ui/PhotoPicker';
 import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
 import { notify } from '@/lib/notify';
@@ -56,14 +57,22 @@ export function OnboardingDialog() {
               </h2>
               <p className="text-sm text-slate-500">{t('onboarding.intro')}</p>
             </div>
-            <button onClick={finish} aria-label={t('common.close')} className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100">
+            <button
+              onClick={finish}
+              aria-label={t('common.close')}
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100"
+            >
               <X className="size-5" />
             </button>
           </div>
 
           {/* Progress: "Step 2 of 4" in words and as a bar */}
           <p className="mt-5 text-xs font-medium text-slate-500">
-            {t('onboarding.progress', { step: step + 1, total: STEPS.length, name: t(`onboarding.steps.${STEPS[step]}`) })}
+            {t('onboarding.progress', {
+              step: step + 1,
+              total: STEPS.length,
+              name: t(`onboarding.steps.${STEPS[step]}`),
+            })}
           </p>
           <div className="mt-1.5 flex gap-1.5" aria-hidden>
             {STEPS.map((s, i) => (
@@ -122,19 +131,15 @@ function StepIntro({ icon: Icon, title, text }) {
 
 function PhotoStep({ avatarUrl, initial, onNext }) {
   const { t } = useTranslation();
-  const fileInput = useRef(null);
   const upload = useUploadAvatar();
   const [localError, setLocalError] = useState(null);
 
   // Uploads as soon as a photo is picked, so "Next" just moves on.
-  const onPick = (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
+  // From the camera or a file: the same checks either way
+  const onPick = (file) => {
     setLocalError(null);
     if (!PHOTO_TYPES.includes(file.type)) return setLocalError(t('account.photoType'));
-    if (file.size > MAX_PHOTO_MB * 1024 * 1024)
-      return setLocalError(t('account.photoSize', { mb: MAX_PHOTO_MB }));
+    if (file.size > MAX_PHOTO_MB * 1024 * 1024) return setLocalError(t('account.photoSize', { mb: MAX_PHOTO_MB }));
     upload.mutate(file);
   };
 
@@ -151,10 +156,7 @@ function PhotoStep({ avatarUrl, initial, onNext }) {
             </div>
           )}
         </div>
-        <input ref={fileInput} type="file" accept={PHOTO_TYPES.join(',')} onChange={onPick} className="hidden" />
-        <Button variant="secondary" loading={upload.isPending} onClick={() => fileInput.current?.click()}>
-          {avatarUrl ? t('onboarding.chooseDifferent') : t('onboarding.choosePhoto')}
-        </Button>
+        <PhotoPicker onFile={onPick} accept={PHOTO_TYPES.join(',')} loading={upload.isPending} />
         {localError && <p className="text-sm text-red-600">{localError}</p>}
         {upload.isError && <ErrorState error={upload.error} />}
       </div>
@@ -183,11 +185,7 @@ function PhoneStep({ initial, onNext, onBack }) {
 
   return (
     <form onSubmit={submit}>
-      <StepIntro
-        icon={Phone}
-        title={t('onboarding.phoneTitle')}
-        text={t('onboarding.phoneText')}
-      />
+      <StepIntro icon={Phone} title={t('onboarding.phoneTitle')} text={t('onboarding.phoneText')} />
       {update.isError && (
         <div className="mb-3">
           <ErrorState error={update.error} />
@@ -266,11 +264,7 @@ function AddressStep({ onBack }) {
 
   return (
     <>
-      <StepIntro
-        icon={MapPin}
-        title={t('onboarding.addressTitle')}
-        text={t('onboarding.addressText')}
-      />
+      <StepIntro icon={MapPin} title={t('onboarding.addressTitle')} text={t('onboarding.addressText')} />
       <div className="rounded-lg bg-brand-50 p-4 text-sm text-brand-800 dark:text-brand-300">
         <Trans i18nKey="onboarding.whereToFind" components={[<b key="where" />]} />
       </div>

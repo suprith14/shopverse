@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import { Camera, KeyRound, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { PhotoPicker } from '@/components/ui/PhotoPicker';
 import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
 import { ListSkeleton } from '@/components/ui/Skeleton';
@@ -58,21 +59,17 @@ const PHOTO_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 function PhotoSection({ profile }) {
   const { t } = useTranslation();
-  const fileInput = useRef(null);
   const upload = useUploadAvatar();
   const remove = useRemoveAvatar();
   const [localError, setLocalError] = useState(null);
 
   // Quick checks in the browser, so a 40 MB file fails instantly instead of after a long upload.
   // (Cloudinary enforces the formats too: the browser check is only for convenience.)
-  const onPick = (e) => {
-    const file = e.target.files?.[0];
-    e.target.value = ''; // allow picking the same file again
-    if (!file) return;
+  // From the camera or a file: the same checks either way
+  const onPick = (file) => {
     setLocalError(null);
     if (!PHOTO_TYPES.includes(file.type)) return setLocalError(t('account.photoType'));
-    if (file.size > MAX_PHOTO_MB * 1024 * 1024)
-      return setLocalError(t('account.photoSize', { mb: MAX_PHOTO_MB }));
+    if (file.size > MAX_PHOTO_MB * 1024 * 1024) return setLocalError(t('account.photoSize', { mb: MAX_PHOTO_MB }));
     upload.mutate(file, { onSuccess: () => notify.success(t('account.photoUpdated')) });
   };
 
@@ -89,11 +86,8 @@ function PhotoSection({ profile }) {
           )}
         </div>
         <div className="space-y-2">
-          <div className="flex gap-2">
-            <input ref={fileInput} type="file" accept={PHOTO_TYPES.join(',')} onChange={onPick} className="hidden" />
-            <Button variant="secondary" loading={upload.isPending} onClick={() => fileInput.current?.click()}>
-              {profile.avatarUrl ? t('account.changePhoto') : t('account.uploadPhoto')}
-            </Button>
+          <div className="flex flex-wrap gap-2">
+            <PhotoPicker onFile={onPick} accept={PHOTO_TYPES.join(',')} loading={upload.isPending} />
             {profile.avatarUrl && (
               <Button
                 variant="ghost"
@@ -104,9 +98,7 @@ function PhotoSection({ profile }) {
               </Button>
             )}
           </div>
-          <p className="text-xs text-slate-500">
-            {t('account.photoHint', { mb: MAX_PHOTO_MB })}
-          </p>
+          <p className="text-xs text-slate-500">{t('account.photoHint', { mb: MAX_PHOTO_MB })}</p>
           {localError && <p className="text-sm text-red-600">{localError}</p>}
           {(upload.isError || remove.isError) && <ErrorState error={upload.error ?? remove.error} />}
         </div>
@@ -149,7 +141,13 @@ function DetailsSection({ profile }) {
             autoComplete="name"
           />
           {/* Email is shown but not editable: changing the login email needs re-verification. */}
-          <Input label={t('auth.email')} name="email" value={profile.email} disabled className="bg-slate-50 text-slate-500" />
+          <Input
+            label={t('auth.email')}
+            name="email"
+            value={profile.email}
+            disabled
+            className="bg-slate-50 text-slate-500"
+          />
           <Input
             label={t('account.phoneOptional')}
             name="phone"
@@ -238,11 +236,10 @@ function PasswordSection() {
         </div>
         {mismatch && <p className="text-sm text-red-600">{t('account.passwordsMismatch')}</p>}
         <label className="flex cursor-pointer items-center gap-2 text-sm text-slate-600">
-          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} /> {t('account.showPasswords')}
+          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} />{' '}
+          {t('account.showPasswords')}
         </label>
-        <p className="text-xs text-slate-500">
-          {t('account.passwordHint')}
-        </p>
+        <p className="text-xs text-slate-500">{t('account.passwordHint')}</p>
         <Button type="submit" loading={change.isPending} disabled={mismatch}>
           {t('account.changePassword')}
         </Button>
@@ -341,7 +338,9 @@ function AddressRow({ address }) {
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">{address.label}</span>
           )}
           {address.isDefault && (
-            <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">{t('address.default')}</span>
+            <span className="rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">
+              {t('address.default')}
+            </span>
           )}
         </div>
         <AddressLines address={address} />

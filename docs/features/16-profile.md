@@ -137,3 +137,19 @@ The order page has a **"Ship to"** box printed from `order.shippingAddress`, wit
 8. Why can a deleted image still load for a few seconds?
 9. Why does the photo upload to Cloudinary use plain `fetch` instead of our axios client?
 10. Why does checkout send only `addressId`, and what does the backend check?
+
+## Take a photo or choose a file
+
+The profile photo (My account, and the sign-up wizard) has two buttons: **Take photo** and **Choose file**
+(`frontend/src/components/ui/PhotoPicker.jsx`). Both hand the same `File` to the same checks and upload.
+
+- **Take photo** opens a live camera preview (`navigator.mediaDevices.getUserMedia`, front camera first, a switch
+  button when there's more than one camera). **Capture** shows the shot with **Retake** / **Use photo**; nothing is
+  uploaded until Use photo. The camera is switched off whenever the popup closes (no lingering camera light).
+- The front camera preview is mirrored (as phones do), and the saved photo matches what the person saw.
+- Camera blocked or missing: a clear message plus **Choose a file instead**. Browsers without the camera API fall
+  back to `<input capture="user">`, which opens the phone's camera app.
+- The camera API only works on HTTPS or localhost (the live site is HTTPS).
+- Tested with Edge's fake camera (`--use-fake-device-for-media-stream`): preview plays, Capture → Retake / Use photo,
+  camera off after closing.
+
