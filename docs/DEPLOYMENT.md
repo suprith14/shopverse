@@ -62,6 +62,7 @@ job catches up when it wakes). Neon sleeps too (`connect_timeout=30` handles it)
 | `STRIPE_WEBHOOK_SECRET` | From the Stripe webhook destination (not the CLI one) |
 | `RESEND_API_KEY`, `EMAIL_DEV_REDIRECT_TO` | Free Resend can only email its owner, so all emails are redirected |
 | `CLIENT_URL` | Store URL, no trailing slash: Stripe redirects, email links, CORS |
+| `GUIDE_PASSWORD` | Optional. Unlocks the project guide in the store (My account → Project guide). At least 8 characters. Without it the guide says it isn't set up |
 | `PROTECTED_ACCOUNTS` | Optional. Defaults to the two demo accounts (their logins are public): password can't be changed/reset, can't be blocked/deleted. Empty = protect nothing |
 | `TRUST_PROXY_HOPS` | `2` (Vercel rewrite + Render's load balancer), so per-IP login limits see the visitor's real IP. Check: a blocked login logs `[rate-limit] blocked ip=…`, which should show the visitor's IP, not one IP for everyone |
 | `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Profile photo uploads (optional: without them the avatar endpoints answer 503) |

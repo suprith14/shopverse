@@ -1,0 +1,1077 @@
+<title>ShopVerse System Map</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an engineer's field guide. One column of sections, each led by a diagram; a sticky section bar. */
+:root {
+  --bg: #f4f5f9;
+  --surface: #ffffff;
+  --ink: #161c33;
+  --muted: #5a627c;
+  --line: #d6dae6;
+  --accent: #4f46e5;
+  --accent-soft: #e8e7fd;
+  --device: #6d5bd0;
+  --device-soft: #efecfb;
+  --vercel: #2b3245;
+  --vercel-soft: #eceef4;
+  --render: #0e7490;
+  --render-soft: #e2f2f6;
+  --neon: #18794e;
+  --neon-soft: #e3f3ea;
+  --ext: #a85a0d;
+  --ext-soft: #fbefe1;
+  --code-bg: #f0f1f7;
+  --font-display: 'Archivo', 'Arial Narrow', system-ui, sans-serif;
+  --font-body: 'Public Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Code', Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1020; --surface: #141a2d; --ink: #e6e9f5; --muted: #9ba3bf; --line: #2b3351;
+    --accent: #8f89ff; --accent-soft: #24214a;
+    --device: #a99bff; --device-soft: #1e1a38; --vercel: #c9cfe0; --vercel-soft: #1a2035;
+    --render: #5fc4d8; --render-soft: #0f2831; --neon: #6ccf96; --neon-soft: #10261b;
+    --ext: #f0a75c; --ext-soft: #30220f; --code-bg: #0f1426;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1020; --surface: #141a2d; --ink: #e6e9f5; --muted: #9ba3bf; --line: #2b3351;
+  --accent: #8f89ff; --accent-soft: #24214a;
+  --device: #a99bff; --device-soft: #1e1a38; --vercel: #c9cfe0; --vercel-soft: #1a2035;
+  --render: #5fc4d8; --render-soft: #0f2831; --neon: #6ccf96; --neon-soft: #10261b;
+  --ext: #f0a75c; --ext-soft: #30220f; --code-bg: #0f1426;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 15px/1.6 var(--font-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 64px;
+}
+.wrap { max-width: 1180px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(30px, 5vw, 46px); font-weight: 800; letter-spacing: -0.02em; }
+h2 { font-size: clamp(22px, 3vw, 28px); font-weight: 800; letter-spacing: -0.01em; }
+h3 { font-size: 17px; font-weight: 700; }
+p { margin: 0; }
+code, .mono { font-family: var(--font-mono); font-size: 0.86em; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+/* ---------- header + section bar ---------- */
+header.top { padding-block: 40px 20px; display: grid; gap: 14px; }
+.eyebrow { font: 600 12px/1 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lede { color: var(--muted); max-width: 70ch; font-size: 16px; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; border: 2px solid; }
+
+nav.bar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--line);
+  margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px)));
+  padding: 10px max(16px, env(safe-area-inset-left, 0px));
+}
+nav.bar .wrap { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; }
+nav.bar a {
+  flex: none; text-decoration: none; color: var(--muted); font-weight: 600; font-size: 14px;
+  padding: 6px 12px; border-radius: 999px;
+}
+nav.bar a:hover { color: var(--ink); background: var(--surface); }
+
+section { padding-top: 48px; display: grid; gap: 18px; scroll-margin-top: 60px; }
+.sec-head { display: grid; gap: 8px; max-width: 75ch; }
+.sec-head p { color: var(--muted); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+.scroll-x { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+figure { margin: 0; display: grid; gap: 10px; }
+figcaption { color: var(--muted); font-size: 13px; }
+svg { display: block; }
+
+/* ---------- system map ---------- */
+.map-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+@media (max-width: 960px) { .map-grid { grid-template-columns: minmax(0, 1fr); } }
+.map-box { padding: 12px; }
+#map { width: 100%; min-width: 860px; height: auto; }
+.zone rect { stroke-width: 1.5; stroke-dasharray: 5 4; }
+.zone text { font: 700 12px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+.z-device rect { fill: var(--device-soft); stroke: var(--device); } .z-device text { fill: var(--device); }
+.z-vercel rect { fill: var(--vercel-soft); stroke: var(--vercel); } .z-vercel text { fill: var(--vercel); }
+.z-render rect { fill: var(--render-soft); stroke: var(--render); } .z-render text { fill: var(--render); }
+.z-neon rect { fill: var(--neon-soft); stroke: var(--neon); } .z-neon text { fill: var(--neon); }
+.z-ext rect { fill: var(--ext-soft); stroke: var(--ext); } .z-ext text { fill: var(--ext); }
+
+.node { cursor: pointer; }
+.node rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; transition: stroke 0.15s, stroke-width 0.15s; }
+.node .t { font: 700 14px var(--font-display); fill: var(--ink); }
+.node .s { font: 11px var(--font-mono); fill: var(--muted); }
+.node:hover rect, .node:focus-visible rect { stroke: var(--accent); }
+.node.active rect { stroke: var(--accent); stroke-width: 3; }
+.node.dim { opacity: 0.35; }
+.node:focus { outline: none; }
+
+.edge path, .edge line, .edge polyline { fill: none; stroke: var(--muted); stroke-width: 1.6; }
+.edge.dash path, .edge.dash line, .edge.dash polyline { stroke-dasharray: 6 5; }
+.edge text { font: 11px var(--font-body); fill: var(--muted); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.edge.hot path, .edge.hot line, .edge.hot polyline { stroke: var(--accent); stroke-width: 2.6; }
+.edge.hot text { fill: var(--accent); font-weight: 600; }
+.edge.dim { opacity: 0.18; }
+#arrow path { fill: var(--muted); }
+#arrowHot path { fill: var(--accent); }
+
+.detail { padding: 18px; display: grid; gap: 12px; position: sticky; top: 72px; }
+.detail .kind { font: 600 11px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.detail h3 { font-size: 20px; }
+.detail dl { display: grid; gap: 10px; margin: 0; }
+.detail dt { font: 600 11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.detail dd { margin: 2px 0 0; font-size: 14px; }
+.detail ul { margin: 4px 0 0; padding-left: 18px; display: grid; gap: 3px; font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 12px var(--font-mono); background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; padding: 2px 7px; overflow-wrap: anywhere; }
+.hint { color: var(--muted); font-size: 13px; }
+
+/* ---------- flow player ---------- */
+.flow-tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.flow-tabs button {
+  font: 600 14px var(--font-body); color: var(--ink); background: var(--surface);
+  border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; cursor: pointer;
+}
+.flow-tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.flow-intro { color: var(--muted); max-width: 80ch; }
+.player { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: start; }
+@media (max-width: 1000px) { .player { grid-template-columns: minmax(0, 1fr); } }
+.seq-box { padding: 12px; }
+#seq text { font-family: var(--font-body); }
+.lane-head rect { stroke-width: 1.5; }
+.lane-head text { font: 700 12.5px var(--font-display); }
+.lane-head .sub { font: 10.5px var(--font-mono); }
+.lifeline { stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 4 5; }
+.step line, .step path { fill: none; stroke-width: 1.6; stroke: var(--muted); }
+.step text.lbl { font-size: 12px; fill: var(--muted); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
+.step circle { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.step text.num { font: 600 11px var(--font-mono); fill: var(--muted); }
+.step.future { opacity: 0.32; }
+.step.current line, .step.current path { stroke: var(--accent); stroke-width: 2.8; }
+.step.current text.lbl { fill: var(--accent); font-weight: 600; }
+.step.current circle { fill: var(--accent); stroke: var(--accent); }
+.step.current text.num { fill: var(--surface); }
+.step.dashed line, .step.dashed path { stroke-dasharray: 6 5; }
+.step { cursor: pointer; }
+
+.step-card { padding: 18px; display: grid; gap: 12px; position: sticky; top: 72px; }
+.step-meta { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.step-count { font: 600 12px var(--font-mono); color: var(--muted); }
+.step-card h3 { font-size: 19px; }
+.step-card .desc { font-size: 14.5px; }
+pre.code {
+  margin: 0; background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; overflow-x: auto; font: 12.5px/1.55 var(--font-mono); color: var(--ink); white-space: pre;
+}
+.controls { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn {
+  font: 600 14px var(--font-body); border-radius: 10px; padding: 9px 14px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.kbd { font: 11px var(--font-mono); color: var(--muted); }
+
+/* ---------- code map ---------- */
+.apps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 14px; }
+.app { padding: 18px; display: grid; gap: 10px; align-content: start; border-top: 4px solid var(--c); }
+.app .where { font: 12px var(--font-mono); color: var(--muted); }
+.app pre.tree { margin: 0; font: 12.5px/1.65 var(--font-mono); white-space: pre; overflow-x: auto; color: var(--ink); }
+.tree .cm { color: var(--muted); }
+
+.layers-fig { padding: 16px; }
+#layers { width: 100%; min-width: 760px; height: auto; }
+.layer rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.layer .t { font: 700 13.5px var(--font-display); fill: var(--ink); }
+.layer .s { font: 11px var(--font-mono); fill: var(--muted); }
+.layer.hl rect { stroke: var(--accent); fill: var(--accent-soft); }
+.flowline { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+.flowtext { font: 11px var(--font-body); fill: var(--muted); }
+
+/* ---------- data ---------- */
+.data-box { padding: 12px; }
+#er { width: 100%; min-width: 980px; height: auto; }
+.tbl rect.body { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.tbl rect.head { stroke: none; }
+.tbl.shop rect.head { fill: var(--neon-soft); }
+.tbl.cmsdb rect.head { fill: var(--render-soft); }
+.tbl .name { font: 700 13px var(--font-display); fill: var(--ink); }
+.tbl .f { font: 11px var(--font-mono); fill: var(--muted); }
+.tbl .fk { fill: var(--accent); }
+.rel { stroke: var(--muted); stroke-width: 1.4; fill: none; }
+.rel-l { font: 600 10.5px var(--font-mono); fill: var(--muted); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; }
+.db-label { font: 700 12px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* ---------- cross-cutting ---------- */
+.mech { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.mech article { padding: 18px; display: grid; gap: 8px; align-content: start; }
+.mech .file { font: 12px var(--font-mono); color: var(--muted); overflow-wrap: anywhere; }
+.mech p { font-size: 14.5px; }
+
+.mech pre.code { font-size: 12px; }
+table.hosts { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 760px; }
+table.hosts th, table.hosts td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.hosts th { font: 600 11px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+table.hosts td code { overflow-wrap: anywhere; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">ShopVerse · architecture guide</div>
+  <h1>How ShopVerse fits together</h1>
+  <p class="lede">Four apps, two databases and three outside services. Start with the map, then play a flow step by step to see which file runs at each moment and what it does.</p>
+  <div class="legend" aria-label="Colour key">
+    <span><i class="swatch" style="border-color:var(--device);background:var(--device-soft)"></i>Your device</span>
+    <span><i class="swatch" style="border-color:var(--vercel);background:var(--vercel-soft)"></i>Vercel (serves the apps)</span>
+    <span><i class="swatch" style="border-color:var(--render);background:var(--render-soft)"></i>Render (servers)</span>
+    <span><i class="swatch" style="border-color:var(--neon);background:var(--neon-soft)"></i>Neon (databases)</span>
+    <span><i class="swatch" style="border-color:var(--ext);background:var(--ext-soft)"></i>Outside services</span>
+  </div>
+</header>
+
+<nav class="bar" aria-label="Sections">
+  <div class="wrap">
+    <a href="#map-section">1 · System map</a>
+    <a href="#flows">2 · Flows step by step</a>
+    <a href="#code">3 · Inside the code</a>
+    <a href="#data">4 · Data</a>
+    <a href="#shared">5 · Shared mechanisms</a>
+    <a href="#hosts">6 · Where it runs</a>
+    <a href="#local">7 · Run it locally</a>
+    <a href="#glossary">8 · Glossary</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ================================================================ 1. MAP -->
+<section id="map-section">
+  <div class="sec-head">
+    <h2>1 · The system map</h2>
+    <p>Click any box to see what it does, which folder it lives in and what it talks to. Its connections light up.</p>
+  </div>
+  <div class="map-grid">
+    <figure class="panel map-box">
+      <div class="scroll-x">
+        <svg id="map" viewBox="0 0 1240 700" role="img" aria-label="System map: the browser loads the store and admin apps from Vercel; Vercel forwards /api to the shop API and /cms to the CMS on Render; each server has its own Neon database; the shop API talks to Stripe and Resend; images go to Cloudinary.">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="arrowHot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+
+          <g class="zone z-device"><rect x="20" y="40" width="190" height="620" rx="14"/><text x="34" y="64">Your device</text></g>
+          <g class="zone z-vercel"><rect x="240" y="40" width="230" height="620" rx="14"/><text x="254" y="64">Vercel</text></g>
+          <g class="zone z-render"><rect x="520" y="40" width="250" height="620" rx="14"/><text x="534" y="64">Render · Ohio</text></g>
+          <g class="zone z-neon"><rect x="820" y="40" width="190" height="620" rx="14"/><text x="834" y="64">Neon · Postgres</text></g>
+          <g class="zone z-ext"><rect x="1040" y="40" width="185" height="620" rx="14"/><text x="1054" y="64">Outside services</text></g>
+
+          <!-- edges (drawn under the nodes) -->
+          <g class="edge" data-a="browser" data-b="store"><line x1="190" y1="300" x2="265" y2="168" marker-end="url(#arrow)"/><text x="232" y="246" text-anchor="middle">HTTPS</text></g>
+          <g class="edge" data-a="browser" data-b="admin"><line x1="190" y1="362" x2="265" y2="472" marker-end="url(#arrow)"/><text x="232" y="410" text-anchor="middle">HTTPS</text></g>
+          <g class="edge" data-a="store" data-b="api"><line x1="445" y1="150" x2="545" y2="150" marker-end="url(#arrow)"/><text x="495" y="143" text-anchor="middle">/api/*</text></g>
+          <g class="edge" data-a="store" data-b="cms"><line x1="445" y1="182" x2="545" y2="438" marker-end="url(#arrow)"/><text x="470" y="262" text-anchor="middle">/cms/*</text></g>
+          <g class="edge" data-a="admin" data-b="api"><line x1="445" y1="462" x2="545" y2="214" marker-end="url(#arrow)"/><text x="522" y="300" text-anchor="middle">/api/*</text></g>
+          <g class="edge" data-a="admin" data-b="cms"><line x1="445" y1="492" x2="545" y2="492" marker-end="url(#arrow)"/><text x="495" y="485" text-anchor="middle">/cms/*</text></g>
+          <g class="edge" data-a="api" data-b="shopdb"><line x1="745" y1="190" x2="840" y2="190" marker-end="url(#arrow)"/><text x="792" y="183" text-anchor="middle">Prisma</text></g>
+          <g class="edge" data-a="cms" data-b="cmsdb"><line x1="745" y1="470" x2="840" y2="470" marker-end="url(#arrow)"/><text x="792" y="463" text-anchor="middle">Prisma</text></g>
+          <g class="edge dash" data-a="api" data-b="cms"><line x1="645" y1="230" x2="645" y2="420"/><text x="655" y="320">same JWT secret</text><text x="655" y="334">(no network calls)</text></g>
+          <g class="edge" data-a="api" data-b="stripe"><line x1="745" y1="120" x2="1060" y2="98" marker-end="url(#arrow)"/><text x="902" y="101" text-anchor="middle">checkout session · refunds</text></g>
+          <g class="edge dash" data-a="stripe" data-b="api"><line x1="1060" y1="118" x2="745" y2="138" marker-end="url(#arrow)"/><text x="902" y="141" text-anchor="middle">webhook: paid (signed)</text></g>
+          <g class="edge" data-a="api" data-b="resend"><polyline points="745,222 800,222 800,250 1060,250" marker-end="url(#arrow)"/><text x="930" y="244" text-anchor="middle">emails</text></g>
+          <g class="edge" data-a="browser" data-b="stripe"><polyline points="115,270 115,22 1130,22 1130,58" marker-end="url(#arrow)"/><text x="620" y="16" text-anchor="middle">customer pays on Stripe's page (redirect)</text></g>
+          <g class="edge" data-a="browser" data-b="cloudinary"><polyline points="115,390 115,640 1130,640 1130,516" marker-end="url(#arrow)"/><text x="620" y="634" text-anchor="middle">uploads photos straight to Cloudinary · loads images</text></g>
+          <g class="edge" data-a="api" data-b="cloudinary"><polyline points="720,230 720,300 1000,300 1000,470 1060,470" marker-end="url(#arrow)"/><text x="860" y="294" text-anchor="middle">signs avatar uploads</text></g>
+          <g class="edge" data-a="cms" data-b="cloudinary"><polyline points="720,520 720,575 1085,575 1085,516" marker-end="url(#arrow)"/><text x="900" y="569" text-anchor="middle">signs banner uploads · deletes old</text></g>
+
+          <!-- nodes -->
+          <g class="node" data-id="browser" tabindex="0" role="button" aria-label="Browser"><rect x="40" y="270" width="150" height="120" rx="12"/><text class="t" x="115" y="316" text-anchor="middle">Browser</text><text class="s" x="115" y="338" text-anchor="middle">runs both</text><text class="s" x="115" y="354" text-anchor="middle">React apps</text></g>
+          <g class="node" data-id="store" tabindex="0" role="button" aria-label="Store app"><rect x="265" y="120" width="180" height="80" rx="12"/><text class="t" x="355" y="155" text-anchor="middle">Store app</text><text class="s" x="355" y="176" text-anchor="middle">frontend/</text></g>
+          <g class="node" data-id="admin" tabindex="0" role="button" aria-label="Admin app"><rect x="265" y="440" width="180" height="80" rx="12"/><text class="t" x="355" y="475" text-anchor="middle">Admin app</text><text class="s" x="355" y="496" text-anchor="middle">admin/</text></g>
+          <g class="node" data-id="api" tabindex="0" role="button" aria-label="Shop API"><rect x="545" y="110" width="200" height="120" rx="12"/><text class="t" x="645" y="150" text-anchor="middle">Shop API</text><text class="s" x="645" y="171" text-anchor="middle">backend/</text><text class="s" x="645" y="190" text-anchor="middle">Express 5 + Prisma</text><text class="s" x="645" y="209" text-anchor="middle">+ job every minute</text></g>
+          <g class="node" data-id="cms" tabindex="0" role="button" aria-label="CMS"><rect x="545" y="420" width="200" height="100" rx="12"/><text class="t" x="645" y="458" text-anchor="middle">CMS</text><text class="s" x="645" y="479" text-anchor="middle">cms/</text><text class="s" x="645" y="498" text-anchor="middle">Express 5 + Prisma</text></g>
+          <g class="node" data-id="shopdb" tabindex="0" role="button" aria-label="Shop database"><rect x="840" y="150" width="150" height="80" rx="12"/><text class="t" x="915" y="185" text-anchor="middle">Shop DB</text><text class="s" x="915" y="206" text-anchor="middle">database neondb</text></g>
+          <g class="node" data-id="cmsdb" tabindex="0" role="button" aria-label="CMS database"><rect x="840" y="430" width="150" height="80" rx="12"/><text class="t" x="915" y="465" text-anchor="middle">CMS DB</text><text class="s" x="915" y="486" text-anchor="middle">database cms</text></g>
+          <g class="node" data-id="stripe" tabindex="0" role="button" aria-label="Stripe"><rect x="1060" y="58" width="150" height="72" rx="12"/><text class="t" x="1135" y="90" text-anchor="middle">Stripe</text><text class="s" x="1135" y="110" text-anchor="middle">payments</text></g>
+          <g class="node" data-id="resend" tabindex="0" role="button" aria-label="Resend"><rect x="1060" y="214" width="150" height="72" rx="12"/><text class="t" x="1135" y="246" text-anchor="middle">Resend</text><text class="s" x="1135" y="266" text-anchor="middle">email</text></g>
+          <g class="node" data-id="cloudinary" tabindex="0" role="button" aria-label="Cloudinary"><rect x="1060" y="444" width="150" height="72" rx="12"/><text class="t" x="1135" y="476" text-anchor="middle">Cloudinary</text><text class="s" x="1135" y="496" text-anchor="middle">images</text></g>
+        </svg>
+      </div>
+      <figcaption>The browser only ever talks to Vercel (plus Stripe's payment page and Cloudinary for images). Vercel forwards <code>/api/*</code> to the shop API and <code>/cms/*</code> to the CMS. The two servers never call each other: the CMS trusts admin logins because both know the same signing secret.</figcaption>
+    </figure>
+    <aside class="panel detail" id="detail" aria-live="polite"></aside>
+  </div>
+</section>
+
+<!-- ================================================================ 2. FLOWS -->
+<section id="flows">
+  <div class="sec-head">
+    <h2>2 · Flows, step by step</h2>
+    <p>Pick a flow, then step through it. Each step names the file that runs and shows the important lines. Use <span class="kbd">←</span> <span class="kbd">→</span> on your keyboard, or click a step in the diagram.</p>
+  </div>
+  <div class="flow-tabs" role="tablist" id="flowTabs"></div>
+  <p class="flow-intro" id="flowIntro"></p>
+  <div class="player">
+    <figure class="panel seq-box">
+      <div class="scroll-x"><svg id="seq" role="img"></svg></div>
+      <figcaption id="seqCaption"></figcaption>
+    </figure>
+    <aside class="panel step-card" aria-live="polite">
+      <div class="step-meta"><span class="step-count" id="stepCount"></span><span class="kbd">← →</span></div>
+      <h3 id="stepTitle"></h3>
+      <p class="desc" id="stepDesc"></p>
+      <div class="chips" id="stepFiles"></div>
+      <pre class="code" id="stepCode"></pre>
+      <div class="controls">
+        <button class="btn" id="prevBtn" type="button">← Back</button>
+        <button class="btn primary" id="nextBtn" type="button">Next step →</button>
+        <button class="btn" id="playBtn" type="button">▶ Play</button>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ================================================================ 3. CODE -->
+<section id="code">
+  <div class="sec-head">
+    <h2>3 · Inside the code</h2>
+    <p>Every request to either server goes down the same stack of layers. Each layer has one job, which is why a feature always splits into the same four files.</p>
+  </div>
+  <figure class="panel layers-fig">
+    <div class="scroll-x">
+      <svg id="layers" viewBox="0 0 1100 250" role="img" aria-label="A request passes through global middleware, the router, the auth check, Zod validation, the controller, the service and Prisma; any error thrown on the way is turned into JSON by the error handler.">
+        <defs><marker id="arrowL" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+        <g style="color: var(--muted)">
+          <line class="flowline" x1="138" y1="80" x2="152" y2="80" marker-end="url(#arrowL)"/>
+          <line class="flowline" x1="290" y1="80" x2="304" y2="80" marker-end="url(#arrowL)"/>
+          <line class="flowline" x1="442" y1="80" x2="456" y2="80" marker-end="url(#arrowL)"/>
+          <line class="flowline" x1="594" y1="80" x2="608" y2="80" marker-end="url(#arrowL)"/>
+          <line class="flowline" x1="746" y1="80" x2="760" y2="80" marker-end="url(#arrowL)"/>
+          <line class="flowline" x1="898" y1="80" x2="912" y2="80" marker-end="url(#arrowL)"/>
+          <polyline class="flowline" points="80,122 80,190 520,190" marker-end="url(#arrowL)" stroke-dasharray="5 5"/>
+          <polyline class="flowline" points="1000,122 1000,190 690,190" marker-end="url(#arrowL)" stroke-dasharray="5 5"/>
+          <text class="flowtext" x="250" y="183" text-anchor="middle">any step throws an HttpError</text>
+          <text class="flowtext" x="850" y="183" text-anchor="middle">or a database error</text>
+        </g>
+        <g class="layer"><rect x="10" y="38" width="128" height="84" rx="10"/><text class="t" x="74" y="70" text-anchor="middle">Middleware</text><text class="s" x="74" y="90" text-anchor="middle">helmet · cors</text><text class="s" x="74" y="106" text-anchor="middle">json · cookies</text></g>
+        <g class="layer"><rect x="162" y="38" width="128" height="84" rx="10"/><text class="t" x="226" y="70" text-anchor="middle">Router</text><text class="s" x="226" y="90" text-anchor="middle">*.routes.js</text><text class="s" x="226" y="106" text-anchor="middle">URL → handler</text></g>
+        <g class="layer"><rect x="314" y="38" width="128" height="84" rx="10"/><text class="t" x="378" y="70" text-anchor="middle">Auth guard</text><text class="s" x="378" y="90" text-anchor="middle">requireAuth</text><text class="s" x="378" y="106" text-anchor="middle">requireRole</text></g>
+        <g class="layer"><rect x="466" y="38" width="128" height="84" rx="10"/><text class="t" x="530" y="70" text-anchor="middle">Validate</text><text class="s" x="530" y="90" text-anchor="middle">*.schema.js</text><text class="s" x="530" y="106" text-anchor="middle">Zod</text></g>
+        <g class="layer hl"><rect x="618" y="38" width="128" height="84" rx="10"/><text class="t" x="682" y="70" text-anchor="middle">Controller</text><text class="s" x="682" y="90" text-anchor="middle">*.controller.js</text><text class="s" x="682" y="106" text-anchor="middle">HTTP only</text></g>
+        <g class="layer hl"><rect x="770" y="38" width="128" height="84" rx="10"/><text class="t" x="834" y="70" text-anchor="middle">Service</text><text class="s" x="834" y="90" text-anchor="middle">*.service.js</text><text class="s" x="834" y="106" text-anchor="middle">rules + data</text></g>
+        <g class="layer"><rect x="922" y="38" width="160" height="84" rx="10"/><text class="t" x="1002" y="70" text-anchor="middle">Prisma → Postgres</text><text class="s" x="1002" y="90" text-anchor="middle">lib/prisma.js</text><text class="s" x="1002" y="106" text-anchor="middle">typed SQL</text></g>
+        <g class="layer"><rect x="525" y="166" width="160" height="56" rx="10"/><text class="t" x="605" y="190" text-anchor="middle">Error handler</text><text class="s" x="605" y="208" text-anchor="middle">{ error: { message } }</text></g>
+      </svg>
+    </div>
+    <figcaption>Example: <code>POST /api/cart/items</code> runs <code>cart.routes.js</code> → <code>requireAuth</code> → <code>addItemSchema</code> → <code>cart.controller.addItem</code> → <code>cart.service.addItem</code> → Prisma. Controllers only deal with HTTP; services hold the business rules, so a background job can call a service without any HTTP involved.</figcaption>
+  </figure>
+
+  <div class="apps">
+    <article class="panel app" style="--c: var(--render)">
+      <h3>Shop API</h3>
+      <div class="where">backend/ · Render · port 4000</div>
+<pre class="tree">src/
+  server.js       <span class="cm"># starts HTTP + the minute job</span>
+  app.js          <span class="cm"># middleware + every router</span>
+  config/env.js   <span class="cm"># checks .env at startup</span>
+  lib/            <span class="cm"># prisma, stripe, email,</span>
+                  <span class="cm"># cloudinary, rate limiter</span>
+  middleware/     <span class="cm"># auth, validate, errors</span>
+  jobs/           <span class="cm"># cancel unpaid orders</span>
+  modules/
+    auth  catalog  cart  wishlist
+    coupons  orders  payments
+    webhooks  reviews  profile
+    invoices
+    admin/  products orders
+            customers analytics
+prisma/schema.prisma  <span class="cm"># all tables</span>
+tests/ unit/ api/     <span class="cm"># 58 tests</span></pre>
+    </article>
+    <article class="panel app" style="--c: var(--render)">
+      <h3>CMS</h3>
+      <div class="where">cms/ · Render · port 4100</div>
+<pre class="tree">src/
+  server.js
+  app.js            <span class="cm"># every URL starts /cms</span>
+  config/env.js     <span class="cm"># database must be "cms"</span>
+  lib/prisma.js     <span class="cm"># retries while Neon wakes</span>
+  lib/cloudinary.js <span class="cm"># signs banner uploads</span>
+  middleware/auth.js <span class="cm"># checks admin JWT</span>
+  content/
+    content-types.js <span class="cm"># ✏️ every field,</span>
+                     <span class="cm"># once: rules, defaults,</span>
+                     <span class="cm"># admin form</span>
+    content.service.js
+    content.routes.js
+prisma/schema.prisma <span class="cm"># ContentEntry</span>
+scripts/check-db.js  <span class="cm"># migration guard</span></pre>
+    </article>
+    <article class="panel app" style="--c: var(--device)">
+      <h3>Store</h3>
+      <div class="where">frontend/ · Vercel · port 5173</div>
+<pre class="tree">index.html     <span class="cm"># loader + theme script</span>
+src/
+  main.jsx       <span class="cm"># providers, i18n</span>
+  router.jsx     <span class="cm"># URL → page</span>
+  i18n/          <span class="cm"># en.js, kn.js</span>
+  content/       <span class="cm"># CMS text + fallback</span>
+  lib/
+    api-client.js <span class="cm"># axios + token refresh</span>
+    theme.js  server-error.js
+  components/layout  ui/
+  features/      <span class="cm"># one folder per feature,</span>
+                 <span class="cm"># same names as backend</span>
+    auth catalog cart orders
+    account wishlist reviews …</pre>
+    </article>
+    <article class="panel app" style="--c: var(--device)">
+      <h3>Admin</h3>
+      <div class="where">admin/ · Vercel · port 5174</div>
+<pre class="tree">src/
+  main.jsx       <span class="cm"># Redux provider</span>
+  router.jsx
+  app/
+    api.js       <span class="cm"># 2 RTK Query slices:</span>
+                 <span class="cm"># api (shop), cmsApi (CMS)</span>
+                 <span class="cm"># + shared token refresh</span>
+    store.js
+  features/
+    dashboard    <span class="cm"># charts</span>
+    products orders customers
+    content      <span class="cm"># form drawn from the</span>
+                 <span class="cm"># CMS field list</span>
+  lib/server-error.js</pre>
+    </article>
+  </div>
+</section>
+
+<!-- ================================================================ 4. DATA -->
+<section id="data">
+  <div class="sec-head">
+    <h2>4 · Where the data lives</h2>
+    <p>Two separate databases. The shop's tables hold users, products and money; the CMS keeps one table of content as JSON. Purple field names point at another table.</p>
+  </div>
+  <figure class="panel data-box">
+    <div class="scroll-x">
+      <svg id="er" viewBox="0 0 1180 640" role="img" aria-label="Database tables: a User owns refresh tokens, reset codes, addresses, cart items, wishlist items, reviews and orders; an Order has items and stock reservations and may use a coupon; products have variants and a category. The CMS database has one table, ContentEntry."></svg>
+    </div>
+    <figcaption>Prices are stored in cents. An order copies the product names, prices and address it was placed with, so editing a product later never changes a past invoice.</figcaption>
+  </figure>
+</section>
+
+<!-- ================================================================ 5. SHARED -->
+<section id="shared">
+  <div class="sec-head">
+    <h2>5 · Shared mechanisms</h2>
+    <p>Ideas that run through several apps. Each one is small on its own; together they are what makes the system behave well when things go wrong.</p>
+  </div>
+  <div class="mech" id="mech"></div>
+</section>
+
+<!-- ================================================================ 6. HOSTS -->
+<section id="hosts">
+  <div class="sec-head">
+    <h2>6 · Where it runs</h2>
+    <p>Everything is on free plans. Servers and databases sleep when idle, so the first visit after a quiet spell is slow; every layer is built to wait or retry instead of failing.</p>
+  </div>
+  <div class="panel scroll-x">
+    <table class="hosts">
+      <thead><tr><th>Part</th><th>Host</th><th>Address</th><th>Deploys</th><th>Sleeps?</th></tr></thead>
+      <tbody>
+        <tr><td><b>Store</b> · frontend/</td><td>Vercel</td><td><code>shopverse-eta-ecru.vercel.app</code></td><td>Push to main</td><td>No (static files on a CDN)</td></tr>
+        <tr><td><b>Admin</b> · admin/</td><td>Vercel</td><td><code>shopverse-admin-lemon.vercel.app</code></td><td>Push to main</td><td>No</td></tr>
+        <tr><td><b>Shop API</b> · backend/</td><td>Render, Ohio</td><td><code>shopverse-api-u9c6.onrender.com</code></td><td>Push to main; start runs <code>migrate deploy</code></td><td>After 15 min idle (~30–50 s to wake)</td></tr>
+        <tr><td><b>CMS</b> · cms/</td><td>Render, Ohio</td><td><code>shopverse-cms.onrender.com</code></td><td>Push to main; start runs <code>migrate deploy</code></td><td>After 15 min idle</td></tr>
+        <tr><td><b>Databases</b></td><td>Neon, us-east-2</td><td>production branch: <code>neondb</code> and <code>cms</code></td><td>Migrations from the servers</td><td>After 5 min idle (first query may fail and is retried)</td></tr>
+        <tr><td><b>Payments</b></td><td>Stripe (test mode)</td><td>Checkout page + signed webhooks</td><td>n/a</td><td>No</td></tr>
+        <tr><td><b>Email</b></td><td>Resend</td><td>All mail redirected to the owner (free plan)</td><td>n/a</td><td>No</td></tr>
+        <tr><td><b>Images</b></td><td>Cloudinary</td><td><code>shopverse/avatars</code>, <code>shopverse/banners</code></td><td>n/a</td><td>No</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ================================================================ 7. LOCAL -->
+<section id="local">
+  <div class="sec-head">
+    <h2>7 · Run it locally</h2>
+    <p>One terminal for the four apps; a second only when testing payments.</p>
+  </div>
+  <div class="mech">
+    <article class="panel"><h3>Start everything</h3><div class="file">project root</div>
+<pre class="code">npm run install:all   # first time only
+npm run dev           # api :4000  cms :4100
+                      # store :5173  admin :5174</pre></article>
+    <article class="panel"><h3>Payments locally</h3><div class="file">second terminal</div>
+<pre class="code">stripe listen --forward-to \
+  localhost:4000/api/webhooks/stripe
+# test card 4242 4242 4242 4242</pre></article>
+    <article class="panel"><h3>Database changes</h3><div class="file">backend/ or cms/</div>
+<pre class="code">npm run db:migrate    # new migration (dev DB)
+npm run db:studio     # browse tables
+npm test              # 58 tests (test DB)</pre></article>
+  </div>
+</section>
+
+<!-- ================================================================ 8. GLOSSARY -->
+<section id="glossary">
+  <div class="sec-head">
+    <h2>8 · Glossary</h2>
+    <p>The technical words used in this guide, in plain language.</p>
+  </div>
+  <div class="panel scroll-x">
+    <table class="hosts" id="glossaryTable"><thead><tr><th>Term</th><th>Meaning</th><th>In ShopVerse</th></tr></thead><tbody></tbody></table>
+  </div>
+</section>
+</main>
+
+<script>
+/* =================================================================== data: map nodes */
+const NODES = {
+  browser: {
+    kind: 'Your device', color: 'device', title: 'Browser',
+    what: 'Downloads the store or admin app once, then runs it. All pages after that are drawn here; only data travels over the network.',
+    files: ['localStorage: theme, language, CMS copy', 'memory: access token'],
+    talks: ['Vercel (pages, /api, /cms)', "Stripe's payment page", 'Cloudinary (uploads, images)'],
+  },
+  store: {
+    kind: 'Vercel project · shopverse', color: 'vercel', title: 'Store app',
+    what: 'The customer shop: React 19 + Vite, TanStack Query for server data, Zustand for the login, react-i18next for English and Kannada.',
+    files: ['frontend/index.html', 'src/router.jsx', 'src/lib/api-client.js', 'src/content/use-site-content.js', 'vercel.json'],
+    talks: ['/api/* forwarded to the Shop API', '/cms/* forwarded to the CMS', 'every other path → index.html'],
+  },
+  admin: {
+    kind: 'Vercel project · shopverse-admin', color: 'vercel', title: 'Admin app',
+    what: 'The staff panel: dashboard charts, products, orders, customers and the Content editor. Redux Toolkit + RTK Query.',
+    files: ['admin/src/app/api.js', 'src/features/content/', 'src/features/customers/', 'vercel.json'],
+    talks: ['/api/* (login, products, orders…)', '/cms/* (content, banner uploads)'],
+  },
+  api: {
+    kind: 'Render web service · shopverse-api', color: 'render', title: 'Shop API',
+    what: 'Everything about shopping and money: accounts, catalog, cart, orders, payments, invoices, admin tools. Also runs a job every minute that cancels unpaid orders.',
+    files: ['backend/src/app.js', 'src/modules/*/', 'src/jobs/expire-orders.job.js', 'prisma/schema.prisma'],
+    talks: ['Shop DB (Prisma)', 'Stripe (sessions, refunds, webhooks)', 'Resend (email)', 'Cloudinary (sign avatar uploads)'],
+  },
+  cms: {
+    kind: 'Render web service · shopverse-cms', color: 'render', title: 'CMS',
+    what: 'A separate headless CMS for the store text and home banner. It has no users: it checks the admin login token with the same secret the Shop API signs it with.',
+    files: ['cms/src/content/content-types.js', 'src/content/content.service.js', 'src/middleware/auth.js', 'src/lib/cloudinary.js'],
+    talks: ['CMS DB (Prisma)', 'Cloudinary (sign + delete banners)', 'never calls the Shop API'],
+  },
+  shopdb: {
+    kind: 'Neon · production branch', color: 'neon', title: 'Shop database',
+    what: 'PostgreSQL database "neondb": users, products, carts, orders, invoices and more. Only the Shop API connects to it.',
+    files: ['backend/prisma/schema.prisma', 'backend/prisma/migrations/'],
+    talks: ['Shop API only'],
+  },
+  cmsdb: {
+    kind: 'Neon · production branch', color: 'neon', title: 'CMS database',
+    what: 'PostgreSQL database "cms" with one table, ContentEntry: one row per content type, its fields stored as JSON (text as { en, kn }).',
+    files: ['cms/prisma/schema.prisma'],
+    talks: ['CMS only'],
+  },
+  stripe: {
+    kind: 'Outside service', color: 'ext', title: 'Stripe',
+    what: "Takes the payment on its own hosted page, so card numbers never touch ShopVerse. Tells the Shop API about the result through a signed webhook.",
+    files: ['backend/src/modules/payments/payments.service.js', 'src/modules/webhooks/stripe-webhook.js'],
+    talks: ['Shop API (both ways)', 'the customer\'s browser (payment page)'],
+  },
+  resend: {
+    kind: 'Outside service', color: 'ext', title: 'Resend',
+    what: 'Sends email: order confirmation with the PDF invoice, password reset codes, "password changed" notices. Without a key, emails are printed in the terminal instead.',
+    files: ['backend/src/lib/email.js', 'src/modules/orders/order-emails.js', 'src/modules/auth/auth-emails.js'],
+    talks: ['Shop API only'],
+  },
+  cloudinary: {
+    kind: 'Outside service', color: 'ext', title: 'Cloudinary',
+    what: 'Stores and serves images. Browsers upload straight to it with a signature from our servers, and it resizes on the fly (WebP, the right width per screen).',
+    files: ['backend/src/lib/cloudinary.js (avatars)', 'cms/src/lib/cloudinary.js (banners)', 'components/ui/PhotoPicker.jsx'],
+    talks: ['browsers (upload, view)', 'Shop API + CMS (sign, delete)'],
+  },
+};
+
+/* =================================================================== data: flows */
+const LANES = {
+  browser: { label: 'Browser', sub: 'store app', color: 'device' },
+  adminb: { label: 'Admin app', sub: 'browser', color: 'device' },
+  vercel: { label: 'Vercel', sub: 'files + rewrites', color: 'vercel' },
+  api: { label: 'Shop API', sub: 'backend/', color: 'render' },
+  job: { label: 'Minute job', sub: 'in Shop API', color: 'render' },
+  cms: { label: 'CMS', sub: 'cms/', color: 'render' },
+  shopdb: { label: 'Shop DB', sub: 'neondb', color: 'neon' },
+  cmsdb: { label: 'CMS DB', sub: 'cms', color: 'neon' },
+  stripe: { label: 'Stripe', sub: 'payments', color: 'ext' },
+  resend: { label: 'Resend', sub: 'email', color: 'ext' },
+  cloud: { label: 'Cloudinary', sub: 'images', color: 'ext' },
+  mw: { label: 'Middleware', sub: 'app.js', color: 'render' },
+  router: { label: 'Router', sub: '*.routes.js', color: 'render' },
+  guard: { label: 'Auth guard', sub: 'requireAuth', color: 'render' },
+  zod: { label: 'Validate', sub: 'Zod schema', color: 'render' },
+  ctrl: { label: 'Controller', sub: '*.controller', color: 'render' },
+  svc: { label: 'Service', sub: '*.service', color: 'render' },
+  err: { label: 'Error handler', sub: 'JSON errors', color: 'render' },
+  dev: { label: 'Your laptop', sub: 'code + tests', color: 'device' },
+  github: { label: 'GitHub', sub: 'main branch', color: 'vercel' },
+  vercelb: { label: 'Vercel', sub: 'store + admin', color: 'vercel' },
+  renderb: { label: 'Render', sub: 'API + CMS', color: 'render' },
+};
+
+const FLOWS = [
+  {
+    id: 'open', name: 'Opening the store',
+    intro: 'What happens between typing the address and seeing products. The page never waits for the CMS, and dark mode is applied before anything is painted.',
+    lanes: ['browser', 'vercel', 'api', 'shopdb', 'cms', 'cmsdb'],
+    steps: [
+      { f: 'browser', t: 'vercel', l: 'GET /  →  index.html', d: 'Vercel sends a tiny HTML file. It already contains the start-up loader (plain HTML + CSS), so something branded appears before any JavaScript arrives.', files: ['frontend/index.html', 'src/splash.css'], code: `<div id="splash" role="status">…</div>\n<script type="module" src="/src/main.jsx"><\/script>` },
+      { f: 'browser', t: 'browser', l: 'theme script runs', d: 'A few inline lines read the saved theme (or the device setting) and add the "dark" class to <html> before the first paint, so dark-mode visitors never see a white flash.', files: ['frontend/index.html', 'src/lib/theme.js'], code: `var theme = localStorage.getItem('shopverse:theme');\nif (theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches))\n  document.documentElement.classList.add('dark');` },
+      { f: 'vercel', t: 'browser', l: 'JavaScript bundle', d: 'main.jsx loads the translations (English or Kannada: saved choice, else the browser language), then mounts React with the router and the query cache.', files: ['src/main.jsx', 'src/i18n/index.js'], code: `import './i18n'; // load translations before anything renders\ncreateRoot(root).render(\n  <QueryClientProvider client={queryClient}>\n    <RouterProvider router={router} />\n  </QueryClientProvider>);` },
+      { f: 'browser', t: 'api', l: 'POST /api/auth/refresh', d: 'Am I logged in? The browser sends the httpOnly refresh cookie (JavaScript can\'t read it). The request goes to Vercel, which forwards /api/* to Render.', files: ['src/lib/api-client.js', 'vercel.json'], code: `refreshPromise ??= axios.post('/api/auth/refresh', null, { withCredentials: true })\n  .then(({ data }) => setSession(data.user, data.accessToken))\n  .catch(() => clearSession()); // no valid cookie = guest` },
+      { f: 'api', t: 'shopdb', l: 'find token hash, rotate it', d: 'Only a SHA-256 hash of each refresh token is stored. The used token is revoked and a new one issued (rotation). A revoked token used again means theft: every session of that user is ended.', files: ['backend/src/modules/auth/auth.service.js'], code: `const stored = await prisma.refreshToken.findUnique({ where: { tokenHash: hashToken(raw) } });\nif (stored.revokedAt) { /* reuse = theft: revoke all */ }\nawait prisma.refreshToken.update({ where: { id: stored.id }, data: { revokedAt: new Date() } });\nreturn { user, ...(await issueTokens(user)) };` },
+      { f: 'api', t: 'browser', l: 'access token + new cookie', d: 'The 15-minute access token stays in memory (Zustand), never in localStorage. A 401 here simply means "guest".', files: ['src/features/auth/auth.store.js'], code: `res.cookie('refreshToken', refreshToken, { httpOnly: true, sameSite: 'lax', path: '/api/auth' })\n   .json({ user, accessToken });` },
+      { f: 'browser', t: 'browser', l: 'show saved CMS text', d: 'The home page text and banner appear instantly from the copy saved in this browser last time (or site.js on a first visit), in the reader\'s language.', files: ['src/content/use-site-content.js', 'src/content/site.js'], code: `initialData: () => withDefaults(readSavedCopy()),\ninitialDataUpdatedAt: 0, // still fetch fresh text right away\n…\nreturn inLanguage(data, i18n.language); // { en, kn } → string` },
+      { f: 'browser', t: 'cms', l: 'GET /cms/content', d: 'In the background, fresh text is fetched from the CMS. Plain fetch (not axios), so a sleeping CMS never shows the "waking up the server" banner. Cached for 60 s by browsers and the CDN.', files: ['src/content/use-site-content.js', 'cms/src/content/content.routes.js'], code: `res.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');\nres.json(await service.getAllContent());` },
+      { f: 'cms', t: 'cmsdb', l: 'read ContentEntry rows', d: 'One row per content type. Saved values are laid over the defaults, so a field nobody has edited still has text (in both languages).', files: ['cms/src/content/content.service.js'], code: `const rows = await prisma.contentEntry.findMany();\nreturn { brand: merge('brand', …), home: merge('home', …), banner: …, footer: …, notices: … };` },
+      { f: 'browser', t: 'api', l: 'GET categories + products', d: 'TanStack Query fetches and caches the catalog. If a request takes over 4 s, a banner explains that the free server is waking up.', files: ['src/features/catalog/catalog.api.js', 'src/lib/network-status.js'], code: `useQuery({ queryKey: ['products', filters],\n  queryFn: async () => (await api.get('/catalog/products', { params: filters })).data });` },
+      { f: 'browser', t: 'browser', l: 'render; fade out loader', d: 'React has painted the page, so main.jsx fades the start-up loader out and removes it.', files: ['src/main.jsx'], code: `requestAnimationFrame(() => {\n  splash.classList.add('splash-hide');\n  splash.addEventListener('transitionend', () => splash.remove(), { once: true });\n});` },
+    ],
+  },
+  {
+    id: 'login', name: 'Logging in & staying logged in',
+    intro: 'Two tokens: a short one sent with every request, and a long one in a cookie used only to get a new short one. Wrong passwords are rate-limited.',
+    lanes: ['browser', 'api', 'shopdb'],
+    steps: [
+      { f: 'browser', t: 'api', l: 'POST /api/auth/login', d: 'The login form sends email and password. Zod validates the body before the controller runs.', files: ['src/features/auth/LoginPage.jsx', 'backend/src/modules/auth/auth.schema.js'], code: `export const loginSchema = z.object({\n  email: z.email().toLowerCase(),\n  password: z.string().min(1),\n});` },
+      { f: 'api', t: 'api', l: 'rate limit check', d: 'At most 5 wrong passwords per account and 30 per IP in 15 minutes (a sliding window in memory). Blocked: 429 with a Retry-After header, which the page shows as a live countdown.', files: ['backend/src/lib/rate-limiter.js', 'src/modules/auth/auth.controller.js'], code: `enforce(res, [\n  [limiters.loginPerAccount, \`login:\${email}\`],\n  [limiters.loginPerIp, \`login:\${req.ip}\`],\n]); // throws 429 + Retry-After` },
+      { f: 'api', t: 'shopdb', l: 'find user, bcrypt compare', d: 'Same message for "no such user" and "wrong password", so nobody can find out which emails are registered. bcrypt is deliberately slow.', files: ['src/modules/auth/auth.service.js'], code: `const valid = user && (await bcrypt.compare(password, user.passwordHash));\nif (!user || !valid) throw unauthorized('Invalid email or password');\nif (user.blockedAt) throw forbidden(ACCOUNT_SUSPENDED); // after the password` },
+      { f: 'api', t: 'shopdb', l: 'store refresh token (hashed)', d: 'A random refresh token, valid 7 days. Only its hash is saved, so a leaked table can\'t be used to log in.', files: ['src/modules/auth/auth.tokens.js'], code: `const refreshToken = crypto.randomBytes(48).toString('hex');\nawait prisma.refreshToken.create({ data: { userId, tokenHash: hashToken(refreshToken), expiresAt } });` },
+      { f: 'api', t: 'browser', l: 'access token + cookie', d: 'Access token (JWT, 15 min) in the JSON body; refresh token in an httpOnly cookie that only /api/auth/* ever receives.', files: ['src/modules/auth/auth.controller.js'], code: `jwt.sign({ role }, JWT_ACCESS_SECRET, { subject: userId, expiresIn: '15m' })` },
+      { f: 'browser', t: 'api', l: 'GET /api/cart  (Bearer)', d: 'Every request carries the access token in the Authorization header, added by an axios interceptor.', files: ['src/lib/api-client.js'], code: `config.headers.Authorization = \`Bearer \${useAuthStore.getState().accessToken}\`;` },
+      { f: 'api', t: 'api', l: 'verify JWT, no database', d: 'requireAuth only checks the signature: no database lookup, so every request stays fast. That is also why the CMS can check the same token on its own.', files: ['backend/src/middleware/auth.js'], code: `const payload = verifyAccessToken(token); // signature + expiry\nres.locals.user = { id: payload.sub, role: payload.role };` },
+      { f: 'api', t: 'browser', l: '401 after 15 minutes', d: 'The access token has expired.', files: ['backend/src/middleware/auth.js'], code: `next(unauthorized('Invalid or expired token'));` , dashed: true },
+      { f: 'browser', t: 'api', l: 'POST /api/auth/refresh', d: 'The interceptor catches the 401 and refreshes ONCE, even if five requests failed at the same moment; the others wait for the same refresh.', files: ['src/lib/api-client.js'], code: `if (error.response?.status === 401 && !original._retried) {\n  original._retried = true;\n  const newToken = await refreshSession(); // shared promise\n  if (newToken) return api(original);\n}` },
+      { f: 'api', t: 'shopdb', l: 'rotate refresh token', d: 'Old token revoked, new one issued, as in "Opening the store".', files: ['src/modules/auth/auth.service.js'], code: `await prisma.refreshToken.update({ where: { id }, data: { revokedAt: new Date() } });` },
+      { f: 'browser', t: 'api', l: 'retry GET /api/cart', d: 'The original request is sent again with the new token. The user never noticed anything.', files: ['src/lib/api-client.js'], code: `original.headers.Authorization = \`Bearer \${newToken}\`;\nreturn api(original);` },
+    ],
+  },
+  {
+    id: 'checkout', name: 'Checkout & payment',
+    intro: 'The heart of the shop. Stock is taken inside one database transaction, the payment happens on Stripe, and the order only becomes PAID when Stripe\'s signed webhook arrives.',
+    lanes: ['browser', 'api', 'shopdb', 'stripe', 'resend'],
+    steps: [
+      { f: 'browser', t: 'api', l: 'POST /api/orders', d: 'The cart page sends only the delivery address id and an optional coupon code. Never a price: prices always come from the database.', files: ['src/features/cart/CartPage.jsx', 'src/features/orders/orders.api.js'], code: `placeOrder.mutate({ couponCode: coupon?.code, addressId });` },
+      { f: 'api', t: 'api', l: 'can shop? own address?', d: 'A blocked customer is refused (checked in the database, not just the token). The address must belong to this user; it is copied into the order as a snapshot.', files: ['backend/src/modules/orders/orders.service.js', 'src/lib/account-status.js'], code: `await assertCanShop(userId);\nconst address = await prisma.address.findFirst({ where: { id: addressId, userId } });\nif (!address) throw badRequest('Choose one of your saved delivery addresses');` },
+      { f: 'api', t: 'shopdb', l: 'ONE transaction: stock, coupon, order', d: 'Stock is taken with a conditional update ("only if enough is left"), so two buyers can never both get the last item. Coupon uses work the same way. Everything rolls back together if anything fails.', files: ['src/modules/orders/orders.service.js'], code: `const { count } = await tx.productVariant.updateMany({\n  where: { id: item.variantId, stock: { gte: item.quantity } },\n  data: { stock: { decrement: item.quantity } },\n});\nif (count === 0) throw conflict('…sold out');\n// + Order, OrderItems (price snapshot), StockReservation (32 min)` },
+      { f: 'api', t: 'stripe', l: 'create Checkout Session', d: 'Stripe gets the line items, the order id as metadata, a 30-minute expiry and where to send the customer back.', files: ['src/modules/payments/payments.service.js'], code: `stripe.checkout.sessions.create({ mode: 'payment', line_items,\n  metadata: { orderId: order.id },\n  expires_at: now + 30 * 60,\n  success_url: \`\${returnTo}/orders/\${order.id}?payment=success\` });` },
+      { f: 'api', t: 'browser', l: '{ checkoutUrl }', d: 'The browser goes to Stripe\'s hosted page. Card numbers never reach ShopVerse.', files: ['src/features/orders/orders.api.js'], code: `window.location.assign(checkoutUrl); // a full page navigation` },
+      { f: 'browser', t: 'stripe', l: 'customer pays', d: 'Test card 4242 4242 4242 4242. Stripe handles 3-D Secure and other checks.', files: [], code: `// on checkout.stripe.com` },
+      { f: 'stripe', t: 'browser', l: 'redirect to /orders/:id?payment=success', d: 'Landing on this page does NOT prove payment (anyone can type the URL). The page shows "Confirming your payment…" and starts polling.', files: ['src/features/orders/OrderDetailPage.jsx'], code: `refetchInterval: (q) => (waitForPayment && q.state.data?.status === 'PENDING' ? 2000 : false)`, dashed: true },
+      { f: 'stripe', t: 'api', l: 'webhook: session.completed', d: 'The real proof. The raw body is checked against Stripe\'s signature with the webhook secret; a forged request fails here.', files: ['backend/src/modules/webhooks/stripe-webhook.js', 'src/app.js'], code: `// registered BEFORE express.json(), it needs the raw body\nevent = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], STRIPE_WEBHOOK_SECRET);` },
+      { f: 'api', t: 'shopdb', l: 'already processed this event?', d: 'Stripe may deliver the same event twice. Its id is recorded, so a repeat is skipped: the handler is idempotent.', files: ['src/modules/webhooks/stripe-webhook.js'], code: `const seen = await prisma.processedWebhookEvent.findUnique({ where: { id: event.id } });\nif (seen) return res.json({ received: true, duplicate: true });` },
+      { f: 'api', t: 'shopdb', l: 'mark PAID + invoice number', d: 'One transaction: PENDING → PAID (only from PENDING), the stock reservation becomes CONSUMED, the next invoice number is taken from a locked counter row (no gaps, no duplicates), bought items leave the cart.', files: ['src/modules/orders/orders.service.js', 'src/modules/orders/invoice.js'], code: `tx.order.updateMany({ where: { id, status: 'PENDING' }, data: { status: 'PAID' } })\ntx.stockReservation.updateMany({ … data: { status: 'CONSUMED' } })\nconst invoiceNumber = await takeNextInvoiceNumber(tx); // UPDATE … RETURNING` },
+      { f: 'api', t: 'resend', l: 'confirmation email + PDF', d: 'Sent only after the transaction committed, and only the first time. The invoice PDF (pdfkit) has a QR code linking to a public verify page.', files: ['src/modules/orders/order-emails.js', 'src/modules/orders/invoice.js'], code: `await sendOrderConfirmationEmail(orderId); // attachments: INV-2026-00390.pdf` },
+      { f: 'browser', t: 'api', l: 'next poll: status PAID', d: 'The order page sees PAID, stops polling, clears the cart badge and shows "Payment received. Thank you for your order!"', files: ['src/features/orders/OrderDetailPage.jsx'], code: `if (isPaid) {\n  queryClient.invalidateQueries({ queryKey: ['cart'] });\n  removeCoupon();\n}` },
+    ],
+  },
+  {
+    id: 'expire', name: 'An unpaid order runs out',
+    intro: 'If the customer closes Stripe\'s page, their stock must not stay locked forever. A background job gives it back, and a payment that arrives too late is refunded automatically.',
+    lanes: ['job', 'shopdb', 'stripe', 'api'],
+    steps: [
+      { f: 'job', t: 'job', l: 'every minute', d: 'Started by server.js next to the HTTP server. On free hosting it also runs right after the server wakes up, catching up on anything it missed.', files: ['backend/src/jobs/expire-orders.job.js', 'src/server.js'], code: `const timer = setInterval(run, EVERY_MINUTE);\nrun(); // once at startup too` },
+      { f: 'job', t: 'shopdb', l: 'PENDING orders past their time', d: 'Reservations last 32 minutes: 2 more than Stripe\'s 30-minute page, so the page is always closed before the stock is given back.', files: ['src/modules/orders/orders.service.js'], code: `export const RESERVATION_MINUTES = 32;\nexpireStaleOrders(now) // finds ACTIVE reservations with expiresAt < now` },
+      { f: 'job', t: 'shopdb', l: 'release: stock back, CANCELLED', d: 'In one transaction: stock goes back to the variants, the reservation becomes RELEASED, the order CANCELLED, and a used coupon is given back.', files: ['src/modules/orders/orders.service.js'], code: `releaseOrder(orderId) // stock: { increment }, status: 'CANCELLED'` },
+      { f: 'stripe', t: 'api', l: 'late webhook: paid anyway', d: 'Rare, but possible: the money arrives after the order was cancelled, and the stock may already be sold to someone else.', files: ['src/modules/webhooks/stripe-webhook.js'], code: `case 'checkout.session.completed': markOrderPaid(orderId, paymentIntent)`, dashed: true },
+      { f: 'api', t: 'stripe', l: 'automatic full refund', d: 'markOrderPaid finds the order CANCELLED, so it refunds the payment with an idempotency key (never twice) and marks the order REFUNDED. The customer sees "Payment refunded".', files: ['src/modules/orders/orders.service.js'], code: `await stripe.refunds.create({ payment_intent }, { idempotencyKey: \`refund-\${orderId}\` });\nawait prisma.order.update({ where: { id }, data: { status: 'REFUNDED' } });` },
+    ],
+  },
+  {
+    id: 'banner', name: 'Admin changes the home banner',
+    intro: 'Two servers, one login. The admin logs in to the Shop API, and the CMS accepts that same token. The image goes straight from the admin\'s browser to Cloudinary.',
+    lanes: ['adminb', 'api', 'cms', 'cloud', 'cmsdb', 'browser'],
+    steps: [
+      { f: 'adminb', t: 'api', l: 'POST /api/auth/login', d: 'An ADMIN user logs in like anyone else and gets an access token whose payload says role: ADMIN.', files: ['admin/src/features/auth/authApi.js'], code: `{ "sub": "cmv…", "role": "ADMIN", "exp": … }` },
+      { f: 'adminb', t: 'cms', l: 'GET /cms/admin/content', d: 'The CMS checks the token\'s signature itself, with the same JWT_ACCESS_SECRET. No call to the Shop API, no users table.', files: ['cms/src/middleware/auth.js', 'admin/src/app/api.js'], code: `payload = jwt.verify(token, env.JWT_ACCESS_SECRET);\nif (payload.role !== 'ADMIN') return next(forbidden());` },
+      { f: 'cms', t: 'cmsdb', l: 'values + field descriptions', d: 'The CMS sends every field\'s label, limits, defaults and kind. The admin app draws the form from that list, so a new field needs no admin code.', files: ['cms/src/content/content-types.js', 'admin/src/features/content/ContentField.jsx'], code: `slides: list('Slides', { maxItems: 5, fields: {\n  imageUrl: image('Image'),\n  title: text('Title', { max: 60 }), // stored as { en, kn }\n  buttonLink: link('Button link', { optional: true }) } })` },
+      { f: 'adminb', t: 'cms', l: 'POST …/banner-signature', d: 'Permission for ONE upload: a random id in the shopverse/banners folder, max 2400×1200, photos only, signed with the Cloudinary secret.', files: ['cms/src/lib/cloudinary.js'], code: `const params = { public_id: \`shopverse/banners/\${randomUUID()}\`,\n  transformation: 'c_limit,w_2400,h_1200,q_auto',\n  allowed_formats: 'jpg,jpeg,png,webp', timestamp };\nreturn { uploadUrl, fields: { ...params, api_key, signature: sign(params) } };` },
+      { f: 'adminb', t: 'cloud', l: 'upload file (signed)', d: 'The file goes straight to Cloudinary; our servers never handle it. Change any signed field and Cloudinary rejects the upload.', files: ['admin/src/features/content/ContentField.jsx'], code: `const res = await fetch(signed.uploadUrl, { method: 'POST', body: form });\nonChange(body.secure_url);` },
+      { f: 'adminb', t: 'cms', l: 'PUT /cms/admin/content/banner', d: 'Saves all slides together.', files: ['admin/src/features/content/contentApi.js'], code: `saveContent({ type: 'banner', values: { slides, intervalSeconds } })` },
+      { f: 'cms', t: 'cms', l: 'validate with Zod', d: 'The image must be in OUR banners folder; a button link must be a store page starting with "/" (no https://, //, javascript:); English required, Kannada optional; unknown keys refused.', files: ['cms/src/content/content-types.js'], code: `z.string().refine((url) => bannerPublicId(url) !== null, 'Upload an image')\nz.string().regex(/^\\/(?!\\/)\\S*$/, 'Must be a store page starting with /')` },
+      { f: 'cms', t: 'cmsdb', l: 'upsert ContentEntry', d: 'One row for the banner type; the slides are JSON.', files: ['cms/src/content/content.service.js'], code: `prisma.contentEntry.upsert({ where: { type: 'banner' }, create: …, update: { data, updatedBy } })` },
+      { f: 'cms', t: 'cloud', l: 'delete removed images', d: 'In the background after saving: a slide that was removed or replaced has its file deleted, so unused images don\'t pile up.', files: ['cms/src/content/content.service.js'], code: `deleteImage(publicId).catch(log) // never blocks the save`, dashed: true },
+      { f: 'browser', t: 'cms', l: 'GET /cms/content', d: 'Within about a minute (the cache time), visitors\' stores pick up the new slides; HeroCarousel shows them in each reader\'s language.', files: ['frontend/src/features/catalog/components/HeroCarousel.jsx'], code: `<HeroCarousel slides={banner.slides} intervalSeconds={banner.intervalSeconds} />` },
+    ],
+  },
+  {
+    id: 'reset', name: 'Forgot password',
+    intro: 'A 6-digit code by email. The page never reveals whether an email has an account, the code is stored as an HMAC, and a reset signs the account out everywhere.',
+    lanes: ['browser', 'api', 'shopdb', 'resend'],
+    steps: [
+      { f: 'browser', t: 'api', l: 'POST /api/auth/forgot-password', d: 'The answer is the same, and arrives just as fast, whether or not the email has an account: the server replies first and does the work afterwards. Otherwise the response time would reveal which emails are registered.', files: ['backend/src/modules/auth/auth.controller.js'], code: `res.json({ message: 'If an account exists for that email, we sent a 6-digit code…' });\nrequestReset(email).catch(log); // the real work, after replying` },
+      { f: 'api', t: 'shopdb', l: 'find user; recent request?', d: 'Unknown email, a shared demo account, or a code sent less than a minute ago: do nothing. The per-IP limit also stops someone flooding inboxes.', files: ['src/modules/auth/password-reset.js'], code: `if (!user || isProtectedAccount(user.email)) return;\nif (recent) return; // one email per address per minute` },
+      { f: 'api', t: 'shopdb', l: 'store HMAC of a 6-digit code', d: 'A random code from the operating system\'s secure source. Only an HMAC (keyed with a server secret) is stored: with just a million possible codes, a plain hash from a leaked table could be cracked in seconds.', files: ['src/modules/auth/password-reset.js'], code: `const code = String(randomInt(0, 1_000_000)).padStart(6, '0');\ncreateHmac('sha256', JWT_ACCESS_SECRET).update(\`\${userId}:\${code}\`).digest('hex')\n// works 15 minutes, one active code per user` },
+      { f: 'api', t: 'resend', l: 'email the code', d: 'The code is only in the email body, never the subject: subjects end up in logs.', files: ['src/lib/email.js'], code: `sendEmail({ to: user.email, subject: 'Your ShopVerse password reset code', html, text })` },
+      { f: 'browser', t: 'api', l: 'POST /api/auth/reset-password', d: 'Email, code and new password together. The phone keyboard shows digits (inputMode="numeric") and can fill the code from the notification (autoComplete="one-time-code").', files: ['frontend/src/features/auth/ForgotPasswordPage.jsx'], code: `reset.mutate({ email, code: form.code, newPassword: form.newPassword })` },
+      { f: 'api', t: 'shopdb', l: 'check code (constant time)', d: 'Compared in constant time so timing reveals nothing. The 5th wrong guess burns the code. Blocked and demo accounts are refused here.', files: ['src/modules/auth/password-reset.js'], code: `if (!sameHash(reset.codeHash, hashCode(user.id, code))) { attempts++ … }\n// 5 tries out of 1,000,000 codes = a 0.0005% chance` },
+      { f: 'api', t: 'shopdb', l: 'new password, end all sessions', d: 'New bcrypt hash, the code is marked used, and every refresh token is deleted: if someone else was logged in, they are out now.', files: ['src/modules/auth/password-reset.js'], code: `prisma.$transaction([\n  prisma.user.update({ data: { passwordHash } }),\n  prisma.passwordResetCode.update({ data: { usedAt: new Date() } }),\n  prisma.refreshToken.deleteMany({ where: { userId } }),\n])` },
+      { f: 'api', t: 'browser', l: 'logged in + "password changed" email', d: 'The person just proved they own the email, so this device gets a fresh session. A "your password was changed" email goes out, in case it wasn\'t them.', files: ['src/modules/auth/auth.controller.js', 'src/modules/auth/auth-emails.js'], code: `res.cookie('refreshToken', …).json({ user, accessToken });\nsendPasswordChangedEmail(user)` },
+    ],
+  },
+  {
+    id: 'search', name: 'Searching products',
+    intro: 'Search uses PostgreSQL\'s own full-text search: words are reduced to their roots, product names count more than descriptions, and results appear while typing.',
+    lanes: ['browser', 'api', 'shopdb'],
+    steps: [
+      { f: 'browser', t: 'browser', l: 'typing "runn", wait 250 ms', d: 'The search box waits until typing pauses (debounce), so "nike" sends 1 request instead of 4.', files: ['frontend/src/features/catalog/components/SearchBox.jsx', 'src/lib/use-debounce.js'], code: `const debounced = useDebounce(text, 250);\nconst { data } = useSuggestions(open ? debounced : '');` },
+      { f: 'browser', t: 'api', l: 'GET /api/catalog/suggest?q=runn', d: 'Suggestions: matching categories, brands and products, shown in a dropdown you can use with the arrow keys.', files: ['src/features/catalog/catalog.api.js'], code: `api.get('/catalog/suggest', { params: { q: trimmed }, signal })` },
+      { f: 'api', t: 'api', l: 'clean the words', d: 'Lower-case, letters and digits only, at most 8 words. Search operators typed by a user can never reach the query.', files: ['backend/src/modules/catalog/search.js'], code: `text.toLowerCase().split(/[^\\p{L}\\p{N}]+/u)\n  .filter((t) => t.length > 1 || /\\d/.test(t)).slice(0, 8)` },
+      { f: 'api', t: 'shopdb', l: "to_tsquery('english', 'runn:*')", d: ':* makes it a prefix match ("runn" finds "running"), and English stemming turns "shoes" into "shoe" on both sides, so the forms match.', files: ['src/modules/catalog/search.js'], code: `SELECT p.id, ts_rank(p."searchVector", q) AS rank\nFROM "Product" p, to_tsquery('english', \${tsquery}) q\nWHERE p."isActive" AND p."searchVector" @@ q ORDER BY rank DESC` },
+      { f: 'shopdb', t: 'shopdb', l: 'GIN index, ranked by weight', d: 'searchVector is a column PostgreSQL computes itself from name (weight A), brand (B) and description (C), with a GIN index, so matching is fast and a match in the name ranks higher.', files: ['backend/prisma/migrations/…_add_product_search/migration.sql'], code: `setweight(to_tsvector('english', name), 'A') ||\nsetweight(to_tsvector('english', brand), 'B') ||\nsetweight(to_tsvector('english', description), 'C')` },
+      { f: 'api', t: 'api', l: 'all words, else any word', d: 'First every word must match. If nothing does, products matching any of the words are shown, with a note saying so.', files: ['src/modules/catalog/search.js'], code: `let rows = await rankedMatches(toTsQuery(terms, '&'));\nif (rows.length === 0 && terms.length > 1) rows = await rankedMatches(toTsQuery(terms, '|'));` },
+      { f: 'browser', t: 'api', l: 'Enter → /shop?q=running', d: 'The results page keeps every filter in the URL (q, category, brand, price, sort, page), so a search can be shared, bookmarked, and the Back button works.', files: ['frontend/src/features/catalog/CatalogPage.jsx'], code: `// /shop?q=running&category=sneakers&sort=price_asc&page=2\nconst { data } = useProducts(filters); // filters read from the URL` },
+      { f: 'api', t: 'browser', l: 'products + facet counts', d: 'Along with the products come counts per category, brand and rating. Each count ignores its own filter, so after picking a brand the others still show how many they have.', files: ['src/modules/catalog/catalog.service.js', 'frontend/src/features/catalog/components/FilterSidebar.jsx'], code: `{ items, total, page, totalPages, matchMode,\n  facets: { categories, brands, ratings } }` },
+    ],
+  },
+  {
+    id: 'deploy', name: 'From code to live',
+    intro: 'One git push updates all four apps. Database changes ride along as migration files and are applied before the new server starts.',
+    lanes: ['dev', 'github', 'vercelb', 'renderb', 'shopdb'],
+    steps: [
+      { f: 'dev', t: 'dev', l: 'npm run dev (4 apps)', d: 'From the project root, one command starts the shop API, CMS, store and admin together, each line labelled with its app. Ctrl+C stops all four.', files: ['package.json (root)'], code: `concurrently --names api,cms,store,admin \\\n  "cd backend && npm run dev" "cd cms && npm run dev" \\\n  "cd frontend && npm run dev" "cd admin && npm run dev"` },
+      { f: 'dev', t: 'dev', l: 'migrations + tests', d: 'A schema change becomes a migration file (npm run db:migrate). npm test runs 58 tests: unit tests with no database, API tests against a separate Neon test branch that is emptied on every run.', files: ['backend/prisma/migrations/', 'backend/tests/'], code: `npm run db:migrate   # creates prisma/migrations/<time>_<name>/migration.sql\nnpm test             # 8 files, 58 tests` },
+      { f: 'dev', t: 'github', l: 'git push origin main', d: 'Code, migration files and docs go to GitHub. Secrets never do: every .env file is git-ignored.', files: ['.gitignore', 'backend/.gitignore'], code: `git add -A\ngit commit -m "…"\ngit push` },
+      { f: 'github', t: 'vercelb', l: 'build store + admin', d: 'Vercel runs vite build for each app and puts the files on its CDN. vercel.json forwards /api and /cms to Render, and every other path to index.html so React Router handles it.', files: ['frontend/vercel.json', 'admin/vercel.json'], code: `{ "source": "/api/:path*", "destination": "https://shopverse-api-u9c6.onrender.com/api/:path*" },\n{ "source": "/cms/:path*", "destination": "https://shopverse-cms.onrender.com/cms/:path*" },\n{ "source": "/(.*)", "destination": "/index.html" }` },
+      { f: 'github', t: 'renderb', l: 'build shop API + CMS', d: 'Render installs dependencies (including dev ones, for the Prisma CLI) and generates the Prisma client. Plain JavaScript: no compile step.', files: ['backend/package.json', 'cms/package.json'], code: `npm ci --include=dev && npm run build   # build = prisma generate` },
+      { f: 'renderb', t: 'shopdb', l: 'migrate deploy, then start', d: 'The start command applies new migration files first. migrate deploy only applies; it never resets or deletes data. The CMS refuses any database not named "cms".', files: ['backend/package.json', 'cms/scripts/check-db.js'], code: `npm run db:deploy && npm start\n# backend: prisma migrate deploy\n# cms:     node scripts/check-db.js && prisma migrate deploy` },
+      { f: 'renderb', t: 'renderb', l: 'health check → live', d: 'Render calls /api/health and /cms/health and switches traffic to the new version once it answers. Settings (secrets, URLs) come from each service\'s Environment page, checked by config/env.js at startup.', files: ['backend/src/config/env.js', 'docs/DEPLOYMENT.md'], code: `app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));` },
+    ],
+  },
+  {
+    id: 'layers', name: 'Inside one API request',
+    intro: 'Zooming into the Shop API: the path of "add to cart" through the layers from section 3. Every endpoint follows the same path.',
+    lanes: ['browser', 'mw', 'router', 'guard', 'zod', 'ctrl', 'svc', 'shopdb', 'err'],
+    steps: [
+      { f: 'browser', t: 'mw', l: 'POST /api/cart/items', d: 'helmet adds security headers, cors allows only the store\'s origin, express.json parses the body, cookie-parser reads cookies.', files: ['backend/src/app.js'], code: `app.use(helmet());\napp.use(cors({ origin: env.CLIENT_URL, credentials: true }));\napp.use(express.json({ limit: '1mb' }));` },
+      { f: 'mw', t: 'router', l: '/api/cart → cartRouter', d: 'Each feature module has its own router. This one requires a login for every route.', files: ['src/modules/cart/cart.routes.js'], code: `cartRouter.use(requireAuth);\ncartRouter.post('/items', validate(addItemSchema), controller.addItem);` },
+      { f: 'router', t: 'guard', l: 'requireAuth', d: 'Verifies the Bearer token and puts the user on res.locals. The user id is never taken from the request body.', files: ['src/middleware/auth.js'], code: `res.locals.user = { id: payload.sub, role: payload.role };` },
+      { f: 'guard', t: 'zod', l: 'validate(addItemSchema)', d: 'Only a variant id and a quantity 1–10 are accepted. Anything else (like a sneaky "price") is dropped.', files: ['src/modules/cart/cart.schema.js', 'src/middleware/validate.js'], code: `z.object({ variantId: z.string().min(1),\n  quantity: z.coerce.number().int().min(1).max(10).default(1) })` },
+      { f: 'zod', t: 'ctrl', l: 'cart.controller.addItem', d: 'The controller only speaks HTTP: read validated input, call the service, choose the status code.', files: ['src/modules/cart/cart.controller.js'], code: `res.status(201).json({ cart: await cartService.addItem(userId(res), res.locals.body) });` },
+      { f: 'ctrl', t: 'svc', l: 'cartService.addItem', d: 'The business rules: product exists and is active, enough stock, at most 10 of one item.', files: ['src/modules/cart/cart.service.js'], code: `if (variant.stock === 0) throw badRequest('This item is out of stock');\nif (quantity > variant.stock) throw badRequest(\`Only \${variant.stock} left in stock\`);` },
+      { f: 'svc', t: 'shopdb', l: 'upsert CartItem', d: 'One row per user and variant (a unique index), so adding again increases the quantity.', files: ['src/modules/cart/cart.service.js'], code: `prisma.cartItem.upsert({ where: { userId_variantId: { userId, variantId } }, … })` },
+      { f: 'ctrl', t: 'browser', l: '201 { cart }', d: 'The cart comes back with current prices and stock; the store\'s cache updates and the header badge changes.', files: ['frontend/src/features/cart/cart.api.js'], code: `onSuccess: (data) => queryClient.setQueryData(['cart'], data.cart)` },
+      { f: 'svc', t: 'err', l: 'if anything throws', d: 'Any thrown HttpError (or a database error) ends up here and becomes the same JSON shape. A 5xx opens the store\'s "Something went wrong, retry in 5 s" popup.', files: ['src/middleware/error-handler.js', 'frontend/src/lib/server-error.js'], code: `if (err instanceof HttpError)\n  return res.status(err.status).json({ error: { message: err.message, details: err.details } });\nres.status(500).json({ error: { message: 'Internal server error' } });`, dashed: true },
+    ],
+  },
+];
+
+/* =================================================================== data: shared mechanisms */
+const MECH = [
+  { h: 'Two tokens', f: 'backend/src/modules/auth/ · cms/src/middleware/auth.js', p: 'A 15-minute access token (JWT, in memory) goes with every request and is checked without the database. A 7-day refresh token (random, stored hashed, httpOnly cookie) only buys new access tokens and rotates on every use. Both servers check access tokens with one shared secret.' },
+  { h: 'Waiting for sleeping servers', f: 'cms/src/lib/prisma.js · tests/api/global-setup.js · lib/network-status.js', p: 'Neon databases sleep after 5 idle minutes; the first query can fail. The CMS retries connection errors after 1 s, 2 s and 4 s (exponential backoff), then answers 503 with Retry-After. The store explains slow first loads with a banner.' },
+  { h: 'Errors people can understand', f: 'middleware/error-handler.js · lib/server-error.js (store + admin)', p: 'Every error has the same JSON shape. Fixable ones (validation, stock, rate limit) show next to the cause; server failures (5xx) open one popup with a 5-second retry. A 401 means "log in again"; a 5xx means "the server is down, keep the session".' },
+  { h: 'Money stays consistent', f: 'orders.service.js · stripe-webhook.js · invoice.js', p: 'Stock and coupons are taken with conditional updates inside one transaction. Webhooks are verified and idempotent. Invoice numbers come from a locked counter row, so there are no gaps or duplicates. Refunds use idempotency keys.' },
+  { h: 'Content without waiting', f: 'frontend/src/content/use-site-content.js', p: 'Stale-while-revalidate twice: the CDN keeps CMS answers 60 s, and the browser shows its saved copy instantly while fetching fresh text. If the CMS is down, the saved copy (or site.js) stays on screen.' },
+  { h: 'Dark mode as design tokens', f: 'frontend/src/index.css · lib/theme.js · index.html', p: 'Tailwind colours are CSS variables, so the .dark block redefines them once (greys flip, surface and night tokens) instead of dark: classes on every element. An inline script sets the class before the first paint.' },
+  { h: 'Two languages', f: 'frontend/src/i18n/ · cms content-types.js', p: 'Store text lives in en.js and kn.js (330 keys each) and is read with t(). CMS text is stored as { en, kn } per field, with English as the fallback; images and links are shared. Dates and country names come from the browser in the reader\'s language.' },
+  { h: 'Guard rails', f: 'cms/scripts/check-db.js · tests/api/global-setup.js · lib/account-status.js', p: 'The CMS refuses any database not named "cms"; API tests refuse to run on the dev database. Blocked accounts can\'t log in or pay; the shared demo accounts can\'t be blocked, deleted or have their password changed.' },
+];
+
+const GLOSSARY = [
+  ['JWT (access token)', 'A small signed note saying who you are and until when. Anyone with the secret can check the signature without a database.', '15-minute login token; checked by both servers'],
+  ['Refresh token', 'A long random string used only to get a new access token. Rotated on every use; a reused one means theft.', 'httpOnly cookie, 7 days, stored hashed'],
+  ['httpOnly cookie', 'A cookie page scripts cannot read, so an injected script cannot steal it.', 'refreshToken, sent only to /api/auth'],
+  ['Rewrite (proxy)', 'The host forwards a path to another server, so the browser only ever sees one site.', 'Vercel: /api → shop API, /cms → CMS'],
+  ['CDN', 'Servers around the world that keep copies of files and answers close to visitors.', 'Vercel (app files), Cloudinary (images)'],
+  ['Webhook', 'Another service calling your server when something happens.', 'Stripe: "this checkout was paid"'],
+  ['Idempotent', 'Doing it twice has the same effect as doing it once.', 'webhook events, refunds, PAID only from PENDING'],
+  ['Transaction', 'Several database changes that all succeed or all roll back together.', 'checkout: stock + coupon + order'],
+  ['Migration', 'A file that changes the database structure, applied in order on every environment.', 'prisma/migrations/, applied on deploy'],
+  ['ORM (Prisma)', 'A library that turns code like prisma.order.findMany() into SQL.', 'both servers'],
+  ['Zod schema', 'A description of what valid input looks like; anything else is refused with field errors.', '*.schema.js, CMS content types'],
+  ['Headless CMS', 'A content store with no pages of its own; other apps fetch the content and draw it.', 'cms/: store text and banner'],
+  ['Stale-while-revalidate', 'Show the copy you have now, fetch a fresh one in the background.', 'CMS cache headers, useSiteContent()'],
+  ['Exponential backoff', 'Retry after 1 s, then 2 s, then 4 s, instead of hammering a struggling server.', 'CMS database retries'],
+  ['Signed upload', 'The server signs exact upload rules; the browser sends the file straight to storage.', 'avatars (shop API), banners (CMS)'],
+  ['Design token', 'A named colour or size (surface, slate-900) whose value can change per theme.', 'dark mode in index.css'],
+  ['i18n', 'Short for internationalisation: text kept apart from code, per language.', 'en.js, kn.js; { en, kn } in the CMS'],
+  ['Rate limit', 'A cap on attempts in a time window.', '5 wrong passwords per 15 min per account'],
+];
+
+/* =================================================================== map interactions */
+const map = document.getElementById('map');
+const detail = document.getElementById('detail');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+function showNode(id) {
+  const n = NODES[id];
+  map.querySelectorAll('.node').forEach((el) => {
+    el.classList.toggle('active', el.dataset.id === id);
+    el.classList.remove('dim');
+  });
+  const connected = new Set([id]);
+  map.querySelectorAll('.edge').forEach((e) => {
+    const hot = e.dataset.a === id || e.dataset.b === id;
+    e.classList.toggle('hot', hot);
+    e.classList.toggle('dim', !hot);
+    e.querySelectorAll('[marker-end]').forEach((m) => m.setAttribute('marker-end', hot ? 'url(#arrowHot)' : 'url(#arrow)'));
+    if (hot) { connected.add(e.dataset.a); connected.add(e.dataset.b); }
+  });
+  map.querySelectorAll('.node').forEach((el) => el.classList.toggle('dim', !connected.has(el.dataset.id)));
+  detail.innerHTML = `
+    <div class="kind" style="color: var(--${n.color})">${esc(n.kind)}</div>
+    <h3>${esc(n.title)}</h3>
+    <p>${esc(n.what)}</p>
+    <dl>
+      <div><dt>Key files</dt><dd><div class="chips">${n.files.map((f) => `<span class="chip">${esc(f)}</span>`).join('')}</div></dd></div>
+      <div><dt>Talks to</dt><dd><ul>${n.talks.map((t) => `<li>${esc(t)}</li>`).join('')}</ul></dd></div>
+    </dl>
+    <p class="hint">Click another box, or a flow below to watch it in motion.</p>`;
+}
+map.querySelectorAll('.node').forEach((el) => {
+  el.addEventListener('click', () => showNode(el.dataset.id));
+  el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showNode(el.dataset.id); } });
+});
+showNode('api');
+
+/* =================================================================== sequence diagram */
+const NS = 'http://www.w3.org/2000/svg';
+const svgEl = (tag, attrs = {}, text) => {
+  const el = document.createElementNS(NS, tag);
+  for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+  if (text !== undefined) el.textContent = text;
+  return el;
+};
+const seq = document.getElementById('seq');
+const tabs = document.getElementById('flowTabs');
+let flowIndex = 0;
+let stepIndex = 0;
+let timer = null;
+
+function drawFlow() {
+  const flow = FLOWS[flowIndex];
+  const n = flow.lanes.length;
+  const colW = n >= 8 ? 100 : n >= 6 ? 112 : n >= 5 ? 130 : 150; // fit the panel where possible
+  const left = 70;
+  const top = 78;
+  const rowH = 46;
+  const width = left + colW * flow.lanes.length + 10;
+  const height = top + flow.steps.length * rowH + 24;
+  const x = (lane) => left + colW * flow.lanes.indexOf(lane) + colW / 2;
+  seq.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  seq.setAttribute('width', width);
+  seq.style.width = '100%';
+  seq.style.minWidth = `${width}px`;
+  seq.setAttribute('aria-label', `${flow.name}: ${flow.steps.length} steps between ${flow.lanes.map((l) => LANES[l].label).join(', ')}`);
+  seq.replaceChildren();
+
+  const defs = svgEl('defs');
+  ['m', 'mh'].forEach((id) => {
+    const marker = svgEl('marker', { id: `seq-${id}`, viewBox: '0 0 10 10', refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: 'auto-start-reverse' });
+    marker.append(svgEl('path', { d: 'M0,0 L10,5 L0,10 z', style: `fill: var(${id === 'mh' ? '--accent' : '--muted'})` }));
+    defs.append(marker);
+  });
+  seq.append(defs);
+
+  flow.lanes.forEach((lane) => {
+    const info = LANES[lane];
+    const cx = x(lane);
+    seq.append(svgEl('line', { class: 'lifeline', x1: cx, y1: 58, x2: cx, y2: height - 8 }));
+    const head = svgEl('g', { class: 'lane-head' });
+    head.append(svgEl('rect', { x: cx - colW / 2 + 8, y: 8, width: colW - 16, height: 46, rx: 9, style: `fill: var(--${info.color}-soft); stroke: var(--${info.color})` }));
+    head.append(svgEl('text', { x: cx, y: 28, 'text-anchor': 'middle', style: `fill: var(--${info.color})` }, info.label));
+    head.append(svgEl('text', { class: 'sub', x: cx, y: 44, 'text-anchor': 'middle', style: 'fill: var(--muted)' }, info.sub));
+    seq.append(head);
+  });
+
+  flow.steps.forEach((s, i) => {
+    const y = top + i * rowH + 22;
+    const state = i < stepIndex ? 'past' : i === stepIndex ? 'current' : 'future';
+    const g = svgEl('g', { class: `step ${state}${s.dashed ? ' dashed' : ''}`, tabindex: -1 });
+    const marker = state === 'current' ? 'url(#seq-mh)' : 'url(#seq-m)';
+    const x1 = x(s.f);
+    const x2 = x(s.t);
+    if (s.f === s.t) {
+      g.append(svgEl('path', { d: `M${x1},${y - 8} h34 v16 h-30`, 'marker-end': marker }));
+      g.append(svgEl('text', { class: 'lbl', x: x1 + 42, y: y + 4 }, s.l));
+    } else {
+      const dir = x2 > x1 ? 1 : -1;
+      g.append(svgEl('line', { x1: x1 + dir * 4, y1: y, x2: x2 - dir * 4, y2: y, 'marker-end': marker }));
+      g.append(svgEl('text', { class: 'lbl', x: (x1 + x2) / 2, y: y - 7, 'text-anchor': 'middle' }, s.l));
+    }
+    g.append(svgEl('circle', { cx: 24, cy: y, r: 12 }));
+    g.append(svgEl('text', { class: 'num', x: 24, y: y + 4, 'text-anchor': 'middle' }, String(i + 1)));
+    g.addEventListener('click', () => { stopPlay(); stepIndex = i; render(); });
+    seq.append(g);
+  });
+  document.getElementById('seqCaption').textContent = `${flow.name}: arrows run top to bottom in time order. Dashed arrows happen later or only sometimes.`;
+}
+
+function drawCard() {
+  const flow = FLOWS[flowIndex];
+  const s = flow.steps[stepIndex];
+  document.getElementById('stepCount').textContent = `Step ${stepIndex + 1} of ${flow.steps.length}`;
+  document.getElementById('stepTitle').textContent = s.l;
+  document.getElementById('stepDesc').textContent = s.d;
+  document.getElementById('stepFiles').innerHTML = s.files.map((f) => `<span class="chip">${esc(f)}</span>`).join('');
+  document.getElementById('stepCode').textContent = s.code;
+  document.getElementById('prevBtn').disabled = stepIndex === 0;
+  document.getElementById('nextBtn').disabled = stepIndex === flow.steps.length - 1;
+}
+
+function render() {
+  drawFlow();
+  drawCard();
+  tabs.querySelectorAll('button').forEach((b, i) => b.setAttribute('aria-selected', i === flowIndex ? 'true' : 'false'));
+  document.getElementById('flowIntro').textContent = FLOWS[flowIndex].intro;
+}
+
+function selectFlow(i) {
+  stopPlay();
+  flowIndex = i;
+  stepIndex = 0;
+  try { localStorage.setItem('sv-map-flow', FLOWS[i].id); } catch (e) { /* storage blocked: fine */ }
+  render();
+}
+
+FLOWS.forEach((f, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'tab');
+  b.textContent = f.name;
+  b.addEventListener('click', () => selectFlow(i));
+  tabs.append(b);
+});
+
+const step = (by) => {
+  const max = FLOWS[flowIndex].steps.length - 1;
+  stepIndex = Math.max(0, Math.min(max, stepIndex + by));
+  render();
+};
+function stopPlay() {
+  clearInterval(timer);
+  timer = null;
+  document.getElementById('playBtn').textContent = '▶ Play';
+}
+document.getElementById('prevBtn').addEventListener('click', () => { stopPlay(); step(-1); });
+document.getElementById('nextBtn').addEventListener('click', () => { stopPlay(); step(1); });
+document.getElementById('playBtn').addEventListener('click', () => {
+  if (timer) return stopPlay();
+  if (stepIndex === FLOWS[flowIndex].steps.length - 1) stepIndex = 0;
+  document.getElementById('playBtn').textContent = '❚❚ Pause';
+  render();
+  timer = setInterval(() => {
+    if (stepIndex >= FLOWS[flowIndex].steps.length - 1) return stopPlay();
+    step(1);
+  }, 3200);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.target.closest('input, textarea, select')) return;
+  const flows = document.getElementById('flows').getBoundingClientRect();
+  const inView = flows.top < window.innerHeight && flows.bottom > 0;
+  if (!inView) return;
+  if (e.key === 'ArrowRight') { stopPlay(); step(1); }
+  if (e.key === 'ArrowLeft') { stopPlay(); step(-1); }
+});
+
+try {
+  const saved = localStorage.getItem('sv-map-flow');
+  const i = FLOWS.findIndex((f) => f.id === saved);
+  if (i >= 0) flowIndex = i;
+} catch (e) { /* ignore */ }
+render();
+
+/* =================================================================== data diagram */
+(function drawER() {
+  const er = document.getElementById('er');
+  const W = 220;
+  const rowH = 16;
+  const tables = {
+    User: { x: 40, y: 50, db: 'shop', f: ['id', 'email (unique)', 'passwordHash', 'role  CUSTOMER | ADMIN', 'blockedAt · deletedAt', 'lastSeenAt'] },
+    RefreshToken: { x: 40, y: 230, db: 'shop', f: ['tokenHash (unique)', 'userId → User', 'expiresAt · revokedAt'] },
+    PasswordResetCode: { x: 40, y: 345, db: 'shop', f: ['codeHash (HMAC)', 'userId → User', 'attempts · expiresAt'] },
+    Address: { x: 40, y: 460, db: 'shop', f: ['userId → User', 'line1 · city · country', 'phone · label'] },
+    CartItem: { x: 330, y: 50, db: 'shop', f: ['userId → User', 'variantId → ProductVariant', 'quantity'] },
+    WishlistItem: { x: 330, y: 160, db: 'shop', f: ['userId → User', 'productId → Product'] },
+    Review: { x: 330, y: 255, db: 'shop', f: ['userId → User', 'productId → Product', 'rating 1–5 · title · body'] },
+    Order: { x: 330, y: 365, db: 'shop', f: ['userId → User', 'status  PENDING…REFUNDED', 'subtotal · discount · total', 'shippingAddress (snapshot)', 'invoiceNumber · invoiceToken', 'couponId → Coupon'] },
+    OrderItem: { x: 620, y: 365, db: 'shop', f: ['orderId → Order', 'variantId → ProductVariant', 'productName · unitPrice (snapshot)', 'quantity'] },
+    StockReservation: { x: 620, y: 480, db: 'shop', f: ['orderId → Order', 'variantId · quantity', 'status · expiresAt'] },
+    Coupon: { x: 620, y: 255, db: 'shop', f: ['code (unique)', 'PERCENT | FIXED · value', 'maxUses · usedCount'] },
+    Category: { x: 920, y: 50, db: 'shop', f: ['name · slug'] },
+    Product: { x: 920, y: 130, db: 'shop', f: ['categoryId → Category', 'name · slug · brand', 'basePrice · ratingAvg', 'searchVector (full-text)'] },
+    ProductVariant: { x: 920, y: 260, db: 'shop', f: ['productId → Product', 'sku · name', 'price · stock'] },
+    InvoiceCounter: { x: 620, y: 50, db: 'shop', f: ['id "invoice" · value'] },
+    ProcessedWebhookEvent: { x: 620, y: 130, db: 'shop', f: ['id = Stripe event id', 'type'] },
+    ContentEntry: { x: 920, y: 440, db: 'cmsdb', f: ['type  brand | home | banner…', 'data JSON  { en, kn } text', 'updatedAt · updatedBy'] },
+  };
+  const h = (t) => 26 + t.f.length * rowH + 8;
+  const g = svgEl('g');
+  er.append(g);
+
+  // relations (drawn first, under the tables)
+  const rel = (pts, label, lx, ly) => {
+    g.append(svgEl('polyline', { class: 'rel', points: pts }));
+    if (label) g.append(svgEl('text', { class: 'rel-l', x: lx, y: ly }, label));
+  };
+  const T = tables;
+  // User → its own records (left spine)
+  rel(`${T.User.x},${T.User.y + 40} 22,${T.User.y + 40} 22,${T.Address.y + 30} ${T.Address.x},${T.Address.y + 30}`);
+  rel(`22,${T.RefreshToken.y + 30} ${T.RefreshToken.x},${T.RefreshToken.y + 30}`);
+  rel(`22,${T.PasswordResetCode.y + 30} ${T.PasswordResetCode.x},${T.PasswordResetCode.y + 30}`);
+  g.append(svgEl('text', { class: 'rel-l', x: 6, y: T.User.y + 34 }, '1–n'));
+  // User → shopping records (middle spine)
+  const spine = 300;
+  rel(`${T.User.x + W},${T.User.y + 40} ${spine},${T.User.y + 40} ${spine},${T.Order.y + 30} ${T.Order.x},${T.Order.y + 30}`);
+  rel(`${spine},${T.CartItem.y + 30} ${T.CartItem.x},${T.CartItem.y + 30}`);
+  rel(`${spine},${T.WishlistItem.y + 30} ${T.WishlistItem.x},${T.WishlistItem.y + 30}`);
+  rel(`${spine},${T.Review.y + 30} ${T.Review.x},${T.Review.y + 30}`);
+  g.append(svgEl('text', { class: 'rel-l', x: T.User.x + W + 6, y: T.User.y + 34 }, '1–n'));
+  // Order → items, reservations, coupon
+  rel(`${T.Order.x + W},${T.Order.y + 30} ${T.OrderItem.x},${T.Order.y + 30}`, '1–n', T.Order.x + W + 12, T.Order.y + 24);
+  rel(`${T.Order.x + W},${T.Order.y + 100} 595,${T.Order.y + 100} 595,${T.StockReservation.y + 30} ${T.StockReservation.x},${T.StockReservation.y + 30}`, '1–n', T.Order.x + W + 12, T.Order.y + 94);
+  rel(`${T.Order.x + W},${T.Order.y + 60} 585,${T.Order.y + 60} 585,${T.Coupon.y + 30} ${T.Coupon.x},${T.Coupon.y + 30}`, 'n–1', 556, T.Coupon.y + 24);
+  // catalog family
+  rel(`${T.Category.x + 110},${T.Category.y + h(T.Category)} ${T.Category.x + 110},${T.Product.y}`, '1–n', T.Category.x + 118, T.Product.y - 6);
+  rel(`${T.Product.x + 110},${T.Product.y + h(T.Product)} ${T.Product.x + 110},${T.ProductVariant.y}`, '1–n', T.Product.x + 118, T.ProductVariant.y - 6);
+
+  // database labels
+  g.append(svgEl('text', { class: 'db-label', x: 40, y: 30, style: 'fill: var(--neon)' }, 'Shop database · neondb'));
+  g.append(svgEl('rect', { x: 905, y: 400, width: 250, height: 170, rx: 12, style: 'fill: none; stroke: var(--render); stroke-dasharray: 5 4' }));
+  g.append(svgEl('text', { class: 'db-label', x: 920, y: 425, style: 'fill: var(--render)' }, 'CMS database · cms'));
+
+  for (const [name, t] of Object.entries(tables)) {
+    const tg = svgEl('g', { class: `tbl ${t.db}` });
+    const height = h(t);
+    tg.append(svgEl('rect', { class: 'body', x: t.x, y: t.y, width: W, height, rx: 8 }));
+    tg.append(svgEl('rect', { class: 'head', x: t.x + 1, y: t.y + 1, width: W - 2, height: 24, rx: 7 }));
+    tg.append(svgEl('text', { class: 'name', x: t.x + 10, y: t.y + 17 }, name));
+    t.f.forEach((field, i) => {
+      tg.append(svgEl('text', { class: `f${field.includes('→') ? ' fk' : ''}`, x: t.x + 10, y: t.y + 42 + i * rowH }, field));
+    });
+    g.append(tg);
+  }
+})();
+
+/* =================================================================== glossary */
+document.querySelector('#glossaryTable tbody').innerHTML = GLOSSARY.map(([t, m, w]) =>
+  `<tr><td><b>${esc(t)}</b></td><td>${esc(m)}</td><td>${esc(w)}</td></tr>`).join('');
+
+/* =================================================================== shared mechanisms */
+document.getElementById('mech').innerHTML = MECH.map((m) => `
+  <article class="panel"><h3>${esc(m.h)}</h3><div class="file">${esc(m.f)}</div><p>${esc(m.p)}</p></article>`).join('');
+</script>

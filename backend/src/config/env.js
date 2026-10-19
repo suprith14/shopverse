@@ -33,6 +33,9 @@ const envSchema = z.object({
   // Shared demo accounts (their logins are public in the README): nobody can change their password,
   // reset it, or block/delete them, so the next visitor can still log in. Comma-separated emails.
   // Empty = protect nothing (a real store).
+  // Password for the project guide in the store (My account → Project guide). Optional: without it
+  // the guide stays locked for everyone.
+  GUIDE_PASSWORD: z.string().min(8, 'at least 8 characters').optional(),
   PROTECTED_ACCOUNTS: z
     .string()
     .default('demo@shopverse.dev,admin@shopverse.dev')

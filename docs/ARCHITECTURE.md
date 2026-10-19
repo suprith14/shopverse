@@ -45,6 +45,7 @@ Vercel, API on Render). See [DEPLOYMENT.md](DEPLOYMENT.md).
 | Database tables | `backend/prisma/schema.prisma` (then `npm run db:migrate`) |
 | Demo products and users | `backend/prisma/seed.js` |
 | Tests | `backend/tests/unit/` (no database), `backend/tests/api/` (test database) |
+| **Visual project guide** (system map, step-by-step flows, code, data) | Store → My account → **Project guide** (password: `GUIDE_PASSWORD`). Source: `backend/src/modules/guide/system-map.html` |
 
 **Search tip:** in VS Code, `Ctrl+P` opens a file by name (type `cart.service`), and `Ctrl+Shift+F` searches
 every file for a piece of text you can see on the page.

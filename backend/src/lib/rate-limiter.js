@@ -58,4 +58,5 @@ export const limiters = {
   loginPerIp: new RateLimiter(30, 15 * MINUTE), // "password spraying": many accounts, one machine
   resetRequestsPerIp: new RateLimiter(10, 15 * MINUTE), // "send me a code" requests
   resetFailuresPerIp: new RateLimiter(20, 15 * MINUTE), // wrong reset codes across any accounts
+  guidePerUser: new RateLimiter(5, 15 * MINUTE), // wrong project-guide passwords (My account → Project guide)
 };

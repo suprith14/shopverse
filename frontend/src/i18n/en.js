@@ -392,4 +392,15 @@ export default {
     cameraFailed: "The camera couldn't be started. Another app may be using it.",
     chooseInstead: 'Choose a file instead',
   },
+  guide: {
+    title: 'Project guide',
+    teaser: 'How ShopVerse is built: system map, step-by-step flows, code and data. Password protected.',
+    open: 'Open guide',
+    intro: 'Enter the guide password to see how ShopVerse is built.',
+    password: 'Guide password',
+    unlock: 'Unlock guide',
+    lock: 'Lock guide',
+    tooMany: 'Too many wrong passwords. Try again in {{time}}.',
+    englishOnly: 'The guide is in English.',
+  },
 };

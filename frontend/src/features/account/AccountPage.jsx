@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { Camera, KeyRound, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
+import { BookOpen, Camera, KeyRound, Lock, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
+import { Link } from 'react-router';
 import { Button } from '@/components/ui/Button';
 import { PhotoPicker } from '@/components/ui/PhotoPicker';
 import { Input } from '@/components/ui/Input';
@@ -37,7 +38,26 @@ export function AccountPage() {
       <DetailsSection key={`${profile.name}|${profile.phone}|${profile.dateOfBirth}`} profile={profile} />
       <AddressBook profile={profile} />
       <PasswordSection />
+      <GuideSection />
     </div>
+  );
+}
+
+// Link to the password-protected project guide (/account/guide)
+function GuideSection() {
+  const { t } = useTranslation();
+  return (
+    <Section title={t('guide.title')} icon={BookOpen}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="max-w-md text-sm text-slate-600">{t('guide.teaser')}</p>
+        <Link
+          to="/account/guide"
+          className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-surface px-4 py-2.5 text-sm font-medium hover:bg-slate-50"
+        >
+          <Lock className="size-4" /> {t('guide.open')}
+        </Link>
+      </div>
+    </Section>
   );
 }
 

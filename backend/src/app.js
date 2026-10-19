@@ -14,6 +14,7 @@ import { reviewsRouter } from './modules/reviews/reviews.routes.js';
 import { adminRouter } from './modules/admin/admin.routes.js';
 import { profileRouter } from './modules/profile/profile.routes.js';
 import { invoicesRouter } from './modules/invoices/invoices.routes.js';
+import { guideRouter } from './modules/guide/guide.routes.js';
 import { handleStripeWebhook } from './modules/webhooks/stripe-webhook.js';
 
 // Builds the Express app. Kept separate from server.ts so tests can import the app
@@ -44,6 +45,7 @@ export function createApp() {
   app.use('/api/reviews', reviewsRouter);
   app.use('/api/profile', profileRouter);
   app.use('/api/invoices', invoicesRouter); // public invoice verification (QR code)
+  app.use('/api/guide', guideRouter); // password-protected project guide (My account)
   app.use('/api/admin', adminRouter); // everything admin-only, see modules/admin/
 
   app.use(notFoundHandler);

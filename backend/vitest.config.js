@@ -14,6 +14,7 @@ const baseEnv = {
   JWT_ACCESS_SECRET: 'test-secret-at-least-16-chars',
   STRIPE_SECRET_KEY: 'sk_test_dummy',
   BCRYPT_ROUNDS: '4', // fast hashing in tests (production keeps 12, see src/config/env.js)
+  GUIDE_PASSWORD: 'test-guide-password',
   PROTECTED_ACCOUNTS: 'shared-demo@test.dev', // the tests' own "demo account" (see tests/api/protected.test.js)
 };
 

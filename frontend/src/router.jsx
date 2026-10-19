@@ -82,6 +82,20 @@ export const router = createBrowserRouter([
           };
         },
       },
+      // The project guide, behind a password the server checks (see backend modules/guide)
+      {
+        path: '/account/guide',
+        lazy: async () => {
+          const { GuidePage } = await import('@/features/guide/GuidePage');
+          return {
+            element: (
+              <RequireAuth>
+                <GuidePage />
+              </RequireAuth>
+            ),
+          };
+        },
+      },
       // Public (no RequireAuth): opened by scanning an invoice's QR code.
       {
         path: '/verify/:token',
