@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router';
-import { Ban, CheckCircle2, Search, Trash2 } from 'lucide-react';
+import { Ban, CheckCircle2, Lock, Search, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
 import { formatDateTime, formatPrice, formatTimeAgo, getErrorMessage } from '@/lib/format';
@@ -90,7 +90,9 @@ export function CustomersPage() {
       {data && data.items.length === 0 && <EmptyState title="No customers found" hint="Try another tab or search." />}
 
       {data && data.items.length > 0 && (
-        <div className={`overflow-x-auto rounded-xl border border-slate-200 bg-white ${isFetching ? 'opacity-60' : ''}`}>
+        <div
+          className={`overflow-x-auto rounded-xl border border-slate-200 bg-white ${isFetching ? 'opacity-60' : ''}`}
+        >
           <table className="w-full text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
               <tr>
@@ -121,31 +123,44 @@ export function CustomersPage() {
                   <td className="px-4 py-3 text-right">{c.orderCount}</td>
                   <td className="px-4 py-3 text-right font-medium">{formatPrice(c.totalSpent)}</td>
                   <td className="px-4 py-3">
-                    <div className="flex justify-end gap-1">
-                      {c.blockedAt ? (
+                    {c.protected ? (
+                      // A shared demo account (PROTECTED_ACCOUNTS on the server): its login is public,
+                      // so it can't be blocked or deleted. The server refuses anyway; this explains why.
+                      <div className="flex justify-end">
+                        <span
+                          className="flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600"
+                          title="Shared demo account: it can't be blocked or deleted, so every visitor can log in with it."
+                        >
+                          <Lock className="size-3" aria-hidden /> Demo account
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex justify-end gap-1">
+                        {c.blockedAt ? (
+                          <Button
+                            variant="ghost"
+                            onClick={async () => {
+                              await unblock(c.id).unwrap();
+                              setNotice(`${c.name} was unblocked and can log in again.`);
+                            }}
+                          >
+                            Unblock
+                          </Button>
+                        ) : (
+                          <Button variant="ghost" onClick={() => setBlocking(c)} aria-label={`Block ${c.name}`}>
+                            <Ban className="size-4" /> Block
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
-                          onClick={async () => {
-                            await unblock(c.id).unwrap();
-                            setNotice(`${c.name} was unblocked and can log in again.`);
-                          }}
+                          onClick={() => setDeleting(c)}
+                          aria-label={`Delete ${c.name}`}
+                          className="text-red-600 hover:bg-red-50"
                         >
-                          Unblock
+                          <Trash2 className="size-4" />
                         </Button>
-                      ) : (
-                        <Button variant="ghost" onClick={() => setBlocking(c)} aria-label={`Block ${c.name}`}>
-                          <Ban className="size-4" /> Block
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        onClick={() => setDeleting(c)}
-                        aria-label={`Delete ${c.name}`}
-                        className="text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
-                    </div>
+                      </div>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -215,7 +230,9 @@ function CustomerStatus({ customer }) {
     return (
       <span title={customer.blockedReason ?? undefined}>
         <span className="rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700">Blocked</span>
-        {customer.blockedReason && <span className="mt-0.5 block text-xs text-slate-500">{customer.blockedReason}</span>}
+        {customer.blockedReason && (
+          <span className="mt-0.5 block text-xs text-slate-500">{customer.blockedReason}</span>
+        )}
       </span>
     );
   }

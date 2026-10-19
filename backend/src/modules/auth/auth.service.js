@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import { env } from '../../config/env.js';
 import { prisma } from '../../lib/prisma.js';
 import { badRequest, conflict, forbidden, notFound, unauthorized } from '../../lib/http-error.js';
-import { ACCOUNT_SUSPENDED } from '../../lib/account-status.js';
+import { ACCOUNT_SUSPENDED, PROTECTED_PASSWORD, isProtectedAccount } from '../../lib/account-status.js';
 import { REFRESH_TOKEN_TTL_MS, generateRefreshToken, hashToken, signAccessToken } from './auth.tokens.js';
 
 // Never send passwordHash to the client.
@@ -90,6 +90,7 @@ export async function logout(rawToken) {
 export async function changePassword(userId, { currentPassword, newPassword }) {
   const user = await prisma.user.findUnique({ where: { id: userId } });
   if (!user) throw notFound('User not found');
+  if (isProtectedAccount(user.email)) throw forbidden(PROTECTED_PASSWORD);
   // 400, not 401: a 401 means "session expired" to the frontend, which would try to refresh it.
   if (!(await bcrypt.compare(currentPassword, user.passwordHash))) {
     throw badRequest('Validation failed', [

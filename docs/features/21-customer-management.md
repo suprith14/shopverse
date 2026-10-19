@@ -14,6 +14,22 @@ Admin → **Customers**: see who is online, block and unblock customers, delete 
 
 Admins can't be blocked or deleted from this page (404), and an admin can't block or delete themselves (400).
 
+## Shared demo accounts
+
+The demo logins are public (README), so one visitor could lock out the next. Accounts listed in
+`PROTECTED_ACCOUNTS` (default: `demo@shopverse.dev`, `admin@shopverse.dev`):
+
+| Action | Result |
+|---|---|
+| Change password (My account) | 403 "This is a shared demo account: its password can't be changed." |
+| Forgot password | Same reply as always, but no code is created or emailed |
+| Reset password with a code | 403 |
+| Admin: block / delete | 403 "…it can't be blocked or deleted."; the Customers page shows a **Demo account** badge instead of the buttons (`protected: true` in the list) |
+| Log in, shop, addresses, profile details | Work normally |
+
+The server is the real guard; the badge only explains it. Tests: `backend/tests/api/protected.test.js`
+(the tests use their own protected account, `shared-demo@test.dev`).
+
 ## Files
 
 - `backend/prisma/schema.prisma`: `User.blockedAt`, `User.blockedReason`, `User.deletedAt`

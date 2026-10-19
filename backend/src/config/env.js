@@ -30,6 +30,18 @@ const envSchema = z.object({
   EMAIL_FROM: z.string().default('ShopVerse <onboarding@resend.dev>'),
   // Outside production, EVERY email goes to this address instead of the real recipient.
   EMAIL_DEV_REDIRECT_TO: z.email().optional(),
+  // Shared demo accounts (their logins are public in the README): nobody can change their password,
+  // reset it, or block/delete them, so the next visitor can still log in. Comma-separated emails.
+  // Empty = protect nothing (a real store).
+  PROTECTED_ACCOUNTS: z
+    .string()
+    .default('demo@shopverse.dev,admin@shopverse.dev')
+    .transform((list) =>
+      list
+        .split(',')
+        .map((email) => email.trim().toLowerCase())
+        .filter(Boolean),
+    ),
   // Profile photo uploads (Cloudinary). Optional: without them, photo upload is switched off.
   CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
   CLOUDINARY_API_KEY: z.string().min(1).optional(),

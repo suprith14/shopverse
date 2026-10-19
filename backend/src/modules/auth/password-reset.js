@@ -4,7 +4,7 @@ import { prisma } from '../../lib/prisma.js';
 import { env } from '../../config/env.js';
 import { sendEmail } from '../../lib/email.js';
 import { badRequest, forbidden } from '../../lib/http-error.js';
-import { ACCOUNT_SUSPENDED } from '../../lib/account-status.js';
+import { ACCOUNT_SUSPENDED, PROTECTED_PASSWORD, isProtectedAccount } from '../../lib/account-status.js';
 
 // "Forgot password" with a 6-digit code sent by email.
 //
@@ -29,7 +29,8 @@ const sameHash = (a, b) => a.length === b.length && timingSafeEqual(Buffer.from(
 export async function requestReset(email) {
   const user = await prisma.user.findUnique({ where: { email }, select: { id: true, name: true, email: true } });
   // Unknown email: do nothing, but answer exactly as if it worked (no "account enumeration").
-  if (!user) return;
+  // Demo accounts: same, no code is sent (their password can't be reset anyway).
+  if (!user || isProtectedAccount(user.email)) return;
 
   const recent = await prisma.passwordResetCode.findFirst({
     where: { userId: user.id, createdAt: { gt: new Date(Date.now() - RESEND_COOLDOWN_MS) } },
@@ -78,6 +79,7 @@ const INVALID = () =>
 export async function resetWithCode(email, code, newPassword) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw INVALID(); // same message as a wrong code: no hint whether the email exists
+  if (isProtectedAccount(user.email)) throw forbidden(PROTECTED_PASSWORD);
 
   const reset = await prisma.passwordResetCode.findFirst({
     where: { userId: user.id, usedAt: null, expiresAt: { gt: new Date() } },

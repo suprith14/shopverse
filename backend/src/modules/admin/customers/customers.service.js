@@ -1,6 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { prisma } from '../../../lib/prisma.js';
-import { badRequest, notFound } from '../../../lib/http-error.js';
+import { badRequest, forbidden, notFound } from '../../../lib/http-error.js';
+import { PROTECTED_ACCOUNT, isProtectedAccount } from '../../../lib/account-status.js';
 
 // "Online" = made a logged-in request in the last 15 minutes. lastSeenAt is written at most every
 // 5 minutes (lib/activity.js), so this is precise to about 5 minutes: same rule as the dashboard.
@@ -59,6 +60,7 @@ export async function listCustomers(query) {
     items: users.map(({ _count, ...u }) => ({
       ...u,
       online: Boolean(u.lastSeenAt && u.lastSeenAt >= since),
+      protected: isProtectedAccount(u.email), // the admin page shows "Demo" instead of Block/Delete
       orderCount: _count.orders,
       totalSpent: spentBy[u.id] ?? 0,
     })),
@@ -76,10 +78,16 @@ async function findCustomer(id) {
   return user;
 }
 
+async function findChangeableCustomer(id) {
+  const user = await findCustomer(id);
+  if (isProtectedAccount(user.email)) throw forbidden(PROTECTED_ACCOUNT);
+  return user;
+}
+
 // Block: no login, no checkout, no password reset. Their sessions are deleted now, so they're
 // logged out as soon as their current access token expires (15 minutes at most).
 export async function blockCustomer(id, reason) {
-  await findCustomer(id);
+  await findChangeableCustomer(id);
   await prisma.$transaction([
     prisma.user.update({ where: { id }, data: { blockedAt: new Date(), blockedReason: reason || null } }),
     prisma.refreshToken.deleteMany({ where: { userId: id } }),
@@ -99,7 +107,7 @@ export async function unblockCustomer(id) {
 //    "right to erasure" asks for, within the legal duty to keep invoices.
 //    (Orders keep their address snapshot: an invoice must show where it was delivered.)
 export async function deleteCustomer(id) {
-  const user = await findCustomer(id);
+  const user = await findChangeableCustomer(id);
   const orderCount = await prisma.order.count({ where: { userId: id } });
 
   if (orderCount === 0) {
