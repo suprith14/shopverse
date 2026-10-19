@@ -1,5 +1,7 @@
 // Chart colours by ROLE, in one place. Values come from a validated data-viz palette:
 // the series blue passes the lightness, chroma and 3:1 contrast checks on our white cards.
+// export = other files can import this
+// const = a name for a value that is never reassigned
 export const chart = {
   series: '#2a78d6', // the one data colour (every chart here shows a single series)
   grid: '#e1e0d9', // hairline gridlines: recessive, so data stands out
@@ -12,7 +14,12 @@ export const chart = {
 };
 
 // Compact money for axes: 1234567 cents -> "$12.3k"
+// export = other files can import this
+// const = a name for a value that is never reassigned
+// => = an arrow function (a short function)
 export const compactMoney = (cents) =>
+  // new = create an object from a class (e.g. new Date())
+  // Intl = the browser's built-in formatting for dates, numbers and names per language
   new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
@@ -21,5 +28,11 @@ export const compactMoney = (cents) =>
   }).format(cents / 100);
 
 // "2026-10-16" -> "Oct 16" (dates from the API are UTC days)
+// export = other files can import this
+// const = a name for a value that is never reassigned
+// => = an arrow function (a short function)
 export const shortDate = (isoDay) =>
+  // new = create an object from a class (e.g. new Date())
+  // Date = a point in time
+  // `text ${x}` = a template string: text with values inserted
   new Date(`${isoDay}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });

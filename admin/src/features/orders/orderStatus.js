@@ -1,4 +1,6 @@
 // Admin wording focuses on what to DO: "Paid" orders are the ones waiting to be shipped.
+// export = other files can import this
+// const = a name for a value that is never reassigned
 export const statusStyles = {
   PENDING: { label: 'Awaiting payment', className: 'bg-amber-100 text-amber-800' },
   PAID: { label: 'Paid · to ship', className: 'bg-blue-100 text-blue-800' },
@@ -9,4 +11,6 @@ export const statusStyles = {
 };
 
 // Order of the status tabs on the orders page: the work queue first.
+// export = other files can import this
+// const = a name for a value that is never reassigned
 export const statusTabs = ['PAID', 'SHIPPED', 'DELIVERED', 'PENDING', 'CANCELLED', 'REFUNDED'];
