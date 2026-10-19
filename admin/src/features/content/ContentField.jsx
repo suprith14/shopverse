@@ -13,14 +13,54 @@ import { useSignBannerUploadMutation } from './contentApi';
 export function ContentField({ field, path = field.name, value, errors, onChange }) {
   if (field.kind === 'list') return <ListField field={field} path={path} value={value} errors={errors} onChange={onChange} />;
   if (field.kind === 'image') return <ImageField field={field} value={value} error={errors[path]} onChange={onChange} />;
+  if (field.kind === 'text' && field.localized) {
+    return <LocalizedField field={field} path={path} value={value} errors={errors} onChange={onChange} />;
+  }
   return <InputField field={field} path={path} value={value} error={errors[path]} onChange={onChange} />;
+}
+
+// A translated text field: { en, kn }. English is required where the field is; Kannada is optional
+// and the store shows English wherever it's empty. Each box is an ordinary InputField (counter,
+// "Use default", errors at "<path>.en" / "<path>.kn").
+const LANGUAGE_BOXES = [
+  { code: 'en', label: 'English' },
+  { code: 'kn', label: 'ಕನ್ನಡ · Kannada (optional)' },
+];
+
+function LocalizedField({ field, path, value, errors, onChange }) {
+  const current = typeof value === 'string' ? { en: value, kn: '' } : (value ?? { en: '', kn: '' });
+  return (
+    <fieldset className="space-y-2">
+      <legend className="text-sm font-medium text-slate-700">{field.label}</legend>
+      {field.help && <p className="text-xs text-slate-500">{field.help}</p>}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {LANGUAGE_BOXES.map(({ code, label }) => (
+          <InputField
+            key={code}
+            field={{
+              ...field,
+              label,
+              help: undefined,
+              default: field.default?.[code] ?? '',
+              optional: code === 'kn' || field.optional,
+            }}
+            path={`${path}.${code}`}
+            value={current[code] ?? ''}
+            error={errors[`${path}.${code}`]}
+            onChange={(text) => onChange({ ...current, [code]: text })}
+            lang={code}
+          />
+        ))}
+      </div>
+    </fieldset>
+  );
 }
 
 const inputClass = (error) =>
   `w-full rounded-lg border bg-white px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100 ${error ? 'border-red-400' : 'border-slate-300'}`;
 
 // text, link, number
-function InputField({ field, path, value, error, onChange }) {
+function InputField({ field, path, value, error, onChange, lang }) {
   const id = `content-${path}`;
   const hintId = `${id}-hint`;
   const showDefault = field.default !== '' && value !== field.default;
@@ -48,6 +88,7 @@ function InputField({ field, path, value, error, onChange }) {
       <Tag
         id={id}
         rows={field.multiline ? 3 : undefined}
+        lang={lang}
         maxLength={field.max}
         required={!field.optional}
         placeholder={field.kind === 'link' ? '/shop?category=sneakers' : field.optional ? 'Optional' : undefined}

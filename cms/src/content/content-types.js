@@ -11,20 +11,30 @@ import { bannerPublicId } from '../lib/cloudinary.js';
 // To add a field: add it here with a default, then use it in the store. No database migration
 // is needed: each type's fields are stored together as JSON.
 
+// Languages for text. English is required where the field is; Kannada is always optional, and
+// the store falls back to English wherever it's empty.
+export const LANGUAGES = ['en', 'kn'];
+
 // Field kinds. The admin form draws a matching input for each one.
-//   text    a line or a paragraph (multiline); optional: true allows it to be empty
+//   text    a line or a paragraph (multiline); optional: true allows it to be empty.
+//           Localized by default: stored as { en: '...', kn: '...' }. localized: false = one value
+//           for every language (e.g. the brand name). `kn` = the Kannada default.
 //   number  a whole number between min and max
 //   image   an uploaded banner image (a URL in OUR Cloudinary banners folder)
 //   link    a page of the store, e.g. /shop?category=sneakers
 //   list    up to `maxItems` items, each with its own fields (e.g. carousel slides)
-const text = (label, { max = 80, default: value = '', help, multiline = false, optional = false }) => ({
+const text = (
+  label,
+  { max = 80, default: value = '', kn = '', help, multiline = false, optional = false, localized = true },
+) => ({
   kind: 'text',
   label,
   max,
-  default: value,
+  default: localized ? { en: value, kn } : value,
   help,
   multiline,
   optional,
+  localized,
 });
 const number = (label, { min, max, default: value, help }) => ({ kind: 'number', label, min, max, default: value, help });
 const image = (label, { help } = {}) => ({ kind: 'image', label, default: '', help });
@@ -44,10 +54,16 @@ export const contentTypes = {
     label: 'Brand',
     description: 'The store name and the browser tab title.',
     fields: {
-      name: text('Store name', { max: 40, default: 'ShopVerse', help: 'Shown in the header and tab titles.' }),
+      name: text('Store name', {
+        max: 40,
+        default: 'ShopVerse',
+        localized: false, // a brand name isn't translated
+        help: 'Shown in the header and tab titles.',
+      }),
       defaultTitle: text('Default tab title', {
         max: 70,
         default: 'ShopVerse: sneakers, electronics, books & home decor',
+        kn: 'ShopVerse: ಸ್ನೀಕರ್ಸ್, ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್, ಪುಸ್ತಕಗಳು ಮತ್ತು ಮನೆ ಅಲಂಕಾರ',
         help: 'Tab title on the home page. Google shows it in search results (keep it under 60 characters).',
       }),
     },
@@ -57,17 +73,30 @@ export const contentTypes = {
     label: 'Home page',
     description: 'The banner at the top of the home page and the section headings.',
     fields: {
-      heroEyebrow: text('Banner: small text above the title', { max: 30, default: 'New season' }),
-      heroTitle: text('Banner: title', { max: 60, default: 'Everything you love, in one place.' }),
+      heroEyebrow: text('Banner: small text above the title', { max: 30, default: 'New season', kn: 'ಹೊಸ ಸೀಸನ್' }),
+      heroTitle: text('Banner: title', {
+        max: 60,
+        default: 'Everything you love, in one place.',
+        kn: 'ನಿಮಗೆ ಇಷ್ಟವಾದ ಎಲ್ಲವೂ, ಒಂದೇ ಕಡೆ.',
+      }),
       heroText: text('Banner: text', {
         max: 200,
         multiline: true,
         default: 'Sneakers, gadgets, books and home decor. Smart search, verified reviews and secure checkout.',
+        kn: 'ಸ್ನೀಕರ್ಸ್, ಗ್ಯಾಜೆಟ್‌ಗಳು, ಪುಸ್ತಕಗಳು ಮತ್ತು ಮನೆ ಅಲಂಕಾರ. ಸ್ಮಾರ್ಟ್ ಹುಡುಕಾಟ, ದೃಢೀಕೃತ ವಿಮರ್ಶೆಗಳು ಮತ್ತು ಸುರಕ್ಷಿತ ಚೆಕ್‌ಔಟ್.',
       }),
-      heroCtaLabel: text('Banner: button text', { max: 30, default: 'Start shopping' }),
-      categoriesHeading: text('Categories heading', { max: 40, default: 'Shop by category' }),
-      featuredHeading: text('Featured products heading', { max: 40, default: 'Featured products' }),
-      viewAllLabel: text('"View all" link text', { max: 20, default: 'View all' }),
+      heroCtaLabel: text('Banner: button text', { max: 30, default: 'Start shopping', kn: 'ಶಾಪಿಂಗ್ ಪ್ರಾರಂಭಿಸಿ' }),
+      categoriesHeading: text('Categories heading', {
+        max: 40,
+        default: 'Shop by category',
+        kn: 'ವರ್ಗಗಳ ಪ್ರಕಾರ ಖರೀದಿಸಿ',
+      }),
+      featuredHeading: text('Featured products heading', {
+        max: 40,
+        default: 'Featured products',
+        kn: 'ವಿಶೇಷ ಉತ್ಪನ್ನಗಳು',
+      }),
+      viewAllLabel: text('"View all" link text', { max: 20, default: 'View all', kn: 'ಎಲ್ಲವನ್ನೂ ನೋಡಿ' }),
       featuredCount: number('Featured products to show', { min: 4, max: 16, default: 8 }),
     },
   },
@@ -109,6 +138,7 @@ export const contentTypes = {
         max: 200,
         multiline: true,
         default: 'ShopVerse, a portfolio project. Payments run in Stripe test mode.',
+        kn: 'ShopVerse, ಒಂದು ಪೋರ್ಟ್‌ಫೋಲಿಯೋ ಪ್ರಾಜೆಕ್ಟ್. ಪಾವತಿಗಳು Stripe ಟೆಸ್ಟ್ ಮೋಡ್‌ನಲ್ಲಿ ನಡೆಯುತ್ತವೆ.',
       }),
     },
   },
@@ -122,6 +152,7 @@ export const contentTypes = {
         multiline: true,
         default:
           'Waking up the server. This demo runs on free hosting that sleeps when idle, so the first load can take up to a minute.',
+        kn: 'ಸರ್ವರ್ ಎಚ್ಚರಗೊಳ್ಳುತ್ತಿದೆ. ಈ ಡೆಮೊ ಬಳಕೆಯಿಲ್ಲದಾಗ ನಿದ್ರಿಸುವ ಉಚಿತ ಹೋಸ್ಟಿಂಗ್‌ನಲ್ಲಿ ನಡೆಯುತ್ತದೆ, ಹಾಗಾಗಿ ಮೊದಲ ಲೋಡ್‌ಗೆ ಒಂದು ನಿಮಿಷದವರೆಗೆ ಬೇಕಾಗಬಹುದು.',
         help: 'Shown at the top of the page when a request has taken more than 4 seconds.',
       }),
     },
@@ -130,9 +161,28 @@ export const contentTypes = {
 
 export const typeNames = Object.keys(contentTypes);
 
-// { name: 'ShopVerse', defaultTitle: '...' }
+// { name: 'ShopVerse', defaultTitle: { en: '...', kn: '...' } }
 export const defaultsFor = (type) =>
   Object.fromEntries(Object.entries(contentTypes[type].fields).map(([key, field]) => [key, field.default]));
+
+// A localized value from older data is a plain string (saved before Kannada existed): treat it as
+// the English text. Applied to saved data when reading and to input when saving, inside lists too.
+const toLocalized = (value) =>
+  typeof value === 'string' ? { en: value, kn: '' } : { en: value?.en ?? '', kn: value?.kn ?? '' };
+
+export function normalizeValues(fields, values) {
+  return Object.fromEntries(
+    Object.entries(values ?? {}).map(([key, value]) => {
+      const field = fields[key];
+      if (!field) return [key, value];
+      if (field.kind === 'text' && field.localized) return [key, toLocalized(value)];
+      if (field.kind === 'list' && Array.isArray(value)) {
+        return [key, value.map((item) => normalizeValues(field.fields, item))];
+      }
+      return [key, value];
+    }),
+  );
+}
 
 // Zod schema for saving a type: every field present, within its limits, and NOTHING else
 // (strictObject rejects unknown keys, so a typo or an old form can't sneak junk into the database).
@@ -158,10 +208,11 @@ function fieldSchema(field) {
         .strictObject(Object.fromEntries(Object.entries(field.fields).map(([key, f]) => [key, fieldSchema(f)])))
         // A button needs both its text and where it goes
         .superRefine((value, ctx) => {
-          if ('buttonLabel' in value && Boolean(value.buttonLabel) !== Boolean(value.buttonLink)) {
+          const label = typeof value.buttonLabel === 'object' ? value.buttonLabel?.en : value.buttonLabel;
+          if ('buttonLabel' in value && Boolean(label) !== Boolean(value.buttonLink)) {
             ctx.addIssue({
               code: 'custom',
-              path: [value.buttonLabel ? 'buttonLink' : 'buttonLabel'],
+              path: label ? ['buttonLink'] : ['buttonLabel', 'en'],
               message: 'Fill in both the button text and its link, or neither',
             });
           }
@@ -170,7 +221,11 @@ function fieldSchema(field) {
     }
     default: {
       const textSchema = z.string().trim().max(field.max, `At most ${field.max} characters`);
-      return field.optional ? textSchema : textSchema.min(1, 'Required');
+      const english = field.optional ? textSchema : textSchema.min(1, 'Required');
+      if (!field.localized) return english;
+      // { en, kn }: English as required as the field is; Kannada always optional (empty = use English).
+      // A plain string (an older client) is accepted as English.
+      return z.preprocess(toLocalized, z.strictObject({ en: english, kn: textSchema }));
     }
   }
 }

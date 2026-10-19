@@ -1,6 +1,6 @@
 import { prisma } from '../lib/prisma.js';
 import { badRequest, notFound } from '../lib/http-error.js';
-import { contentTypes, defaultsFor, describeFields, schemaFor, typeNames } from './content-types.js';
+import { contentTypes, defaultsFor, describeFields, normalizeValues, schemaFor, typeNames } from './content-types.js';
 import { bannerPublicId, deleteImage } from '../lib/cloudinary.js';
 
 function assertType(type) {
@@ -12,7 +12,15 @@ function assertType(type) {
 function merge(type, data) {
   const defaults = defaultsFor(type);
   const saved = Object.fromEntries(Object.entries(data ?? {}).filter(([key]) => key in defaults));
-  return { ...defaults, ...saved };
+  // Older saved text was a plain string: read it as English (see normalizeValues).
+  const values = { ...defaults, ...normalizeValues(contentTypes[type].fields, saved) };
+  // Saved before Kannada existed but never changed from the default English? Then the default
+  // Kannada still fits: use it, so an untouched field isn't left untranslated.
+  for (const [key, field] of Object.entries(contentTypes[type].fields)) {
+    const value = values[key];
+    if (field.localized && !value.kn && value.en === field.default.en) values[key] = { ...value, kn: field.default.kn };
+  }
+  return values;
 }
 
 // PUBLIC: all content, ready for the store: { brand: {...}, home: {...}, footer: {...}, notices: {...} }

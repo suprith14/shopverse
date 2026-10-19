@@ -59,6 +59,11 @@ The file never passes through our servers, and a changed signature (other folder
 
 **Settings:** `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` in `cms/.env` and on Render (`shopverse-cms`), the same values as the shop API. Without them, uploading answers 503.
 
+## Languages
+
+Text fields are **localized**: stored as `{ en, kn }` (English required where the field is, Kannada optional).
+Images, links and numbers are shared. See [22-dark-mode-and-kannada.md](22-dark-mode-and-kannada.md#kannada-cms-text-step-3).
+
 ## When the database is asleep
 
 Neon suspends the CMS database after 5 idle minutes, and the first connection after that can fail (P1001). `cms/src/lib/prisma.js` retries any query that couldn't **connect** up to 3 times (after 1 s, 2 s, 4 s: exponential backoff). That's safe because a query whose connection failed never ran. If it still fails, the API answers **503** with `Retry-After: 10` (temporarily unavailable), not 500.

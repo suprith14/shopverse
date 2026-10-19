@@ -1,12 +1,12 @@
 # Feature 22: Dark Mode + Kannada (store)
 
-**Status:** 🚧 Steps 1 (dark mode) and 2 (Kannada store text) done. Step 3 (Kannada CMS text) next.
+**Status:** ✅ Done: dark mode, Kannada store text, Kannada CMS text.
 
 | Step | What | Status |
 |---|---|---|
 | 1 | Dark mode: System / Light / Dark switch in the header | ✅ |
 | 2 | Kannada for the store's own text: header, home, shop, product, reviews, cart, checkout, orders, wishlist, login/register/reset, account, onboarding, invoice check, 404 (323 keys) | ✅ |
-| 3 | Kannada for CMS text (home page, banner, footer): English + Kannada per field, edited in admin | ⏳ |
+| 3 | Kannada for CMS text (home page, banner slides, footer, notices): English + Kannada per field, edited in admin | ✅ |
 
 ## Dark mode
 
@@ -61,6 +61,21 @@ same key; components call `t('product.addToCart')`. Missing Kannada keys fall ba
 
 **Terms:** shopping words use the loanwords Kannada shoppers see on Indian stores (ಕಾರ್ಟ್, ಆರ್ಡರ್, ವಿಶ್‌ಲಿಸ್ಟ್).
 
+## Kannada CMS text (step 3)
+
+**Localized fields** (the approach Contentful and Sanity use): each CMS text field is stored as `{ en, kn }`.
+Images, links and numbers are shared, so a banner image is uploaded once, not per language. The brand name is
+`localized: false` (one value).
+
+- **Admin:** each text field shows two boxes, *English* and *ಕನ್ನಡ · Kannada (optional)*, each with its own counter,
+  "Use default" and errors (`slides.0.title.kn`).
+- **Validation:** English is required where the field is; Kannada is always optional; both have the length limit.
+- **Store:** `/cms/content` sends both languages. `useSiteContent()` picks the reader's language and falls back to
+  English when the Kannada box is empty, so switching language is instant (no new request).
+- **Older data:** text saved before this as a plain string is read as English (`normalizeValues`). If it was never
+  changed from the default English, the default Kannada is used too, so untouched fields aren't left untranslated.
+- **Defaults** (CMS and `site.js`) include Kannada for every text.
+
 ## Why these choices
 
 | Choice | Alternatives | Why |
@@ -70,6 +85,9 @@ same key; components call `t('product.addToCart')`. Missing Kannada keys fall ba
 | Inline script before paint | Set the class from React | React runs after the first paint: dark-mode users would see a white flash |
 | `react-i18next` | A hand-written dictionary + hook; FormatJS (react-intl) | The most used React i18n library: plurals, values, `<Trans>` for links inside sentences, fallbacks. react-intl is equally good; i18next is simpler to start with |
 | Text in JS files (`en.js`, `kn.js`) | JSON files; a translation service (Crowdin, Lokalise) | Comments for translators, and no extra service. A service is worth it with many languages and professional translators |
+| Localized fields `{ en, kn }` | A whole copy of each content type per language | Images, links and numbers stay shared; only text differs. A copy per language would mean uploading every banner twice |
+| English fallback for empty Kannada | Required Kannada | Content can go live in English first and be translated later, without ever showing an empty box |
+| Both languages in one response | `?lang=kn` per request | Switching language needs no new request, and the CDN caches one response instead of one per language |
 | Show the other language in its own script | A flag, or "Language" | Flags are countries, not languages; a reader of only Kannada recognises "ಕನ್ನಡ" |
 | System → Light → Dark cycle | A dropdown | One small icon in a crowded header; the tooltip says what the next click does |
 
