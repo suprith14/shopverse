@@ -26,6 +26,14 @@ export default {
     closeMenu: 'ಮೆನು ಮುಚ್ಚಿ',
     admin: 'ನಿರ್ವಾಹಕ',
   },
+  footer: {
+    shop: 'ಅಂಗಡಿ',
+    allProducts: 'ಎಲ್ಲಾ ಉತ್ಪನ್ನಗಳು',
+    account: 'ನಿಮ್ಮ ಖಾತೆ',
+    checkout: 'ಸುರಕ್ಷಿತ ಚೆಕ್‌ಔಟ್',
+    copyright: '© {{year}} {{brand}}',
+    backToTop: 'ಮೇಲಕ್ಕೆ ಹೋಗಿ',
+  },
   theme: {
     system: 'ಸಿಸ್ಟಮ್ ಥೀಮ್',
     light: 'ಲೈಟ್ ಥೀಮ್',

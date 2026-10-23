@@ -105,3 +105,18 @@ Neon suspends the CMS database after 5 idle minutes, and the first connection af
 2. How can the CMS trust an admin without having a users table?
 3. What does `stale-while-revalidate` do?
 4. Why is the content validated on the server even though the admin form already limits the length?
+
+## Footer content
+
+| Field | Shown in the footer |
+|---|---|
+| `tagline` | Under the logo (brand column) |
+| `paymentNote` | The "Secure checkout" column |
+| `testCardNote` | The grey box with the Stripe test card; **empty = hidden** (e.g. once real payments are on) |
+| `text` | The bottom line, after "© year brand" |
+
+The footer's **links are not content**: the Shop column lists the real categories (the same cached
+request as the category tabs) and the Account column follows the login state, so the footer can
+never point to a page or category that doesn't exist. New fields need no migration: saved content
+is merged over the defaults, in the CMS (`merge`) and again in the store (`useSiteContent`), so
+either service can be deployed first.
