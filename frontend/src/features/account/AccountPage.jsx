@@ -5,7 +5,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { BookOpen, Camera, KeyRound, Lock, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
+import { BookA, BookOpen, Camera, ClipboardList, ExternalLink, GraduationCap, KeyRound, Lock, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/Button';
 import { PhotoPicker } from '@/components/ui/PhotoPicker';
@@ -45,6 +45,7 @@ export function AccountPage() {
       <AddressBook profile={profile} />
       <PasswordSection />
       <GuideSection />
+      <TrainingSection />
     </div>
   );
 }
@@ -64,6 +65,58 @@ function GuideSection() {
         </Link>
       </div>
     </Section>
+  );
+}
+
+// Opens the training portal in a NEW TAB (target="_blank"), so the account page stays where it
+// was. rel="noopener" stops the new tab from controlling this one through window.opener.
+function TrainingSection() {
+  const { t } = useTranslation();
+  return (
+    <Section title={t('training.title')} icon={GraduationCap}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="max-w-md text-sm text-slate-600">{t('training.teaser')}</p>
+        <a
+          href="/training"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800"
+        >
+          <ExternalLink className="size-4" aria-hidden /> {t('training.open')}
+          <span className="sr-only">{t('training.newTab')}</span>
+        </a>
+      </div>
+      {/* The two source documents the training is based on */}
+      <div className="mt-4 grid gap-3 border-t border-slate-200 pt-4 sm:grid-cols-3">
+        <DocButton href="/training/spec" icon={ClipboardList} title={t('training.spec')} hint={t('training.specHint')} />
+        <DocButton href="/training/guide" icon={BookOpen} title={t('training.guide')} hint={t('training.guideHint')} />
+        <DocButton href="/training/glossary" icon={BookA} title={t('training.glossary')} hint={t('training.glossaryHint')} />
+      </div>
+    </Section>
+  );
+}
+
+// A document tile: lifts slightly on hover, presses down on tap; opens in a new tab
+function DocButton({ href, icon: Icon, title, hint }) {
+  const { t } = useTranslation();
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group flex items-start gap-3 rounded-lg border border-slate-200 p-3 transition duration-200 hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-md active:translate-y-0 active:shadow-none motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+    >
+      <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white dark:text-brand-300">
+        <Icon className="size-4" aria-hidden />
+      </span>
+      <span className="min-w-0">
+        <span className="flex items-center gap-1 text-sm font-medium">
+          {title} <ExternalLink className="size-3 text-slate-400" aria-hidden />
+          <span className="sr-only">{t('training.newTab')}</span>
+        </span>
+        <span className="mt-0.5 block text-xs text-slate-500">{hint}</span>
+      </span>
+    </a>
   );
 }
 
