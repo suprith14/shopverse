@@ -67,6 +67,14 @@ describe('admin: product import template', () => {
     await workbook.xlsx.load(res.body);
     expect(workbook.getWorksheet('Products').getRow(1).getCell(1).value).toBe('Handle');
     expect(workbook.getWorksheet('Categories')).toBeDefined();
+    // the example rows use an "example-" handle, never a real product's
+    expect(workbook.getWorksheet('Products').getRow(2).getCell(1).value).toBe('example-notebook');
+
+    // uploading the template unchanged is refused with a clear reason, and saves nothing
+    const check = await upload(admin.accessToken, res.body, { dryRun: true }).expect(200);
+    expect(check.body.errorCount).toBeGreaterThan(0);
+    expect(check.body.errors[0].message).toMatch(/example/);
+    expect(await prisma.product.findUnique({ where: { slug: 'example-notebook' } })).toBeNull();
   });
 
   test('customers cannot use the import', async () => {
@@ -78,10 +86,15 @@ describe('admin: product import template', () => {
 });
 
 describe('admin: product import', () => {
-  test('a file that is not .xlsx is refused', async () => {
+  test('a file that is not .xlsx is refused, with the reason', async () => {
     const admin = await createUser({ role: 'ADMIN' });
-    const res = await upload(admin.accessToken, Buffer.from('name,price\nLamp,10'), { dryRun: true });
-    expect(res.status).toBe(400);
+    const csv = await upload(admin.accessToken, Buffer.from('name,price\nLamp,10'), { dryRun: true }).expect(400);
+    expect(csv.body.error.message).toMatch(/CSV/);
+    const xls = Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0, 0, 0]);
+    const old = await upload(admin.accessToken, xls, { dryRun: true }).expect(400);
+    expect(old.body.error.message).toMatch(/password|\.xls/);
+    const broken = await upload(admin.accessToken, Buffer.from('PK\u0003\u0004 not really a zip'), { dryRun: true }).expect(400);
+    expect(broken.body.error.message).toMatch(/not an Excel workbook|damaged/);
   });
 
   test('dry run reports what would change and saves nothing; import then saves it all', async () => {

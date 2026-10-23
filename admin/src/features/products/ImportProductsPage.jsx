@@ -64,6 +64,13 @@ export function ImportProductsPage() {
 
   const changes = preview && preview.summary.products.create + preview.summary.products.update + preview.summary.categories.create + preview.summary.categories.update;
   const requestError = error && error.status !== 422 ? getErrorMessage(error) : null;
+  // the same button sits in the "file is valid" banner (where the eye already is) and in step 3
+  const importButton =
+    preview && preview.errorCount === 0 && changes > 0 ? (
+      <Button onClick={confirm} loading={isLoading && !checking}>
+        <Upload className="size-4" /> Import {preview.summary.products.create + preview.summary.products.update} products
+      </Button>
+    ) : null;
 
   return (
     <div className="max-w-5xl space-y-5">
@@ -104,7 +111,7 @@ export function ImportProductsPage() {
         </div>
         {fileError && <ErrorState message={fileError} />}
         {requestError && <ErrorState message={requestError} />}
-        {preview && <PreviewResult result={preview} />}
+        {preview && <PreviewResult result={preview} action={importButton} />}
       </Step>
 
       <Step number={3} title="Import">
@@ -119,10 +126,8 @@ export function ImportProductsPage() {
               </Link>
             </div>
           </div>
-        ) : preview && preview.errorCount === 0 && changes > 0 ? (
-          <Button onClick={confirm} loading={isLoading && !checking}>
-            <Upload className="size-4" /> Import {preview.summary.products.create + preview.summary.products.update} products
-          </Button>
+        ) : importButton ? (
+          importButton
         ) : (
           <p className="text-sm text-slate-500">
             {preview && preview.errorCount > 0
@@ -164,7 +169,7 @@ const ACTION_STYLE = {
   unchanged: 'bg-slate-100 text-slate-600',
 };
 
-function PreviewResult({ result }) {
+function PreviewResult({ result, action }) {
   const [showAll, setShowAll] = useState(false);
   const products = showAll ? result.products : result.products.slice(0, 25);
   return (
@@ -180,9 +185,12 @@ function PreviewResult({ result }) {
           )}
         </div>
       ) : (
-        <p className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 p-3 text-sm font-medium text-green-800">
-          <CheckCircle2 className="size-5" /> The file is valid: {summaryText(result.summary)}.
-        </p>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-green-200 bg-green-50 p-3">
+          <p className="flex flex-1 items-center gap-2 text-sm font-medium text-green-800">
+            <CheckCircle2 className="size-5 shrink-0" /> The file is valid: {summaryText(result.summary)}. Nothing is saved yet.
+          </p>
+          {action}
+        </div>
       )}
 
       {result.warnings.length > 0 && (

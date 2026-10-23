@@ -139,6 +139,15 @@ function validateRows(sheetRows, errors) {
     }
     if (!v.handle) continue;
 
+    // the template's example rows: refuse them, so they never become a real product
+    if (v.handle.startsWith('example-')) {
+      if (!products.has(v.handle)) {
+        errors.push({ ...where, column: 'Handle', message: 'This is the template\'s example row. Delete the rows whose handle starts with "example-".' });
+        products.set(v.handle, null);
+      }
+      continue;
+    }
+
     let product = products.get(v.handle);
     if (!product) {
       // first row of this product: the product columns are required here
@@ -157,6 +166,7 @@ function validateRows(sheetRows, errors) {
     }
   }
   if (sheetRows.products.length === 0) errors.push({ sheet: 'Products', row: 2, column: 'Handle', message: 'The Products sheet is empty' });
+  for (const [handle, product] of products) if (!product) products.delete(handle);
   return { categories, products };
 }
 

@@ -1,11 +1,12 @@
-// /account ("My account"): profile photo, details, delivery addresses, password, project guide.
+// /account ("My account"): profile photo, details, delivery addresses, password, project guide,
+// training and the tax calculator.
 // Each card is its own small component below (PhotoSection, DetailsSection, AddressBook,
 // PasswordSection, GuideSection) with its own save button, loading state and errors, so a
 // problem in one never blocks the others. All data: useProfile() -> GET /api/profile.
 
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { BookA, BookOpen, Camera, ClipboardList, ExternalLink, GraduationCap, KeyRound, Lock, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
+import { BookA, BookOpen, Calculator, Camera, ClipboardList, ExternalLink, GraduationCap, KeyRound, Lock, MapPin, Plus, Trash2, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from '@/components/ui/Button';
 import { PhotoPicker } from '@/components/ui/PhotoPicker';
@@ -46,6 +47,7 @@ export function AccountPage() {
       <PasswordSection />
       <GuideSection />
       <TrainingSection />
+      <TaxSection />
     </div>
   );
 }
@@ -91,6 +93,27 @@ function TrainingSection() {
         <DocButton href="/training/spec" icon={ClipboardList} title={t('training.spec')} hint={t('training.specHint')} />
         <DocButton href="/training/guide" icon={BookOpen} title={t('training.guide')} hint={t('training.guideHint')} />
         <DocButton href="/training/glossary" icon={BookA} title={t('training.glossary')} hint={t('training.glossaryHint')} />
+      </div>
+    </Section>
+  );
+}
+
+// The income tax calculator, also in a new tab (it is a full page of its own, like the training)
+function TaxSection() {
+  const { t } = useTranslation();
+  return (
+    <Section title={t('tax.title')} icon={Calculator}>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="max-w-md text-sm text-slate-600">{t('tax.teaser')}</p>
+        <a
+          href="/tax-calculator"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-700 active:bg-brand-800"
+        >
+          <ExternalLink className="size-4" aria-hidden /> {t('tax.open')}
+          <span className="sr-only">{t('training.newTab')}</span>
+        </a>
       </div>
     </Section>
   );

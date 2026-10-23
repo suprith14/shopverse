@@ -128,8 +128,10 @@ export const HR_LEGAL_MODULES = [
           'Tell your employer your choice and investments early in the year (investment declaration), and submit proofs when asked, so the monthly TDS is right.',
           'File your income tax return by the due date using Form 16, your AIS (annual information statement) and Form 26AS.',
           'Slabs and limits change in most Budgets: use the official income tax portal\'s calculator for the current year.',
+          'From 1 April 2026 the **Income-tax Act 2025** replaced the 1961 Act and renumbered the sections (80C is now section 123), and the **Income-tax Rules 2026** raised several salary limits: HRA at 50% of basic in 8 cities (Bengaluru, Hyderabad, Pune and Ahmedabad added), meal cards ₹200 a meal in both regimes, employer gifts ₹15,000.',
         ],
       },
+      { type: 'callout', kind: 'shopverse', text: 'Try your own numbers in the **Income tax calculator** (My account, or /tax-calculator): old vs new regime side by side, CTC to in-hand, alerts for the hidden traps in your figures, and a comparison of two job offers.' },
       { type: 'h', text: 'Freelancing and side income' },
       {
         type: 'list',

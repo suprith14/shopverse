@@ -8,12 +8,17 @@ preview, import. Hundreds of products and variants in one go, created or updated
 ## How it works for the admin
 
 1. **Download template**: an `.xlsx` with the current categories filled in, a Category dropdown,
-   two example rows and help on every column header.
+   two example rows and help on every column header. The example rows use the handle
+   `example-notebook`; the import refuses any `example-` handle with "delete the example rows",
+   so a left-over example can never create or overwrite a real product.
 2. **Choose file → Check file**: a *dry run*. The API reads and checks every row and answers with
    what *would* happen: new / updated / unchanged products, variants and categories, plus every
    problem with its sheet, row and column ("Products row 14, Price (USD): a price between 0.01
    and 100000"). Nothing is saved.
-3. **Import N products**: only shown for a clean preview of the same file. Everything is saved in
+   A file that is not an `.xlsx` gets the real reason, checked from its first bytes: CSV/text,
+   old `.xls` or password-protected (both start `D0 CF 11 E0`), PDF, Word, PowerPoint, `.ods`,
+   or a damaged/incomplete file.
+3. **Import N products**: shown right inside the green "file is valid" banner (and in step 3), only for a clean preview of the same file. Everything is saved in
    one transaction: all rows or none.
 
 ## The file format

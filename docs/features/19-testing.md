@@ -1,12 +1,27 @@
 # Feature 19: Automated Tests + CI
 
-**Status:** 🚧 In progress. Steps 1 (unit tests) and 2 (API tests) done: 41 tests passing.
+**Status:** ✅ Done. Backend unit + API tests, frontend tax tests, and CI on every push and pull request.
 
 | Step | What | Status |
 |---|---|---|
 | 1 | Vitest + unit tests for logic that needs no database | ✅ |
 | 2 | API tests (Supertest) against a separate test database | ✅ |
-| 3 | GitHub Actions: lint → test → build on every push, plus a README badge | ⏳ |
+| 3 | GitHub Actions (`.github/workflows/ci.yml`): test and build every app on every push to `main` and every pull request | ✅ |
+
+## CI (GitHub Actions)
+
+`.github/workflows/ci.yml` runs four jobs in parallel. Each installs from its lockfile with `npm ci`.
+
+| Job | Steps |
+|---|---|
+| backend | Postgres 17 service container → `prisma generate` → `npm test` (unit + API; global-setup migrates the empty database) |
+| frontend | `npm test` (tax calculator, 43 tests) → `npm run build` |
+| admin | `npm run lint` → `npm run build` |
+| cms | `npm run build` (`prisma generate` validates the schema) |
+
+- **No secrets and no Neon.** The API tests get a throwaway Postgres that exists only for that job, so CI can never touch a real database. The Neon wake-up delays that made local runs flaky do not exist there.
+- **A newer push cancels the older run** on the same branch (`concurrency`).
+- **To make it a merge gate:** GitHub → Settings → Branches → add a rule for `main` → "Require status checks to pass" → tick the four jobs.
 
 ## How to run
 

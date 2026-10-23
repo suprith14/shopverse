@@ -164,12 +164,45 @@ function readSheet(sheet, columns, errors) {
 
 export class WorkbookError extends Error {}
 
+// Why a file is not a readable .xlsx, in words an admin can act on. Checked from the first bytes
+// (the "magic number"), so a renamed file is caught whatever its extension says.
+// Returns null when the file starts like an .xlsx (a ZIP archive: "PK").
+export function fileTypeProblem(buffer) {
+  if (!Buffer.isBuffer(buffer) || buffer.length < 4) return 'The file is empty. Choose the filled-in template.';
+  const head = buffer.subarray(0, 8);
+  if (head.toString('latin1', 0, 2) === 'PK') return null;
+  if (head.equals(Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]))) {
+    // the old binary format, also used for password-protected .xlsx files
+    return 'This is an old .xls file or a password-protected workbook. In Excel, remove the password (File > Info > Protect Workbook) and save it as "Excel Workbook (.xlsx)".';
+  }
+  if (head.toString('latin1', 0, 4) === '%PDF') return 'This is a PDF, not a spreadsheet. Upload the .xlsx template.';
+  const text = buffer.subarray(0, 512).toString('utf8');
+  if (/^[\x09\x0a\x0d\x20-\x7e\u00a0-\uffff]*$/.test(text) && /[,;\t]/.test(text)) {
+    return 'This looks like a CSV or text file. Open it in Excel and save it as "Excel Workbook (.xlsx)".';
+  }
+  return 'This is not an Excel .xlsx file. Start from the template.';
+}
+
+// A ZIP that ExcelJS could not open: name the usual causes
+function zipProblem(buffer, err) {
+  const names = buffer.toString('latin1');
+  if (names.includes('word/document.xml')) return 'This is a Word document, not a spreadsheet. Upload the .xlsx template.';
+  if (names.includes('ppt/presentation.xml')) return 'This is a PowerPoint file, not a spreadsheet. Upload the .xlsx template.';
+  if (names.includes('application/vnd.oasis.opendocument')) {
+    return 'This is an OpenDocument (.ods) file. Save it as "Excel 2007-365 (.xlsx)" and upload it again.';
+  }
+  if (!names.includes('xl/workbook.xml')) return 'This ZIP file is not an Excel workbook. Upload the .xlsx template.';
+  return `The file looks damaged or incomplete (was the upload or save interrupted?). Save it again in Excel and retry. Details: ${err.message}`;
+}
+
 export async function readWorkbook(buffer) {
+  const problem = fileTypeProblem(buffer);
+  if (problem) throw new WorkbookError(problem);
   const workbook = new ExcelJS.Workbook();
   try {
     await workbook.xlsx.load(buffer);
-  } catch {
-    throw new WorkbookError("This file couldn't be read as an Excel .xlsx file");
+  } catch (err) {
+    throw new WorkbookError(zipProblem(buffer, err));
   }
   const errors = [];
   const productSheet = workbook.getWorksheet('Products');

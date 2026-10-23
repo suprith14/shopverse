@@ -11,6 +11,7 @@ import {
   Bookmark,
   BookmarkCheck,
   Briefcase,
+  Calculator,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -241,8 +242,8 @@ export function TrainingPage() {
           </button>
         )}
 
-        {/* The two source documents and the glossary */}
-        <div className="grid grid-cols-3 gap-2 md:col-span-2 print:hidden">
+        {/* The two source documents, the glossary and the tax calculator */}
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:col-span-2 print:hidden">
           <SourceLink
             to="/training/spec"
             icon={ClipboardList}
@@ -256,6 +257,7 @@ export function TrainingPage() {
             title={t('training.glossary')}
             hint={t('training.glossaryHint')}
           />
+          <SourceLink to="/tax-calculator" icon={Calculator} title={t('tax.title')} hint={t('training.taxHint')} />
         </div>
 
         {/* Phones: a dropdown instead of the sidebar */}

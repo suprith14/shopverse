@@ -51,6 +51,13 @@ export const router = createBrowserRouter([
     },
     hydrateFallbackElement: <Spinner />,
   },
+  // Income tax calculator: its own full page, opened in a new tab from My account. Public: the
+  // figures never leave the browser.
+  {
+    path: '/tax-calculator',
+    lazy: async () => ({ Component: (await import('@/features/tax/TaxCalculatorPage')).TaxCalculatorPage }),
+    hydrateFallbackElement: <Spinner />,
+  },
   {
     element: <RootLayout />,
     // Shown on a first visit straight to a lazy page (e.g. a bookmarked /orders) while its code loads.
