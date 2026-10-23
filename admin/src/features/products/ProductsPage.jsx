@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
-import { AlertTriangle, Plus, Search } from 'lucide-react';
+import { AlertTriangle, FileSpreadsheet, Plus, Search } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, ErrorState, Spinner } from '@/components/ui/States';
 import { formatPrice, getErrorMessage } from '@/lib/format';
@@ -47,11 +47,18 @@ export function ProductsPage() {
           <h1 className="text-2xl font-bold">Products</h1>
           {data && <p className="text-sm text-slate-500">{data.total} products</p>}
         </div>
-        <Link to="/products/new">
-          <Button>
-            <Plus className="size-4" /> New product
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/products/import">
+            <Button variant="secondary">
+              <FileSpreadsheet className="size-4" /> Import from Excel
+            </Button>
+          </Link>
+          <Link to="/products/new">
+            <Button>
+              <Plus className="size-4" /> New product
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Filters */}

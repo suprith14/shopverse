@@ -39,6 +39,7 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 16 | User profile & address book | ✅ | ✅ | [16-profile](./features/16-profile.md) | One-default-slot design, address snapshots, "me" URLs (no IDOR), E.164 phones, baselining |
 | 17 | Store UX improvements | - | ✅ | [17-ux-improvements](./features/17-ux-improvements.md) | Skeletons, toasts with undo, mobile header, scroll restoration, code splitting |
 | 18 | Invoices & payment details | ✅ | ✅ | [18-invoices](./features/18-invoices.md) | Gapless invoice numbers (locked counter row), server-side PDFs, back-fill migration |
+| 23 | Bulk product import (Excel) | ✅ | ✅ | [23-product-import](./features/23-product-import.md) | Idempotent import by natural keys, dry run then apply, all-or-nothing transaction, batch inserts |
 
 ## Change log
 
@@ -108,3 +109,4 @@ Each feature has a doc in [`docs/features/`](./features) explaining what it does
 | 2026-10-19 | Project guide: interactive system map + 9 step-by-step flows (open store, login, checkout, expiry, banner, forgot password, search, deploy, inside one request), code map, data diagram, shared mechanisms, hosts, run locally, glossary. Served in the store at My account → Project guide, unlocked by `GUIDE_PASSWORD` checked on the server (POST /api/guide/unlock: login required, 5 tries / 15 min, no-store), shown in a sandboxed iframe in the store theme. 4 API tests (58 total). |
 | 2026-10-19 | Project guide: "Shared mechanisms" replaced by a Strategies catalogue: 45 cards (security, data integrity, performance, reliability, architecture, UX), each with problem, strategy, real code, file and why-not-the-alternative; filter chips + search. |
 | 2026-10-19 | Store code comments: 40 files, 269 comment lines (a header per file saying what it is, where it is used and where its data comes from; why-comments on hooks, effects and non-obvious JSX). Comment-only change, verified: every added diff line is a comment, nothing removed; build passes. |
+| 2026-10-19 | Bulk product import: admin Products > Import from Excel. Template download (category dropdown, header help), dry-run preview with every problem by sheet/row/column, then all-or-nothing import in one transaction (batch inserts). Matched by handle + SKU (re-import updates, never duplicates); stock only set for new variants; never deletes. Sample catalog docs/sample-data/shopverse-catalog.xlsx: 15 categories, 323 real products, 764 variants (real book covers, placeholders for the rest). exceljs (uuid override for a moderate advisory). 8 API tests (66 total). |

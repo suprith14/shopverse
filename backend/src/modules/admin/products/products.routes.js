@@ -11,12 +11,15 @@ import {
   variantSchema,
 } from './products.schema.js';
 import * as controller from './products.controller.js';
+import { productImportRouter } from './import/import.routes.js';
 
 // Mounted at /api/admin/products (admin only, checked in admin.routes.ts)
 export const adminProductsRouter = Router();
 
 adminProductsRouter.get('/', validate(listAdminProductsQuery, 'query'), controller.listProducts);
 adminProductsRouter.get('/categories', controller.listCategories);
+// Bulk import from Excel. Before the /:id routes, so "import" isn't read as a product id.
+adminProductsRouter.use('/import', productImportRouter);
 adminProductsRouter.post('/', validate(createProductSchema), controller.createProduct);
 adminProductsRouter.get('/:id', validate(idParams, 'params'), controller.getProduct);
 adminProductsRouter.patch(

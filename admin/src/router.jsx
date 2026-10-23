@@ -5,6 +5,7 @@ import { LoginPage } from '@/features/auth/LoginPage';
 import { RequireAdmin } from '@/features/auth/RequireAdmin';
 import { ProductsPage } from '@/features/products/ProductsPage';
 import { ProductCreatePage, ProductEditPage } from '@/features/products/ProductEditPage';
+import { ImportProductsPage } from '@/features/products/ImportProductsPage';
 import { OrdersPage } from '@/features/orders/OrdersPage';
 import { OrderDetailPage } from '@/features/orders/OrderDetailPage';
 import { ContentPage } from '@/features/content/ContentPage';
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       },
       { path: '/products', element: <ProductsPage /> },
       { path: '/products/new', element: <ProductCreatePage /> },
+      { path: '/products/import', element: <ImportProductsPage /> },
       { path: '/products/:id', element: <ProductEditPage /> },
       { path: '/orders', element: <OrdersPage /> },
       { path: '/orders/:id', element: <OrderDetailPage /> },
