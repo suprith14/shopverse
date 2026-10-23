@@ -11,6 +11,7 @@
   --color-brand-500: #6366f1;
   --color-brand-600: #4f46e5;
   --color-brand-700: #4338ca;
+  --color-brand-800: #3730a3; /* pressed state of primary buttons */
   /* Cards, panels, the header: white in light mode, dark in dark mode (see .dark below).
      Used instead of bg-white, because "white" must stay white for text on buttons. */
   --color-surface: #ffffff;
@@ -90,4 +91,27 @@
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Touch feedback. Phones have no hover (Tailwind 4 only applies hover: on devices with a mouse,
+   so a tapped button never gets "stuck" hovered). Instead every enabled button shows a PRESSED
+   state while the finger is down: a slight shrink, or a dim for people who chose "reduce motion". */
+@layer base {
+  button,
+  [role='button'] {
+    -webkit-tap-highlight-color: transparent; /* replaces the grey flash box with our own feedback */
+    touch-action: manipulation; /* no double-tap-to-zoom delay before the tap registers */
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    button:not(:disabled):active,
+    [role='button']:active {
+      transform: scale(0.96);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    button:not(:disabled):active,
+    [role='button']:active {
+      opacity: 0.7;
+    }
+  }
 }

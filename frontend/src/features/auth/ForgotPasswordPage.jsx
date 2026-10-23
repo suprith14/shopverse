@@ -1,7 +1,7 @@
 import { Trans, useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { MailCheck } from 'lucide-react';
+import { Loader2, MailCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { ErrorState } from '@/components/ui/States';
@@ -151,8 +151,9 @@ function CodeStep({ email, onChangeEmail }) {
               { onSuccess: () => notify.success(t('auth.newCodeSent')) },
             )
           }
-          className="text-brand-600 dark:text-brand-300 hover:underline disabled:opacity-50"
+          className="inline-flex items-center gap-1 text-brand-600 dark:text-brand-300 hover:underline disabled:opacity-50"
         >
+          {resend.isPending && <Loader2 className="size-3.5 animate-spin" />}
           {t('auth.sendNewCode')}
         </button>
       </div>
