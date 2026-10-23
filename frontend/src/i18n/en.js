@@ -26,6 +26,14 @@ export default {
     closeMenu: 'Close menu',
     admin: 'Admin',
   },
+  footer: {
+    shop: 'Shop',
+    allProducts: 'All products',
+    account: 'Your account',
+    checkout: 'Secure checkout',
+    copyright: '© {{year}} {{brand}}',
+    backToTop: 'Back to top',
+  },
   theme: {
     system: 'System theme',
     light: 'Light theme',

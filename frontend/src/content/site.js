@@ -38,9 +38,21 @@ export const siteDefaults = {
     intervalSeconds: 6,
   },
   footer: {
+    tagline: {
+      en: 'Books, gadgets, sneakers, home and more, all in one store.',
+      kn: 'ಪುಸ್ತಕಗಳು, ಗ್ಯಾಜೆಟ್‌ಗಳು, ಸ್ನೀಕರ್‌ಗಳು, ಮನೆ ಮತ್ತು ಇನ್ನಷ್ಟು, ಎಲ್ಲವೂ ಒಂದೇ ಅಂಗಡಿಯಲ್ಲಿ.',
+    },
+    paymentNote: {
+      en: 'Payments are handled by Stripe. Your card details go straight to Stripe and never reach our servers.',
+      kn: 'ಪಾವತಿಗಳನ್ನು Stripe ನಿರ್ವಹಿಸುತ್ತದೆ. ನಿಮ್ಮ ಕಾರ್ಡ್ ವಿವರಗಳು ನೇರವಾಗಿ Stripe ಗೆ ಹೋಗುತ್ತವೆ, ನಮ್ಮ ಸರ್ವರ್‌ಗಳನ್ನು ಎಂದಿಗೂ ತಲುಪುವುದಿಲ್ಲ.',
+    },
+    testCardNote: {
+      en: 'Demo mode: pay with card 4242 4242 4242 4242, any future date and any CVC. No real money is charged.',
+      kn: 'ಡೆಮೊ ಮೋಡ್: 4242 4242 4242 4242 ಕಾರ್ಡ್, ಯಾವುದೇ ಭವಿಷ್ಯದ ದಿನಾಂಕ ಮತ್ತು ಯಾವುದೇ CVC ಬಳಸಿ ಪಾವತಿಸಿ. ನಿಜವಾದ ಹಣ ಕಡಿತವಾಗುವುದಿಲ್ಲ.',
+    },
     text: {
-      en: 'ShopVerse, a portfolio project. Payments run in Stripe test mode.',
-      kn: 'ShopVerse, ಒಂದು ಪೋರ್ಟ್‌ಫೋಲಿಯೋ ಪ್ರಾಜೆಕ್ಟ್. ಪಾವತಿಗಳು Stripe ಟೆಸ್ಟ್ ಮೋಡ್‌ನಲ್ಲಿ ನಡೆಯುತ್ತವೆ.',
+      en: 'A portfolio project. Payments run in Stripe test mode.',
+      kn: 'ಒಂದು ಪೋರ್ಟ್‌ಫೋಲಿಯೋ ಪ್ರಾಜೆಕ್ಟ್. ಪಾವತಿಗಳು Stripe ಟೆಸ್ಟ್ ಮೋಡ್‌ನಲ್ಲಿ ನಡೆಯುತ್ತವೆ.',
     },
   },
   notices: {
