@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { BookA, GraduationCap, Search } from 'lucide-react';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import { PageTitle } from '@/components/layout/PageTitle';
@@ -10,13 +10,15 @@ import { TERMS } from './terms';
 // in the short form, the full form and the meaning ("purchase" finds PO).
 export function GlossaryPage() {
   const { t } = useTranslation();
-  const [query, setQuery] = useState('');
+  const [params] = useSearchParams();
+  // ?q=RFP (from the training search) starts the page filtered to that term
+  const [query, setQuery] = useState(() => params.get('q') ?? '');
 
   const groups = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const matches = TERMS.filter(([term, full, meaning]) => !q || `${term} ${full} ${meaning}`.toLowerCase().includes(q)).sort((a, b) =>
-      a[0].localeCompare(b[0], 'en', { sensitivity: 'base' }),
-    );
+    const matches = TERMS.filter(
+      ([term, full, meaning]) => !q || `${term} ${full} ${meaning}`.toLowerCase().includes(q),
+    ).sort((a, b) => a[0].localeCompare(b[0], 'en', { sensitivity: 'base' }));
     const byLetter = new Map();
     for (const entry of matches) {
       const letter = /[a-z]/i.test(entry[0][0]) ? entry[0][0].toUpperCase() : '#';
@@ -66,7 +68,11 @@ export function GlossaryPage() {
         {/* A-Z jump links */}
         <nav aria-label="A-Z" className="mt-6 flex flex-wrap gap-1">
           {groups.map(([letter]) => (
-            <a key={letter} href={`#letter-${letter}`} className="rounded-md px-2 py-1 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-300">
+            <a
+              key={letter}
+              href={`#letter-${letter}`}
+              className="rounded-md px-2 py-1 text-sm font-medium text-brand-600 hover:bg-brand-50 dark:text-brand-300"
+            >
               {letter}
             </a>
           ))}
@@ -75,10 +81,15 @@ export function GlossaryPage() {
         <div className="mt-6 space-y-8">
           {groups.map(([letter, list]) => (
             <section key={letter} id={`letter-${letter}`} className="scroll-mt-20">
-              <h2 className="border-b border-slate-200 pb-1 text-xl font-bold text-brand-600 dark:text-brand-300">{letter}</h2>
+              <h2 className="border-b border-slate-200 pb-1 text-xl font-bold text-brand-600 dark:text-brand-300">
+                {letter}
+              </h2>
               <dl className="mt-3 grid gap-3 sm:grid-cols-2">
                 {list.map(([term, full, meaning]) => (
-                  <div key={term} className="rounded-lg border border-slate-200 bg-surface p-3 transition hover:border-brand-300 hover:shadow-sm">
+                  <div
+                    key={term}
+                    className="rounded-lg border border-slate-200 bg-surface p-3 transition hover:border-brand-300 hover:shadow-sm"
+                  >
                     <dt>
                       <span className="font-mono text-base font-bold">{term}</span>
                       <span className="ml-2 text-sm text-slate-600">{full}</span>
