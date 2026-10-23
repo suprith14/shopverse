@@ -5,7 +5,7 @@
 import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import { Link } from 'react-router';
-import { AlertTriangle, Lock, Minus, Plus, Trash2 } from 'lucide-react';
+import { AlertTriangle, Loader2, Lock, Minus, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState, ErrorState } from '@/components/ui/States';
 import { ListSkeleton } from '@/components/ui/Skeleton';
@@ -70,7 +70,12 @@ export function CartPage() {
           {t('cart.title')}{' '}
           <span className="text-base font-normal text-slate-500">{t('cart.itemCount', { count: cart.itemCount })}</span>
         </h1>
-        <button onClick={() => clearCart.mutate(undefined)} className="text-sm text-slate-500 hover:text-red-600">
+        <button
+          onClick={() => clearCart.mutate(undefined)}
+          disabled={clearCart.isPending}
+          className="flex items-center gap-1 text-sm text-slate-500 hover:text-red-600 active:text-red-700 disabled:opacity-60"
+        >
+          {clearCart.isPending && <Loader2 className="size-4 animate-spin" />}
           {t('cart.clear')}
         </button>
       </div>
@@ -221,9 +226,10 @@ function CartRow({ item }) {
                 },
               )
             }
-            className="flex items-center gap-1 text-sm text-slate-500 hover:text-red-600"
+            disabled={remove.isPending}
+            className="flex items-center gap-1 text-sm text-slate-500 hover:text-red-600 active:text-red-700 disabled:opacity-60"
           >
-            <Trash2 className="size-4" /> {t('cart.remove')}
+            {remove.isPending ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4" />} {t('cart.remove')}
           </button>
         </div>
       </div>

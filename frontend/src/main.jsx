@@ -45,6 +45,10 @@ createRoot(document.getElementById('root')).render(
 
 // The app has rendered: fade out the start-up loader from index.html, then remove it.
 // requestAnimationFrame waits for the first frame to be painted, so there's no blank flash.
+// iPhone Safari only shows :active (pressed) styles when the page listens for touches. An empty
+// passive listener is the standard switch: it does nothing and never blocks scrolling.
+document.addEventListener('touchstart', () => {}, { passive: true });
+
 requestAnimationFrame(() => {
   const splash = document.getElementById('splash');
   if (!splash) return;

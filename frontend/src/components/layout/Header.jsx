@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router';
-import { Heart, LogOut, Menu, Package, ShoppingBag, ShoppingCart, User as UserIcon, X } from 'lucide-react';
+import { Heart, Loader2, LogOut, Menu, Package, ShoppingBag, ShoppingCart, User as UserIcon, X } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/auth.store';
 import { useLogout } from '@/features/auth/auth.api';
 import { useCart } from '@/features/cart/cart.api';
@@ -104,11 +104,12 @@ export function Header() {
           {loggedIn && (
             <button
               onClick={() => logout.mutate()}
+              disabled={logout.isPending}
               className={`${iconLink} hidden md:block`}
               aria-label={t('nav.logOut')}
               title={t('nav.logOut')}
             >
-              <LogOut className="size-4" />
+              {logout.isPending ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
             </button>
           )}
           {/* Not logged in: a Log in button (hidden while the login check is still running) */}
@@ -155,9 +156,10 @@ export function Header() {
               </MobileLink>
               <button
                 onClick={() => logout.mutate()}
-                className="flex w-full items-center gap-3 rounded-lg px-2 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+                disabled={logout.isPending}
+                className="flex w-full items-center gap-3 rounded-lg px-2 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-60"
               >
-                <LogOut className="size-4" /> {t('nav.logOut')}
+                {logout.isPending ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />} {t('nav.logOut')}
               </button>
             </>
           ) : (
