@@ -70,7 +70,7 @@ export const api = createApi({
   baseQuery: baseQueryWithReauth,
   // Tags connect queries to mutations: when a mutation "invalidates" Product, every query that
   // "provides" Product refetches automatically. (Like invalidateQueries in React Query.)
-  tagTypes: ['Product', 'Order', 'Analytics', 'Customer'],
+  tagTypes: ['Product', 'Category', 'Order', 'Analytics', 'Customer'],
   // Endpoints are added per feature with api.injectEndpoints (see features/*/...Api.ts).
   endpoints: () => ({}),
 });

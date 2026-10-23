@@ -4,6 +4,7 @@ import { api } from '@/app/api';
 // Mutations "invalidate" the tags they affect, and RTK Query refetches whatever is on screen.
 // Stock and prices also feed the dashboard (low stock), so those invalidate Analytics too.
 const LIST = { type: 'Product', id: 'LIST' };
+export const XLSX_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 export const productsApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -21,6 +22,20 @@ export const productsApi = api.injectEndpoints({
       query: () => '/admin/products/categories',
       transformResponse: (res) => res.categories,
       keepUnusedDataFor: 600, // categories rarely change: keep them cached 10 minutes
+      providesTags: ['Category'], // ...but an import can add some: it clears this tag
+    }),
+
+    // Bulk import from Excel. dryRun = only check and report; the file itself is the body.
+    importProducts: build.mutation({
+      query: ({ file, dryRun }) => ({
+        url: '/admin/products/import',
+        method: 'POST',
+        params: { dryRun },
+        body: file,
+        headers: { 'Content-Type': XLSX_TYPE },
+      }),
+      // only a real import changes data; a dry run must not refetch every product list
+      invalidatesTags: (result) => (result?.applied ? [LIST, 'Category', 'Analytics'] : []),
     }),
 
     // Mutations = changing data. Each becomes a hook: const [createProduct, state] = useCreateProductMutation()
@@ -75,4 +90,5 @@ export const {
   useUpdateVariantMutation,
   useDeleteVariantMutation,
   useAdjustStockMutation,
+  useImportProductsMutation,
 } = productsApi;
